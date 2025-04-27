@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css';
 
-
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -27,7 +26,6 @@ const Login = ({ onLoginSuccess }) => {
       });
   
       if (res.ok) {
-        alert('Login successful!');
         onLoginSuccess(); // <-- Add this line!
         navigate('/dashboard'); // Redirect to dashboard after login
       } else {
@@ -38,7 +36,10 @@ const Login = ({ onLoginSuccess }) => {
       setError('Login failed. Try again later.');
     }
   };
-  
+
+  const handleForgotPassword = () => {
+    navigate('/ForgotPassword'); // Navigate to the Forgot Password page
+  };
 
   return (
     <div className="auth-container">
@@ -78,6 +79,12 @@ const Login = ({ onLoginSuccess }) => {
           Don't have an account?{' '}
           <a className="link" onClick={() => navigate('/signup')}>
             Sign Up
+          </a>
+        </p>
+
+        <p className="forgot-password-link">
+          <a className="link" onClick={handleForgotPassword}>
+            Forgot Password?
           </a>
         </p>
       </div>

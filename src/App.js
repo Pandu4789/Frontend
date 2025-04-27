@@ -6,7 +6,7 @@ import Signup from './SignUp';
 import Dashboard from './Dashboard';
 import Calendar from './Calendar';
 import Mohurtam from './Mohurtam';
-
+import ForgotPassword from './ForgotPassword';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -31,6 +31,16 @@ function App() {
         {/* SignUp Route */}
         <Route path="/signup" element={<Signup />} />
 
+        {/* Forgot Password Route */}
+        <Route 
+          path="/ForgotPassword" 
+          element={<ForgotPassword />}
+        />
+        <Route 
+          path="/dashboard" 
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+        
         {/* Dashboard Route */}
         <Route 
           path="/dashboard" 

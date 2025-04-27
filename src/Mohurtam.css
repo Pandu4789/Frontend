@@ -1,0 +1,154 @@
+/* Main Container */
+.mohurtam-container {
+  max-width: 300px;
+  margin: 40px auto;
+  padding: 30px 20px;
+  background: #f0f4f8;
+  border-radius: 16px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Dropdown Group */
+.dropdown-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Dropdown (Select) */
+.dropdown {
+  flex: 1;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.dropdown:focus {
+  border-color: #74ebd5;
+  box-shadow: 0 0 8px rgba(116, 235, 213, 0.5);
+  outline: none;
+}
+
+/* Plus and Minus Actions */
+.dropdown-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.action-btn {
+  background-color: #74ebd5;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  user-select: none;
+}
+
+.action-btn:hover {
+  background-color: #58c0c2;
+  transform: scale(1.1);
+}
+
+/* Find Button */
+.find-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px 0;
+  background: linear-gradient(90deg, #74ebd5, #acb6e5);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.4s, transform 0.2s;
+}
+
+.find-btn:hover {
+  background: linear-gradient(90deg, #58c0c2, #8ca8e5);
+  transform: scale(1.02);
+}
+
+.find-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* No Match Message */
+.no-match {
+  margin-top: 20px;
+  color: #e53e3e;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Results Section */
+.results-section {
+  margin-top: 40px;
+}
+
+/* Results Title */
+.results-section h3 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Results Grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Each Result Card */
+.result-card {
+  background-color: #ffffff;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.result-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Result Card Title */
+.result-card h4 {
+  margin-bottom: 12px;
+  color: #38a169;
+  font-size: 20px;
+}
+
+/* Schedule Info */
+.schedule-info p {
+  margin: 5px 0;
+  font-size: 15px;
+  color: #555;
+}
+
+/* No Schedule Available */
+.no-schedule {
+  color: #f6ad55;
+  font-size: 14px;
+  font-style: italic;
+  margin-top: 10px;
+  text-align: center;
+}

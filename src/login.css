@@ -36,11 +36,10 @@
   
   .input-group {
     margin-bottom: 20px;
-    
   }
   
   .auth-input {
-    width: 100%;
+    width: 90%;
     padding: 12px 15px;
     border: 1px solid #ccc;
     border-radius: 8px;
