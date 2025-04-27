@@ -75,94 +75,102 @@ const SignUp = () => {
   
   return (
     <div className="auth-container">
-      <h2>Sign Up to XXX</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="input-group">
-          <input
-            name="username"
-            type="text"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            name="firstName"
-            type="text"
-            placeholder="First Name"
-            value={form.firstName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            name="lastName"
-            type="text"
-            placeholder="Last Name"
-            value={form.lastName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            name="phone"
-            type="text"
-            placeholder="Phone Number"
-            value={form.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="input-group">
-          <input
-            name="address"
-            type="text"
-            placeholder="Address"
-            value={form.address}
-            onChange={handleChange}
-            required
-          />
-        </div>
+      <div className="auth-card">
+        <h2 className="auth-title">Sign Up</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="input-group">
+            <input
+              name="username"
+              type="text"
+              placeholder="Username"
+              value={form.username}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              name="firstName"
+              type="text"
+              placeholder="First Name"
+              value={form.firstName}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              name="lastName"
+              type="text"
+              placeholder="Last Name"
+              value={form.lastName}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              name="phone"
+              type="text"
+              placeholder="Phone Number"
+              value={form.phone}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              name="address"
+              type="text"
+              placeholder="Address"
+              value={form.address}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          </div>
 
-        {/* React Select multi-select dropdown */}
-        <div className="input-group">
-          <label>Select Poojas:</label>
-          <Select
-            isMulti
-            name="poojas"
-            options={availablePoojas}
-            onChange={handlePoojaChange}
-            value={availablePoojas.filter((pooja) =>
-              form.poojas.some(selected => selected.id === pooja.value)
-            )}            
-            getOptionLabel={(e) => e.label}
-            getOptionValue={(e) => e.value}
-            placeholder="Select Poojas"
-          />
-        </div>
+          {/* React Select multi-select dropdown */}
+          <div className="input-group">
+            <Select
+              isMulti
+              name="poojas"
+              options={availablePoojas}
+              onChange={handlePoojaChange}
+              value={availablePoojas.filter((pooja) =>
+                form.poojas.some(selected => selected.id === pooja.value)
+              )}
+              getOptionLabel={(e) => e.label}
+              getOptionValue={(e) => e.value}
+              placeholder="Select Poojas"
+              className="react-select"
+            />
+          </div>
 
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" className="auth-btn">Sign Up</button>
-      </form>
-      <p className="switch-link">
-        Already have an account? <a onClick={() => navigate('/login')}>Login</a>
-      </p>
+          {error && <p className="error-text">{error}</p>}
+          <button type="submit" className="auth-btn">Sign Up</button>
+        </form>
+
+        <p className="switch-link">
+          Already have an account? <a onClick={() => navigate('/login')} className="link">Login</a>
+        </p>
+      </div>
     </div>
   );
 };
-
 export default SignUp;
