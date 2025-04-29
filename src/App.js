@@ -1,19 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './Navbar';
-import Login from './login'; // Make sure your Login component is imported correctly
+import Login from './login';
 import Signup from './SignUp';
 import Dashboard from './Dashboard';
 import Calendar from './Calendar';
 import Mohurtam from './Mohurtam';
 import ForgotPassword from './ForgotPassword';
+import Profile from './Profile';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('token', 'your-token-here'); // Save token to localStorage
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('token'); // Remove token on logout
+  };
 
   return (
     <Router>
       {/* Show Navbar only when authenticated */}
-      {isAuthenticated && <Navbar />}
+      {isAuthenticated && <Navbar onLogout={handleLogout} />}
 
       <Routes>
         {/* Redirect to Dashboard if already authenticated */}
@@ -25,7 +44,7 @@ function App() {
         {/* Login Route */}
         <Route 
           path="/login" 
-          element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />} 
+          element={<Login onLoginSuccess={handleLoginSuccess} />} 
         />
         
         {/* SignUp Route */}
@@ -34,29 +53,28 @@ function App() {
         {/* Forgot Password Route */}
         <Route 
           path="/ForgotPassword" 
-          element={<ForgotPassword />}
+          element={<ForgotPassword />} 
         />
-        <Route 
-          path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
-        />
+        <Route path="/profile" 
+        element={<Profile />} />
+
         
         {/* Dashboard Route */}
         <Route 
           path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+          element={ <Dashboard /> } 
         />
         
         {/* Calendar Route */}
         <Route 
           path="/calendar" 
-          element={isAuthenticated ? <Calendar /> : <Navigate to="/login" />} 
+          element={<Calendar /> } 
         />
         
         {/* Mohurtam Route */}
         <Route 
           path="/mohurtam" 
-          element={isAuthenticated ? <Mohurtam /> : <Navigate to="/login" />} 
+          element={ <Mohurtam />} 
         />
       </Routes>
     </Router>

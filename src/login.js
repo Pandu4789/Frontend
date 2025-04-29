@@ -26,8 +26,10 @@ const Login = ({ onLoginSuccess }) => {
       });
   
       if (res.ok) {
-        onLoginSuccess(); // <-- Add this line!
-        navigate('/dashboard'); // Redirect to dashboard after login
+        const data = await res.json(); // 👈 get the response body
+        localStorage.setItem('username', data.username); // 👈 save the username
+        onLoginSuccess();
+        navigate('/dashboard');
       } else {
         const msg = await res.text();
         setError(msg);
