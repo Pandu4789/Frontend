@@ -8,6 +8,7 @@ import Calendar from './Calendar';
 import Mohurtam from './Mohurtam';
 import ForgotPassword from './ForgotPassword';
 import Profile from './Profile';
+import Help from './Help';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -57,6 +58,8 @@ function App() {
         />
         <Route path="/profile" 
         element={<Profile />} />
+        <Route path="/help" 
+        element={<Help />} />
 
         
         {/* Dashboard Route */}
