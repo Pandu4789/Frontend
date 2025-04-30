@@ -1,170 +1,202 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 
 const Navbar = ({ onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const profileDropdownRef = useRef(null);  // Reference to the profile dropdown
-  const profileIconRef = useRef(null); // Reference to the profile icon
+  const profileDropdownRef = useRef(null);
+  const profileIconRef = useRef(null);
+  const sideMenuRef = useRef(null);
   const navigate = useNavigate();
-  
-  // Read the profile picture URL from localStorage on page load
+  const location = useLocation();
+
   const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePicture'));
 
-  // Set navbar open state based on sessionStorage on page load
-  useEffect(() => {
-    const storedMenuState = sessionStorage.getItem('navbarIsOpen');
-    if (storedMenuState === 'true') {
-      setIsOpen(true);
-    }
-  }, []);
-
-  const toggleMenu = () => {
-    setIsOpen(prev => {
-      const newState = !prev;
-      sessionStorage.setItem('navbarIsOpen', newState);  // Save the state in sessionStorage
-      return newState;
-    });
-  };
-
+  const toggleMenu = () => setIsOpen((prev) => !prev);
   const toggleProfileDropdown = (event) => {
-    event.stopPropagation(); // Prevent the click from propagating to the document level
-    setProfileOpen(prev => !prev);
+    event.stopPropagation();
+    setProfileOpen((prev) => !prev);
   };
 
   const goToPage = (path) => {
     navigate(path);
-    toggleMenu();
-  };
-
-  const handleLogout = () => {
-    onLogout();  // Call the onLogout function passed as prop
-    sessionStorage.removeItem('navbarIsOpen');  // Clear the navbar state
-    navigate('/login');  // Redirect to login page
+    setIsOpen(false);
     setProfileOpen(false);
   };
 
-  // Close profile dropdown if click is outside of the dropdown
+  const handleLogout = () => {
+    onLogout();
+    navigate('/login');
+    setProfileOpen(false);
+  };
+
+  // Close dropdown or menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target) && !profileIconRef.current.contains(event.target)) {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target) &&
+        !profileIconRef.current.contains(event.target)
+      ) {
         setProfileOpen(false);
+      }
+
+      if (
+        sideMenuRef.current &&
+        !sideMenuRef.current.contains(event.target) &&
+        event.target.id !== 'menu-toggle'
+      ) {
+        setIsOpen(false);
       }
     };
 
-    // Add event listener for click outside
     document.addEventListener('click', handleClickOutside);
-
-    // Cleanup the event listener
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   return (
     <div style={styles.wrapper}>
       <div style={styles.navbar}>
-        <FaBars onClick={toggleMenu} style={styles.icon} />
-        <h3 style={styles.logo}>My App</h3>
-        
-        {/* Profile Icon */}
-        <div 
-          style={styles.profileIconContainer} 
+        <div style={styles.left}>
+          <FaBars
+            onClick={toggleMenu}
+            style={styles.icon}
+            id="menu-toggle"
+          />
+          <h3 style={styles.logo} onClick={() => goToPage('/Dashboard')}>
+            My App
+          </h3>
+        </div>
+
+        <div
+          style={styles.profileIconContainer}
           onClick={toggleProfileDropdown}
-          ref={profileIconRef} // Add ref to the profile icon
+          ref={profileIconRef}
         >
-          {/* Show profile picture if available, else use default icon */}
           {profilePicture ? (
-            <img 
-              src={profilePicture} 
-              alt="Profile" 
-              style={styles.profileIcon} 
-            />
+            <img src={profilePicture} alt="Profile" style={styles.profileIcon} />
           ) : (
             <FaUserCircle style={styles.profileIcon} />
           )}
         </div>
       </div>
 
-      {isOpen && <div style={styles.overlay} onClick={toggleMenu}></div>}
+      {/* Overlay */}
+      {isOpen && <div style={styles.overlay} onClick={() => setIsOpen(false)} />}
 
-      <div style={{
-        ...styles.sideMenu,
-        transform: isOpen ? 'translateX(0)' : 'translateX(-100%)'
-      }}>
-        <div onClick={() => goToPage('/Dashboard')} style={styles.menuItem}>Dashboard</div>
-        <div onClick={() => goToPage('/Calendar')} style={styles.menuItem}>Calendar</div>
-        <div onClick={() => goToPage('/Mohurtam')} style={styles.menuItem}>Mohurtam</div>
+      <div
+        ref={sideMenuRef}
+        style={{
+          ...styles.sideMenu,
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+        }}
+      >
+        <div
+          onClick={() => goToPage('/Dashboard')}
+          style={{
+            ...styles.menuItem,
+            ...(location.pathname === '/Dashboard' ? styles.activeMenuItem : {}),
+          }}
+        >
+          Dashboard
+        </div>
+        <div
+          onClick={() => goToPage('/Calendar')}
+          style={{
+            ...styles.menuItem,
+            ...(location.pathname === '/Calendar' ? styles.activeMenuItem : {}),
+          }}
+        >
+          Calendar
+        </div>
+        <div
+          onClick={() => goToPage('/Mohurtam')}
+          style={{
+            ...styles.menuItem,
+            ...(location.pathname === '/Mohurtam' ? styles.activeMenuItem : {}),
+          }}
+        >
+          Mohurtam
+        </div>
       </div>
 
-      {/* Profile Dropdown */}
       {profileOpen && (
         <div ref={profileDropdownRef} style={styles.dropdown}>
-          <div onClick={() => goToPage('/Profile')} style={styles.dropdownItem}>Profile</div>
-
-          <div onClick={() => goToPage('/Help')} style={styles.dropdownItem}>Help</div>
-          <div onClick={handleLogout} style={{...styles.dropdownItem, color: 'red'}}>Logout</div>
+          <div onClick={() => goToPage('/Profile')} style={styles.dropdownItem}>
+            Profile
+          </div>
+          <div onClick={() => goToPage('/Help')} style={styles.dropdownItem}>
+            Help
+          </div>
+          <div onClick={handleLogout} style={{ ...styles.dropdownItem, color: 'red' }}>
+            Logout
+          </div>
         </div>
       )}
     </div>
   );
 };
 
+
 const styles = {
   wrapper: {
-    position: 'relative', 
+    position: 'relative',
     zIndex: 1,
   },
   navbar: {
     background: '#333',
     color: 'white',
-    padding: '10px',
+    padding: '10px 15px',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     position: 'sticky',
     top: 0,
     zIndex: 2000,
   },
+  left: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+  },
   icon: {
     fontSize: '24px',
     cursor: 'pointer',
-    marginRight: '15px',
   },
   logo: {
     margin: 0,
+    cursor: 'pointer',
+    fontSize: '18px',
   },
   sideMenu: {
-    position: 'absolute', 
-    top: '50px', 
+    position: 'absolute',
+    top: '50px',
     left: 0,
-    width: '200px',
-    height: 'calc(100vh - 50px)',
+    width: '220px',
+    height: '100vh',
     background: '#444',
     paddingTop: '20px',
     display: 'flex',
     flexDirection: 'column',
     transition: 'transform 0.3s ease-in-out',
-    zIndex: 1000,
+    zIndex: 1500,
   },
   menuItem: {
     padding: '15px 20px',
     color: '#fff',
-    textDecoration: 'none',
     borderBottom: '1px solid #555',
+    cursor: 'pointer',
   },
-  overlay: {
-    position: 'fixed',
-    top: '50px', 
-    left: 200,
-    width: '100vw',
-    height: 'calc(100vh - 50px)',
-    backgroundColor: 'rgba(251, 247, 247, 0.3)',
-    zIndex: 1500,
+  activeMenuItem: {
+    backgroundColor: '#555',
+    fontWeight: 'bold',
   },
   profileIconContainer: {
-    marginLeft: 'auto',
     cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileIcon: {
     fontSize: '30px',
@@ -173,17 +205,17 @@ const styles = {
     width: '35px',
     height: '35px',
     objectFit: 'cover',
+    animation: 'pulse 3s infinite ease-in-out',
   },
   dropdown: {
     position: 'absolute',
     top: '50px',
-    right: 0,
+    right: '15px',
     backgroundColor: '#444',
     borderRadius: '5px',
     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
     zIndex: 2000,
     width: '180px',
-    marginTop: '10px',
     animation: 'fadeIn 0.3s ease-out',
   },
   dropdownItem: {
@@ -192,6 +224,29 @@ const styles = {
     cursor: 'pointer',
     borderBottom: '1px solid #555',
   },
+  overlay: {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 1400,
+  },
+  '@media (max-width: 768px)': {
+    sideMenu: {
+      width: '100%',
+      height: '100vh',
+    },
+    overlay: {
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      zIndex: 1400,
+    },
+  }
 };
 
 export default Navbar;

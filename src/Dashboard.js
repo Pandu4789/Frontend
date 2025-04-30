@@ -131,7 +131,7 @@ const Dashboard = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <Box p={3}>
-        <Grid container spacing={2} justifyContent="center"> {/* Spacing adjusted */}
+        <Grid container spacing={5} justifyContent="center"> {/* Spacing adjusted */}
           <Grid item xs={12} sm={4} md={3} lg={2}>
             <StatCard
               title="Today's Bookings"
