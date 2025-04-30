@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 const SignUp = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -16,7 +16,28 @@ const SignUp = () => {
 
   const [availablePoojas, setAvailablePoojas] = useState([]);
   const [error, setError] = useState('');
+  // const [pform, setPForm] = useState({ password: '' });
+  const [showPassword, setShowPassword] = useState(false);
 
+  const phandleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validation logic
+    if (name === 'password') {
+      const isValid =
+        value.length >= 8 &&
+        /[A-Z]/.test(value) &&     // at least one uppercase
+        /[a-z]/.test(value) &&     // at least one lowercase
+        /[0-9]/.test(value) &&     // at least one digit
+        /[^A-Za-z0-9]/.test(value); // at least one special char
+
+      if (!isValid && value.length > 0) {
+        console.log("Password must contain at least 8 characters, including uppercase, lowercase, number, and special character.");
+      }
+    }
+
+    setForm({ ...form, [name]: value });
+  };
   // Fetch available poojas (events)
   useEffect(() => {
     fetch('http://localhost:8080/api/events') // <-- you need this endpoint
@@ -89,17 +110,30 @@ const SignUp = () => {
               required
             />
           </div>
-          <div className="input-group">
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              className="auth-input"
-              required
-            />
-          </div>
+          <div className="input-group" style={{ position: 'relative' }}>
+      <input
+        name="password"
+        type={showPassword ? 'text' : 'password'}
+        placeholder="Password"
+        value={form.password}
+        onChange={phandleChange}
+        className="auth-input"
+        required
+      />
+      <span
+        onClick={() => setShowPassword(!showPassword)}
+        style={{
+          position: 'absolute',
+          right: '10px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          cursor: 'pointer',
+          color: '#555',
+        }}
+      >
+        {showPassword ? <FaEyeSlash /> : <FaEye />}
+      </span>
+    </div>
           <div className="input-group">
             <input
               name="firstName"
@@ -123,16 +157,22 @@ const SignUp = () => {
             />
           </div>
           <div className="input-group">
-            <input
-              name="phone"
-              type="text"
-              placeholder="Phone Number"
-              value={form.phone}
-              onChange={handleChange}
-              className="auth-input"
-              required
-            />
-          </div>
+  <input
+    name="phone"
+    type="text"
+    placeholder="Phone Number"
+    value={form.phone}
+    onChange={(e) => {
+      const onlyNums = e.target.value.replace(/\D/g, '');
+      if (onlyNums.length <= 12) {
+        handleChange({ target: { name: 'phone', value: onlyNums } });
+      }
+    }}
+    className="auth-input"
+    required
+  />
+</div>
+
           <div className="input-group">
             <input
               name="address"
@@ -157,7 +197,7 @@ const SignUp = () => {
               )}
               getOptionLabel={(e) => e.label}
               getOptionValue={(e) => e.value}
-              placeholder="Select Poojas"
+              placeholder="Select Services"
               className="react-select"
             />
           </div>
