@@ -26,21 +26,46 @@ const Login = ({ onLoginSuccess }) => {
       });
   
       if (res.ok) {
-        const data = await res.json(); // 👈 get the response body
-        localStorage.setItem('username', data.username); // 👈 save the username
-        onLoginSuccess();
-        navigate('/dashboard');
+        const data = await res.json();
+
+        // Debugging: Check the data returned from the backend
+        console.log('Response data:', data);
+
+        // Ensure role is returned and handled
+        if (data.role) {
+          // Store role, username, and token in localStorage
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('role', data.role); // Store the role
+          localStorage.setItem('token', data.token); // Store the token (optional)
+
+          onLoginSuccess(data.role); // Pass role to parent component
+          
+          if (data.role === 'priest') {
+            navigate('/dashboard');
+          } else if (data.role === 'customer') {
+            navigate('/events');
+          }
+        } else {
+          setError('Role not found in response');
+        }
       } else {
-        const msg = await res.text();
+        let msg = 'Login failed';
+        try {
+          const errData = await res.json();
+          msg = errData.message || msg;
+        } catch {
+          msg = await res.text();
+        }
         setError(msg);
       }
     } catch (err) {
-      setError('Login failed. Try again later.');
-    }
+      setError('An unexpected error occurred. Please try again later.');
+      console.error(err);
+    }      
   };
 
   const handleForgotPassword = () => {
-    navigate('/ForgotPassword'); // Navigate to the Forgot Password page
+    navigate('/forgotpassword'); // Navigate to the Forgot Password page
   };
 
   return (
