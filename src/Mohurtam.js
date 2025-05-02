@@ -1,163 +1,213 @@
 import React, { useState, useEffect } from "react";
-import "./Mohurtam.css"; // Import your CSS file for styling
+import "./Mohurtam.css";
 
 const Mohurtam = () => {
-    const [selectedValues, setSelectedValues] = useState([""]);
-    const [displayValues, setDisplayValues] = useState([]);
-    const [nakshatramData, setNakshatramData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [submitted, setSubmitted] = useState(false); // Track if "Find" button has been clicked
+  const [selectedNakshatrams, setSelectedNakshatrams] = useState([""]);
+  const [availableNakshatrams, setAvailableNakshatrams] = useState([]);
+  const [resultNakshatrams, setResultNakshatrams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const [schedules, setSchedules] = useState({});
 
-    const [options, setOptions] = useState([]);
+  useEffect(() => {
+    fetch("http://localhost:8080/api/nakshatram")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch nakshatram data.");
+        return res.json();
+      })
+      .then((data) => {
+        setAvailableNakshatrams(data.map((item) => item.name));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Could not load Nakshatram data. Please try again.");
+        setLoading(false);
+      });
+  }, []);
 
-    useEffect(() => {
-        fetch("http://localhost:8080/api/nakshatram")
-            .then(res => res.json())
-            .then(data => {
-                console.log("Fetched data from backend:", data); // ✅ Confirm the response
-                setNakshatramData(data);
-                const names = data.map(n => n.name);
-                setOptions(names);
-                setIsLoading(false);
-            })
-            .catch(err => {
-                console.error("Failed to load Nakshatrams", err);
-                setIsLoading(false);
-            });
-    }, []);
-    
+  const handleDropdownChange = (e, index) => {
+    const updated = [...selectedNakshatrams];
+    updated[index] = e.target.value;
+    setSelectedNakshatrams(updated);
+  };
 
-    const handleChange = (event, index) => {
-        const newSelectedValues = [...selectedValues];
-        newSelectedValues[index] = event.target.value;
-        setSelectedValues(newSelectedValues);
-    };
+  const addDropdown = () => setSelectedNakshatrams((prev) => [...prev, ""]);
+  const removeDropdown = () =>
+    setSelectedNakshatrams((prev) =>
+      prev.length > 1 ? prev.slice(0, prev.length - 1) : prev
+    );
 
-    const handleSubmit = () => {
-        setSubmitted(true); // Set the submitted state to true when Find is clicked
-        
-        const allNextValues = selectedValues.map(selectedValue => {
-            const indexInOptions = options.indexOf(selectedValue);
-            if (indexInOptions === -1) return [];
+  const computeNextNakshatrams = (selected) => {
+    const idx = availableNakshatrams.indexOf(selected);
+    if (idx === -1) return [];
 
-            return [
-                options[(indexInOptions + 1) % options.length],
-                options[(indexInOptions + 3) % options.length],
-                options[(indexInOptions + 5) % options.length],
-                options[(indexInOptions + 7) % options.length],
-                options[(indexInOptions + 8) % options.length],
-                options[(indexInOptions + 10) % options.length],
-                options[(indexInOptions + 12) % options.length],
-                options[(indexInOptions + 14) % options.length],
-                options[(indexInOptions + 16) % options.length],
-                options[(indexInOptions + 17) % options.length],
-                options[(indexInOptions + 19) % options.length],
-                options[(indexInOptions + 21) % options.length],
-                options[(indexInOptions + 23) % options.length],
-                options[(indexInOptions + 25) % options.length],
-                options[(indexInOptions + 26) % options.length]
-            ];
+    const offsets = [1, 3, 5, 7, 8, 10, 12, 14, 16, 17, 19, 21, 23, 25, 26];
+    return offsets
+      .map((offset) => availableNakshatrams[(idx + offset) % availableNakshatrams.length])
+      .filter(Boolean);
+  };
+
+  const findCommonNakshatrams = () => {
+    const allComputed = selectedNakshatrams.map(computeNextNakshatrams);
+    const intersection = allComputed.reduce((acc, curr) =>
+      acc.length === 0 ? curr : acc.filter((x) => curr.includes(x))
+    , []);
+    return intersection;
+  };
+
+  const handleFind = () => {
+    setSubmitted(true);
+    const common = findCommonNakshatrams();
+    setResultNakshatrams(common);
+
+    common.forEach((nakshatram) => {
+      fetch(`http://localhost:8080/api/panchangam/by-nakshatram/${nakshatram}`)
+        .then((res) => res.json())
+        .then((panchangamData) => {
+          // Store initial panchangam
+          setSchedules((prevSchedules) => ({
+            ...prevSchedules,
+            [nakshatram]: { panchangam: panchangamData },
+          }));
+
+          // For each panchangam entry, fetch dailyTimes by date
+          panchangamData.forEach((sch, i) => {
+            fetch(`http://localhost:8080/api/daily-times/by-date/${sch.date}`)
+              .then((res) => {
+                if (!res.ok) {
+                  return res.json().then((err) => { throw new Error(err.error); });
+                }
+                return res.json();
+              })
+              .then((dailyTimesData) => {
+                setSchedules((prevSchedules) => ({
+                  ...prevSchedules,
+                  [nakshatram]: {
+                    ...prevSchedules[nakshatram],
+                    [`dailyTimes_${i}`]: dailyTimesData
+                  }
+                }));
+              })
+              .catch((err) => {
+                console.error("Error fetching daily times:", err);
+                // Optionally store null to indicate missing dailyTimes
+                setSchedules((prevSchedules) => ({
+                  ...prevSchedules,
+                  [nakshatram]: {
+                    ...prevSchedules[nakshatram],
+                    [`dailyTimes_${i}`]: null
+                  }
+                }));
+              });
+          });
+        })
+        .catch((err) => {
+          console.error("Error fetching schedules:", err);
         });
+    });
+  };
 
-        const commonValues = allNextValues.reduce((acc, currentValues) =>
-            acc.length === 0 ? currentValues : acc.filter(value => currentValues.includes(value)),
-            []);
+  if (loading) return <div>Loading Nakshatram data...</div>;
+  if (error) return <div className="error">{error}</div>;
 
-        console.log("Common values:", commonValues);
-        setDisplayValues(commonValues);
-    };
-
-    const getSchedules = (nakshatramName) => {
-        const nakshatram = nakshatramData.find(item => item.name === nakshatramName);
-        return nakshatram ? nakshatram.schedules : [];
-    };
-
-    const addDropdown = () => {
-        setSelectedValues(prev => [...prev, ""]);
-    };
-
-    const removeDropdown = () => {
-        if (selectedValues.length > 1) {
-            setSelectedValues(prev => prev.slice(0, prev.length - 1));
-        }
-    };
-
-    if (isLoading) {
-        return <div>Loading Nakshatram data...</div>;
-    }
-
-    return (
-        <div className="mohurtam-container">
-          {selectedValues.map((selectedValue, index) => (
-            <div key={index} className="dropdown-group">
-              <select
-                value={selectedValue}
-                onChange={(e) => handleChange(e, index)}
-                className="dropdown"
-              >
-                <option value="">-- Choose Nakshatram --</option>
-                {options.map((option, idx) => (
-                  <option key={idx} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-      
-              {index === selectedValues.length - 1 && (
-                <div className="dropdown-actions">
-                  <span className="action-btn" onClick={addDropdown}>
-                    +
-                  </span>
-                  {selectedValues.length > 1 && (
-                    <span className="action-btn" onClick={removeDropdown}>
-                      -
-                    </span>
+  return (
+    <div>
+      {/* Main container for dropdowns and button */}
+      <div className="mohurtam-container">
+        {selectedNakshatrams.map((value, index) => (
+          <div key={index} className="dropdown-group">
+            <select
+              value={value}
+              onChange={(e) => handleDropdownChange(e, index)}
+              className="dropdown"
+            >
+              <option value="">-- Choose Nakshatram --</option>
+              {availableNakshatrams.map((option, idx) => (
+                <option key={idx} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+  
+            {index === selectedNakshatrams.length - 1 && (
+              <div className="dropdown-actions">
+                <span className="action-btn" onClick={addDropdown}>+</span>
+                {selectedNakshatrams.length > 1 && (
+                  <span className="action-btn" onClick={removeDropdown}>-</span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+  
+        <button
+          onClick={handleFind}
+          disabled={selectedNakshatrams.includes("")}
+          className="find-btn"
+        >
+          Find
+        </button>
+  
+        {submitted && resultNakshatrams.length === 0 && (
+          <div className="no-match">
+            <p>No common Mohurtam found for the selected Nakshatrams.</p>
+          </div>
+        )}
+      </div>
+  
+      {/* Results section displayed outside the main container */}
+      {resultNakshatrams.length > 0 && (
+        <div className="results-section">
+          <h3>Available Mohurtams:</h3>
+          <div className="results-grid">
+            {resultNakshatrams.map((name, idx) => {
+              const scheduleData = schedules[name];
+              const panchangamData = scheduleData?.panchangam || [];
+  
+              return (
+                <div key={idx} className="result-card">
+                  <h4>{name}</h4>
+                  {panchangamData.length > 0 ? (
+                    panchangamData.map((sch, i) => {
+                      const dailyTimes = scheduleData[`dailyTimes_${i}`];
+                      return (
+                        <div key={i} className="schedule-info">
+                          <p><strong>Date:</strong> {new Date(sch.date).toLocaleDateString()}</p>
+                          <p><strong>Paksha:</strong> {sch.paksha}</p>
+                          <p><strong>Tithi:</strong> {sch.tithi}</p>
+                          <p><strong>Vaaram:</strong> {sch.vaaram}</p>
+                          <p><strong>Lagnam:</strong> {sch.lagnam}</p>
+                          <p><strong>Mohurtam:</strong> {sch.mohurtam}</p>
+                          <p><strong>Time:</strong> {sch.time}</p>
+                          <p><strong>Notes:</strong> {sch.notes}</p>
+  
+                          {dailyTimes ? (
+                            <div className="daily-times">
+                              <p><strong>Rahukalam:</strong> {dailyTimes.rahukalam}</p>
+                              <p><strong>Yamagandam:</strong> {dailyTimes.yamagandam}</p>
+                              <p><strong>Varjam:</strong> {dailyTimes.varjam}</p>
+                              <p><strong>Durmohurtam:</strong> {dailyTimes.durmohurtam}</p>
+                            </div>
+                          ) : (
+                            <p className="no-daily-times">No daily times found for this date.</p>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="no-schedule">No schedule available for this Nakshatram.</p>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
-      
-          <button
-            onClick={handleSubmit}
-            disabled={selectedValues.includes("")}
-            className="find-btn"
-          >
-            Find
-          </button>
-      
-          {submitted && displayValues.length === 0 && selectedValues.some(val => val !== "") && (
-            <div className="no-match">
-              <p>No Match for the selected Nakshatrams.</p>
-            </div>
-          )}
-      
-          {displayValues.length > 0 && (
-            <div className="results-section">
-              <h3>Available Mohurtams:</h3>
-              <div className="results-grid">
-                {displayValues.map((value, index) => {
-                  const schedules = getSchedules(value);
-                  return (
-                    <div key={index} className="result-card">
-                      <h4>{value}</h4>
-                      {schedules.length > 0 ? (
-                        schedules.map((schedule, scheduleIndex) => (
-                          <div key={scheduleIndex} className="schedule-info">
-                            <p><strong>Date:</strong> {new Date(schedule.date).toLocaleDateString()}</p>
-                            <p><strong>Time:</strong> {schedule.time}</p>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="no-schedule">No schedule available for this Nakshatram.</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+              );
+            })}
+          </div>
         </div>
-      );
-    };
-    export default Mohurtam;
+      )}
+    </div>
+  );
+  
+};
+
+export default Mohurtam;
