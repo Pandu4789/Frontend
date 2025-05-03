@@ -15,6 +15,7 @@ import BookPriest from './BookPriest';
 import Events from './Events';
 import PoojaItems from './PoojaItems';
 import CustomerMohurtam from './CustomerMohurtam';
+import PriestProfile from './PriestProfile';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,6 +81,8 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/priests/:id" element={<PriestProfile />} />
+
 
         {/* Priest Routes */}
         {userRole === 'priest' && (
