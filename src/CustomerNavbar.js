@@ -17,7 +17,7 @@ const CustomerNavbar = ({ onLogout }) => {
     { path: 'events', name: 'Dashboard' },  // Shows "Dashboard", but keeps path /events
     { path: 'book-priest', name: 'Book Priest' },
     { path: 'pooja-items', name: 'Pooja Items' },
-    { path: 'prasadam', name: 'Prasadams' },
+    { path: 'prasadam', name: 'Prasadhams' },
   ];
 
   const styles = {
