@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './login.css';
 
@@ -8,38 +8,54 @@ const Login = ({ onLoginSuccess }) => {
     username: '',
     password: '',
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+
+  // Load saved username if Remember Me was checked
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    if (savedUsername) {
+      setForm(prev => ({ ...prev, username: savedUsername }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleCheckboxChange = (e) => {
+    setRememberMe(e.target.checked);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-  
+
     try {
       const res = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-  
+
       if (res.ok) {
         const data = await res.json();
 
-        // Debugging: Check the data returned from the backend
-        console.log('Response data:', data);
-
-        // Ensure role is returned and handled
         if (data.role) {
-          // Store role, username, and token in localStorage
-          localStorage.setItem('username', data.username);
-          localStorage.setItem('role', data.role); // Store the role
-          localStorage.setItem('token', data.token); // Store the token (optional)
+          // Save remembered username if checkbox is checked
+          if (rememberMe) {
+            localStorage.setItem('rememberedUsername', form.username);
+          } else {
+            localStorage.removeItem('rememberedUsername');
+          }
 
-          onLoginSuccess(data.role); // Pass role to parent component
-          
+          localStorage.setItem('username', data.username);
+          localStorage.setItem('role', data.role);
+          localStorage.setItem('token', data.token);
+
+          onLoginSuccess(data.role);
+
           if (data.role === 'priest') {
             navigate('/dashboard');
           } else if (data.role === 'customer') {
@@ -61,11 +77,11 @@ const Login = ({ onLoginSuccess }) => {
     } catch (err) {
       setError('An unexpected error occurred. Please try again later.');
       console.error(err);
-    }      
+    }
   };
 
   const handleForgotPassword = () => {
-    navigate('/forgotpassword'); // Navigate to the Forgot Password page
+    navigate('/forgotpassword');
   };
 
   return (
@@ -97,6 +113,27 @@ const Login = ({ onLoginSuccess }) => {
               className="auth-input"
             />
           </div>
+
+          {/* Forgot Password below password */}
+          <div className="forgot-password-link-inline">
+            <a className="link" onClick={handleForgotPassword}>
+              Forgot Password?
+            </a>
+          </div>
+
+          {/* Remember Me */}
+          <div className="remember-me">
+            <label>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={handleCheckboxChange}
+                style={{ marginRight: '8px' }}
+              />
+              Remember Me
+            </label>
+          </div>
+
           {error && <p className="error-text">{error}</p>}
 
           <button type="submit" className="auth-btn">Login</button>
@@ -109,14 +146,23 @@ const Login = ({ onLoginSuccess }) => {
           </a>
         </p>
 
-        <p className="forgot-password-link">
-          <a className="link" onClick={handleForgotPassword}>
-            Forgot Password?
-          </a>
-        </p>
+        <div className="guest-link">
+          <button
+            type="button"
+            className="auth-btn guest-btn"
+            onClick={() => {
+              localStorage.setItem('username', 'guest');
+              localStorage.setItem('role', 'customer');
+              onLoginSuccess('customer');
+              navigate('/events');
+            }}
+          >
+            Continue as Guest
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

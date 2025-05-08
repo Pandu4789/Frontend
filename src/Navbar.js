@@ -119,6 +119,16 @@ const Navbar = ({ onLogout }) => {
         >
           Mohurtam
         </div>
+        <div
+  onClick={() => goToPage('/Requests')}
+  style={{
+    ...styles.menuItem,
+    ...(location.pathname === '/Requests' ? styles.activeMenuItem : {}),
+  }}
+>
+  Requests
+</div>
+
       </div>
 
       {profileOpen && (

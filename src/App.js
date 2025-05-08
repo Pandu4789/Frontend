@@ -16,6 +16,7 @@ import Events from './Events';
 import PoojaItems from './PoojaItems';
 import CustomerMohurtam from './CustomerMohurtam';
 import PriestProfile from './PriestProfile';
+import MohurtamRequests from './MuhurtamRequests';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -90,6 +91,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/mohurtam" element={<Mohurtam />} />
+            <Route path="/Requests" element={<MohurtamRequests />} />
           </>
         )}
 

@@ -1,0 +1,38 @@
+.muhurtam-requests-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+  }
+  
+  .notification-bar {
+    margin-bottom: 20px;
+  }
+  
+  .notification-badge {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+  }
+  
+  .requests-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .requests-table th,
+  .requests-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .requests-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .viewed-row {
+    background-color: #e0ffe0;
+  }
+  

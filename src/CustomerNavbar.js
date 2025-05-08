@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaHome, FaUserTie, FaPrayingHands, FaUtensils } from 'react-icons/fa'; // Import icons
 
 const CustomerNavbar = ({ onLogout }) => {
   const navigate = useNavigate(); // Get navigate function for page navigation
@@ -14,21 +15,21 @@ const CustomerNavbar = ({ onLogout }) => {
   };
 
   const links = [
-    { path: 'events', name: 'Dashboard' },  // Shows "Dashboard", but keeps path /events
-    { path: 'book-priest', name: 'Book Priest' },
-    { path: 'pooja-items', name: 'Pooja Items' },
-    { path: 'prasadam', name: 'Prasadhams' },
+    { path: 'events', name: 'Dashboard', icon: <FaHome /> },
+    { path: 'book-priest', name: 'Book Priest', icon: <FaUserTie /> },
+    { path: 'pooja-items', name: 'Pooja Items', icon: <FaPrayingHands /> },
+    { path: 'prasadam', name: 'Prasadhams', icon: <FaUtensils /> },
   ];
+
 
   const styles = {
     navbar: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      background: 'linear-gradient(90deg, #4a00e0, #8e2de2)',
-      padding: '14px 28px',
+      background: '#ECC21A',
+      padding: '1px 28px',
       boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-      borderRadius: '0 0 16px 16px',
     },
     navbarLeft: {
       display: 'flex',
@@ -47,9 +48,11 @@ const CustomerNavbar = ({ onLogout }) => {
       outline: 'none',
     },
     navbarButtonHover: {
-      background: 'linear-gradient(145deg, #ffeb3b, #ff9800)',
       transform: 'scale(1.05)',
       boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    },
+    icon: {
+      fontSize: '20px',
     },
     logoutBtn: {
       background: '#ff4d4d',
@@ -88,6 +91,7 @@ const CustomerNavbar = ({ onLogout }) => {
               e.target.style.boxShadow = 'none';
             }}
           >
+            <span style={styles.icon}>{link.icon}</span>
             {link.name}
           </button>
         ))}

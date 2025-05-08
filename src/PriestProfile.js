@@ -2,13 +2,25 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import './PriestProfile.css';
 
 const PriestProfile = () => {
   const [priest, setPriest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [showMuhurtamModal, setShowMuhurtamModal] = useState(false);
+  const [showBirthDetailsModal, setShowBirthDetailsModal] = useState(false);
+
+  const [nakshatram, setNakshatram] = useState('');
+  const [birthTime, setBirthTime] = useState('');
+  const [birthPlace, setBirthPlace] = useState('');
+
+  const [customer, setCustomer] = useState(null);
+  const [nakshatramList, setNakshatramList] = useState([]);
+
+  const navigate = useNavigate();
   const { id: priestId } = useParams();
 
   useEffect(() => {
@@ -16,26 +28,102 @@ const PriestProfile = () => {
       try {
         const response = await axios.get(`http://localhost:8080/api/auth/priests`);
         const priestData = response.data.find(p => p.id == priestId);
-        if (!priestData) throw new Error("Priest not found");
+        if (!priestData) {
+          throw new Error('Priest not found');
+        }
         setPriest(priestData);
-        setLoading(false);
       } catch (err) {
         console.error('Failed to fetch priest details:', err);
         setError('Error fetching priest details.');
+      } finally {
         setLoading(false);
       }
     };
 
+    const fetchNakshatramList = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/nakshatram');
+        setNakshatramList(response.data);
+      } catch (err) {
+        console.error('Failed to fetch nakshatram list:', err);
+      }
+    };
+
+    const fetchCustomerData = async () => {
+      try {
+        // Dynamically get the username (replace with real user auth, here using localStorage for simplicity)
+        const username = localStorage.getItem('username');
+        const response = await axios.get(`http://localhost:8080/api/profile`, {
+          params: { username }
+        });
+        const data = response.data;
+        setCustomer({
+          name: `${data.firstName} ${data.lastName}`,
+          address: data.address,
+        });
+      } catch (err) {
+        console.error('Failed to fetch customer data:', err);
+        toast.error('Failed to load customer details');
+      }
+    };
+
     fetchPriestData();
+    fetchNakshatramList();
+    fetchCustomerData();
   }, [priestId]);
 
-  if (loading) return <div className="loading-spinner"></div>;
+  const handleSendMuhurtamRequest = async () => {
+    if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address) {
+      toast.error('Please fill in all customer details.');
+      return;
+    }
+  
+    try {
+      const payload = {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address,
+        nakshatram: nakshatram || null,
+        date: birthTime ? birthTime.split('T')[0] : null, // extract date part
+        time: birthTime ? birthTime.split('T')[1] : null, // extract time part
+        place: birthPlace || null
+      };
+  
+      await axios.post('http://localhost:8080/api/muhurtam/request', payload);
+      toast.success(`Muhurtam request sent to Priest: ${priest.firstName} ${priest.lastName}`);
+      setShowMuhurtamModal(false);
+      setNakshatram('');
+      setBirthTime('');
+      setBirthPlace('');
+    } catch (error) {
+      console.error('Failed to send Muhurtam request:', error);
+      toast.error('Failed to send request.');
+    }
+  };
+  
+
+  const handleSendBirthDetails = () => {
+    if (!birthTime || !birthPlace.trim()) {
+      toast.error('Please fill both birth time and place.');
+      return;
+    }
+    toast.success('Birth details saved!');
+    setShowBirthDetailsModal(false);
+    setBirthTime('');
+    setBirthPlace('');
+  };
+
+  const handleBookNow = () => {
+    toast.success('Booking request sent!');
+  };
+
+  if (loading) return <div className="loading-spinner">Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="priest-profile-container">
       <div className="profile-card">
-        {/* Profile Header */}
         <div className="profile-header">
           {priest.profile?.profilePicture ? (
             <img
@@ -53,7 +141,6 @@ const PriestProfile = () => {
           </h1>
         </div>
 
-        {/* Contact Info */}
         <div className="contact-section">
           <div className="contact-item">
             <span className="icon">✉️</span>
@@ -61,11 +148,10 @@ const PriestProfile = () => {
           </div>
           <div className="contact-item">
             <span className="icon">📞</span>
-            <span>{priest.phone}</span>
+            <span>{priest.phone || 'N/A'}</span>
           </div>
         </div>
 
-        {/* Bio Section */}
         <div className="bio-section">
           <h2 className="section-title">
             <span className="icon">📝</span> Bio
@@ -73,7 +159,6 @@ const PriestProfile = () => {
           <p>{priest.profile?.bio || 'No bio available'}</p>
         </div>
 
-        {/* Services Offered */}
         <div className="services-section">
           <h2 className="section-title">
             <span className="icon">🛎️</span> Services Offered
@@ -91,7 +176,6 @@ const PriestProfile = () => {
           </div>
         </div>
 
-        {/* Experience */}
         {priest.profile?.experience && (
           <div className="experience-section">
             <h2 className="section-title">
@@ -101,212 +185,113 @@ const PriestProfile = () => {
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="action-buttons">
-          <button
-            className="muhurtam-btn"
-            onClick={() => toast.success('The priest has been notified!')}
-          >
+          <button className="muhurtam-btn" onClick={() => setShowMuhurtamModal(true)}>
             Ask for Muhurtam
           </button>
-          <button
-            className="book-now-btn"
-            onClick={() => toast.success('Booking request sent!')}
-          >
+          <button className="book-now-btn" onClick={handleBookNow}>
             Book Now
           </button>
         </div>
       </div>
 
+      {showMuhurtamModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Select Your Nakshatram</h2>
+            <select
+              value={nakshatram}
+              onChange={e => setNakshatram(e.target.value)}
+            >
+              <option value="">-- Select Nakshatram --</option>
+              {nakshatramList.map(n => (
+                <option key={n.id} value={n.name}>
+                  {n.name}
+                </option>
+              ))}
+            </select>
+            <div className="small-link" onClick={() => setShowBirthDetailsModal(true)}>
+              Don’t know Nakshatram? No problem...
+            </div>
+
+            {customer ? (
+              <div className="customer-details">
+              <p><strong>Name:</strong> {customer.name}</p>
+            
+              {/* Editable fields for email, phone, and address */}
+              <div>
+                <label htmlFor="email">Email:</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={customer.email || ''}
+                  onChange={e => setCustomer(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
+            
+              <div>
+                <label htmlFor="phone">Phone:</label>
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter your phone"
+                  value={customer.phone || ''}
+                  onChange={e => setCustomer(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+            
+              <div>
+                <label htmlFor="address">Address:</label>
+                <input
+                  id="address"
+                  type="text"
+                  placeholder="Enter your address"
+                  value={customer.address || ''}
+                  onChange={e => setCustomer(prev => ({ ...prev, address: e.target.value }))}
+                />
+              </div>
+            </div>
+            
+            ) : (
+              <div className="guest-prompt">
+                <p>Continue to SignUp? <span className="signup-link" onClick={() => navigate('/signup')}>Sign Up</span></p>
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button onClick={handleSendMuhurtamRequest}>Send</button>
+              <button onClick={() => setShowMuhurtamModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBirthDetailsModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Enter Your Birth Details</h2>
+            <input
+              type="datetime-local" 
+              placeholder="Birth Date and Time"
+              value={birthTime}
+              onChange={e => setBirthTime(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Birth Place"
+              value={birthPlace}
+              onChange={e => setBirthPlace(e.target.value)}
+            />
+            <div className="modal-actions">
+              <button onClick={handleSendBirthDetails}>Send</button>
+              <button onClick={() => setShowBirthDetailsModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <ToastContainer position="bottom-right" autoClose={3000} />
-      
-      <style jsx>{`
-        .priest-profile-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          background-color: #f5f7fa;
-          padding: 20px;
-        }
-        
-        .profile-card {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          width: 100%;
-          max-width: 600px;
-          padding: 30px;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .profile-header {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-bottom: 20px;
-          text-align: center;
-        }
-        
-        .profile-image {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 4px solid #e6f2ff;
-          margin-bottom: 15px;
-        }
-        
-        .profile-image-placeholder {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          background-color: #e6f2ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 15px;
-          color: #6c757d;
-          font-size: 14px;
-          border: 4px solid #e6f2ff;
-        }
-        
-        .priest-name {
-          color: #2c3e50;
-          font-size: 28px;
-          margin: 0;
-          font-weight: 600;
-        }
-        
-        .contact-section {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-bottom: 25px;
-          padding-bottom: 25px;
-          border-bottom: 1px solid #eee;
-        }
-        
-        .contact-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          color: #555;
-          font-size: 16px;
-        }
-        
-        .icon {
-          font-size: 18px;
-        }
-        
-        .section-title {
-          color: #2c3e50;
-          font-size: 20px;
-          margin: 20px 0 15px 0;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        
-        .bio-section p {
-          color: #555;
-          line-height: 1.6;
-          margin-bottom: 5px;
-        }
-        
-        .services-section {
-          margin-bottom: 20px;
-        }
-        
-        .services-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-top: 10px;
-        }
-        
-        .service-tag {
-          background-color: #e6f2ff;
-          color: #2980b9;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 14px;
-          font-weight: 500;
-        }
-        
-        .experience-section p {
-          color: #555;
-          font-size: 16px;
-        }
-        
-        .action-buttons {
-          display: flex;
-          gap: 15px;
-          margin-top: 30px;
-        }
-        
-        .muhurtam-btn, .book-now-btn {
-          flex: 1;
-          padding: 12px;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        
-        .muhurtam-btn {
-          background-color: #3498db;
-          color: white;
-        }
-        
-        .muhurtam-btn:hover {
-          background-color: #2980b9;
-        }
-        
-        .book-now-btn {
-          background-color: #2ecc71;
-          color: white;
-        }
-        
-        .book-now-btn:hover {
-          background-color: #27ae60;
-        }
-        
-        .loading-spinner {
-          width: 50px;
-          height: 50px;
-          border: 5px solid #f3f3f3;
-          border-top: 5px solid #3498db;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 50px auto;
-        }
-        
-        .error-message {
-          color: #e74c3c;
-          text-align: center;
-          margin: 50px auto;
-          font-size: 18px;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 600px) {
-          .profile-card {
-            padding: 20px;
-          }
-          
-          .action-buttons {
-            flex-direction: column;
-          }
-        }
-      `}</style>
     </div>
   );
 };
