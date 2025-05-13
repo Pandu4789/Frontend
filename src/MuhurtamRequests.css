@@ -2,37 +2,77 @@
     padding: 20px;
     max-width: 900px;
     margin: auto;
-  }
-  
-  .notification-bar {
+}
+
+.notification-bar {
     margin-bottom: 20px;
-  }
-  
-  .notification-badge {
+}
+
+.notification-badge {
     background-color: #ff4d4d;
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
     font-weight: bold;
-  }
-  
-  .requests-table {
+}
+
+.requests-table {
     width: 100%;
     border-collapse: collapse;
-  }
-  
-  .requests-table th,
-  .requests-table td {
+}
+
+.requests-table th,
+.requests-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
-  }
-  
-  .requests-table th {
+}
+
+.requests-table th {
     background-color: #f2f2f2;
-  }
-  
-  .viewed-row {
+}
+
+.viewed-row {
     background-color: #e0ffe0;
-  }
-  
+}
+
+.muhurtam-requests-container {
+    padding: 20px;
+}
+
+.notification-bar {
+    margin-bottom: 15px;
+}
+
+.notification-badge {
+    background-color: #ffcc00;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.requests-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.requests-table th,
+.requests-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.requests-table th {
+    background-color: #f4f4f4;
+}
+
+.viewed-row {
+    background-color: #f0f0f0;
+    color: #888;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+}
