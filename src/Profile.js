@@ -27,15 +27,15 @@ const Profile = () => {
   const [currentField, setCurrentField] = useState('');
   const [currentValue, setCurrentValue] = useState('');
 
+  const role = localStorage.getItem('role'); // 'priest' or 'customer'
+
   const openModal = (field, value) => {
     setCurrentField(field);
     setCurrentValue(field === 'services' ? value.join(', ') : value);
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const closeModal = () => setIsModalOpen(false);
 
   const handleModalSave = async () => {
     let updatedUser = { ...user };
@@ -57,7 +57,6 @@ const Profile = () => {
     closeModal();
 
     try {
-      // Update user
       const userRes = await fetch('http://localhost:8080/api/auth/updateUser', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +65,6 @@ const Profile = () => {
 
       if (!userRes.ok) throw new Error('User update failed');
 
-      // Update profile
       const profileRes = await fetch('http://localhost:8080/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,7 +185,7 @@ const Profile = () => {
         </div>
 
         <div className="profile-section"><label>Username</label>
-          <textarea value={user.username}  readOnly />
+          <textarea value={user.username} readOnly />
         </div>
 
         <div className="profile-section"><label>Phone</label>
@@ -206,16 +204,20 @@ const Profile = () => {
           <textarea value={user.password} onClick={() => openModal('password', user.password)} readOnly />
         </div>
 
-        <div className="profile-section"><label>Bio</label>
-          <textarea value={profile.bio} onClick={() => openModal('bio', profile.bio)} readOnly />
-        </div>
+        {role === 'priest' && (
+          <>
+            <div className="profile-section"><label>Bio</label>
+              <textarea value={profile.bio} onClick={() => openModal('bio', profile.bio)} readOnly />
+            </div>
 
-        <div className="profile-section">
-          <label>Pooja Services</label>
-          <ul className="services-list" onClick={() => openModal('services', user.services)} style={{ cursor: 'pointer' }}>
-            {user.services.map((service, idx) => <li key={idx}>{service}</li>)}
-          </ul>
-        </div>
+            <div className="profile-section">
+              <label>Pooja Services</label>
+              <ul className="services-list" onClick={() => openModal('services', user.services)} style={{ cursor: 'pointer' }}>
+                {user.services.map((service, idx) => <li key={idx}>{service}</li>)}
+              </ul>
+            </div>
+          </>
+        )}
       </div>
 
       {isModalOpen && (
