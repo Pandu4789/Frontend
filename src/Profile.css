@@ -133,3 +133,38 @@ textarea {
   font-weight: bold;
   margin-bottom: 20px;
 }
+.profile-url-section {
+  margin-top: 10px;
+}
+
+.url-copy-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.url-input {
+  flex-grow: 1;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  user-select: all; /* Makes it easier to select */
+}
+
+.copy-button {
+  background-color: #4f46e5;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-button:hover {
+  background-color: #3730a3;
+}

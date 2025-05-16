@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FaTrash } from 'react-icons/fa';
+
 const App = () => {
   const predefinedPoojas = ['Ganesh Pooja', 'Lakshmi Pooja', 'Durga Pooja'];
 
@@ -18,14 +19,12 @@ const App = () => {
     ],
   };
 
-  // Predefined quantities for each pooja type
   const predefinedQuantities = {
     'Ganesh Pooja': { 1: 2, 2: 10 },
     'Lakshmi Pooja': { 3: 5, 4: 8 },
     'Durga Pooja': { 5: 1, 6: 3 },
   };
 
-  // Merge all items into a unique list
   const mergedItems = Object.values(allItemsData)
     .flat()
     .reduce((acc, item) => {
@@ -40,26 +39,14 @@ const App = () => {
   const [toast, setToast] = useState(null);
   const [isBuying, setIsBuying] = useState(false);
 
-  // Handle pooja type change
   const handlePoojaChange = (pooja) => {
     setSelectedPooja(pooja);
-
-    // Update quantities based on the selected pooja
-    if (pooja) {
-      setItems(prevItems =>
-        prevItems.map(item => ({
-          ...item,
-          quantity: predefinedQuantities[pooja]?.[item.id] || 0,
-        }))
-      );
-    } else {
-      setItems(prevItems =>
-        prevItems.map(item => ({
-          ...item,
-          quantity: 0,
-        }))
-      );
-    }
+    setItems(prevItems =>
+      prevItems.map(item => ({
+        ...item,
+        quantity: predefinedQuantities[pooja]?.[item.id] || 0,
+      }))
+    );
   };
 
   const handleQuantityChange = (id, delta) => {
@@ -107,12 +94,16 @@ const App = () => {
     }
   }, [toast]);
 
+  const recommendedItems = selectedPooja ? allItemsData[selectedPooja].map(item => ({
+    ...item,
+    quantity: predefinedQuantities[selectedPooja]?.[item.id] || 0,
+  })) : [];
+
   return (
     <div className="container">
       <h1>Pooja Items</h1>
       <p className="description">Select your pooja type and manage the required items.</p>
 
-      {/* Pooja Type Dropdown */}
       <div className="dropdown-container">
         <label>Select Pooja Type</label>
         <select
@@ -126,54 +117,65 @@ const App = () => {
         </select>
       </div>
 
-      {/* Items Table */}
-      <div className="section">
-        <h2> Items {selectedPooja && `for ${selectedPooja}`}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Price/Unit</th>
-              <th>Subtotal</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => {
-              const isRecommended =
-                selectedPooja &&
-                allItemsData[selectedPooja]?.some(poItem => poItem.id === item.id);
-              return (
-                <tr
-                  key={item.id}
-                  style={{ background: isRecommended ? '#FFF3E0' : 'inherit' }}
-                >
-                  <td>{item.name}</td>
-                  <td>
-                    <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-                    <span style={{ margin: '0 10px' }}>{item.quantity}</span>
-                    <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
-                  </td>
-                  <td>₹{item.price}</td>
-                  <td>₹{(item.price * item.quantity).toFixed(2)}</td>
-                  <td>
-                    {/* Changed cart symbol to delete/trash symbol */}
+      {/* Main content layout */}
+      <div className="main-content">
+        {/* Items Table */}
+        <div className="section">
+          <h2>Items {selectedPooja && `for ${selectedPooja}`}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price/Unit</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => {
+                const isRecommended =
+                  selectedPooja &&
+                  allItemsData[selectedPooja]?.some(poItem => poItem.id === item.id);
+                return (
+                  <tr
+                    key={item.id}
+                    style={{ background: isRecommended ? '#FFF3E0' : 'inherit' }}
+                  >
+                    <td>{item.name}</td>
+                    <td>
+                      <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+                      <span style={{ margin: '0 10px' }}>{item.quantity}</span>
+                      <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                    </td>
+                    <td>₹{item.price}</td>
+                    <td>₹{(item.price * item.quantity).toFixed(2)}</td>
                     <td>
                       <button className="trash-button" onClick={() => handleRemoveItem(item.id)}>
                         <FaTrash />
                       </button>
                     </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
 
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        {/* Recommended Items List on Right */}
+        {selectedPooja && (
+          <div className="item-list">
+            <h3>Items</h3>
+            <ul>
+              {recommendedItems.map(item => (
+                <li key={item.id}>{item.name} ({item.quantity})</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* Total and Buy Button Section */}
+      {/* Total and Buy Button */}
       <div className="total-buy-section">
         <div className="total">
           <strong>Total: ₹{totalPrice}</strong>
@@ -183,10 +185,9 @@ const App = () => {
         </button>
       </div>
 
-      {/* Toast Notification */}
+      {/* Toast */}
       {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
 
-      {/* Styles */}
       <style>{`
         body, html {
           margin: 0;
@@ -194,7 +195,7 @@ const App = () => {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .container {
-          max-width: 900px;
+          max-width: 1100px;
           margin: auto;
           padding: 20px;
         }
@@ -213,19 +214,8 @@ const App = () => {
           gap: 10px;
           margin-bottom: 20px;
         }
-          .trash-button svg {
-  color: #4d4d4d;  /* light black (gray) */
-  transition: color 0.2s ease;
-}
-
-.trash-button:hover svg {
-  color: #f5302a;  /* red on hover */
-}
-
-          
         .dropdown-container label {
           font-weight: bold;
-          margin: 0;
         }
         select {
           width: 200px;
@@ -238,26 +228,37 @@ const App = () => {
           border-color: #FF9800;
           box-shadow: 0 0 4px rgba(255,152,0,0.5);
         }
-          .buy-button {
-          background: #FF9800;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          padding: 12px 20px;
-          font-size: 1rem;
-          cursor: pointer;
-          margin-top: 10px;
-          transition: background 0.2s;
+        .main-content {
+          display: flex;
+          gap: 20px;
+          align-items: flex-start;
         }
-
+        .item-list {
+          flex: 1;
+          background: #fffef2;
+          padding: 16px 20px;
+          border-radius: 12px;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .item-list h3 {
+          color: #FF9800;
+          margin-bottom: 10px;
+        }
+        .item-list ul {
+          padding-left: 20px;
+          list-style-type: disc;
+          color: #333;
+          font-size: 1rem;
+          line-height: 1.6;
+        }
         .section {
+          flex: 2;
           background: #fff;
           padding: 20px;
           border-radius: 12px;
           box-shadow: 0 2px 6px rgba(0,0,0,0.1);
           margin-bottom: 20px;
         }
-          
         h2 {
           color: #FF9800;
           margin-bottom: 15px;
@@ -277,10 +278,13 @@ const App = () => {
           font-size: 1.2rem;
           cursor: pointer;
         }
-        table button:hover {
-          color: #e53935;
+        .trash-button svg {
+          color: #4d4d4d;
+          transition: color 0.2s ease;
         }
-        /* Styles for total and buy section */
+        .trash-button:hover svg {
+          color: #f5302a;
+        }
         .total-buy-section {
           display: flex;
           flex-direction: column;
@@ -291,17 +295,8 @@ const App = () => {
           font-weight: bold;
           font-size: 1.5rem;
           color: #FF9800;
-          }
-        .summary {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: #fff;
-          padding: 15px 20px;
-          border-radius: 12px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
-        .summary button {
+        .buy-button {
           background: #FF9800;
           color: white;
           border: none;
@@ -309,8 +304,10 @@ const App = () => {
           padding: 12px 20px;
           font-size: 1rem;
           cursor: pointer;
+          margin-top: 10px;
+          transition: background 0.2s;
         }
-        .summary button:hover {
+        .buy-button:hover {
           background: #e68a00;
         }
         .toast {
@@ -332,15 +329,9 @@ const App = () => {
           from { transform: translateY(50px); opacity: 0; }
           to { transform: translateY(0); opacity: 0.95; }
         }
-        @media (max-width: 600px) {
-          .dropdown-container {
+        @media (max-width: 768px) {
+          .main-content {
             flex-direction: column;
-            align-items: flex-start;
-          }
-          .summary {
-            flex-direction: column;
-            gap: 10px;
-            text-align: center;
           }
         }
       `}</style>
