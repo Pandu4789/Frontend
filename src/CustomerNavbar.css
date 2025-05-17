@@ -8,10 +8,33 @@
   flex-wrap: wrap;
 }
 
-.navbar-left {
+.app-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #4a00e0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.app-icon:hover {
+  transform: scale(1.05);
+}
+
+.app-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a00e0;
+}
+
+.navbar-center {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 .navbar-button {
@@ -22,7 +45,7 @@
   color: #fff;
   padding: 10px 18px;
   border: none;
-  border-radius: 30px;
+  /* border-radius: 30px; */
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;

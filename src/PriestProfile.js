@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import './PriestProfile.css';
 import BookingModal from './BookingModal';
 import AskForMuhurtam from './AskForMuhurtam';
+import LoginPromptModal from './LoginPromptModal';
 
 const PriestProfile = () => {
     const [priest, setPriest] = useState(null);
@@ -13,11 +14,11 @@ const PriestProfile = () => {
     const [error, setError] = useState(null);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showMuhurtamModal, setShowMuhurtamModal] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [customer, setCustomer] = useState(null);
     const [nakshatramList, setNakshatramList] = useState([]);
 
     const { id: Id } = useParams();
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,7 +29,16 @@ const PriestProfile = () => {
                 ]);
                 setPriest(priestRes.data);
                 setNakshatramList(nakshatraRes.data);
+            } catch (err) {
+                console.error('Priest or Nakshatram load failed:', err);
+                setError('Failed to load priest or nakshatram data');
+                toast.error('Error loading data');
+                setLoading(false);
+                return;
+            }
 
+            // Optional customer fetch
+            try {
                 const username = localStorage.getItem('username');
                 if (username) {
                     const customerRes = await axios.get(`http://localhost:8080/api/profile`, {
@@ -42,15 +52,17 @@ const PriestProfile = () => {
                         address: data.address,
                         note: '',
                     });
+                } else {
+                    setCustomer(null);
                 }
             } catch (err) {
-                console.error(err);
-                setError('Failed to load data');
-                toast.error('Error loading data');
+                console.warn('Customer not logged in or profile fetch failed (OK for guest):', err);
+                setCustomer(null);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchData();
     }, [Id]);
 
@@ -91,8 +103,24 @@ const PriestProfile = () => {
                     </div>
 
                     <div className="buttons">
-                        <button className="muhurtam-btn" onClick={() => setShowMuhurtamModal(true)}>Ask for Muhurtam</button>
-                        <button className="book-btn" onClick={() => setShowBookingModal(true)}>Book Now</button>
+                        <button className="muhurtam-btn" onClick={() => {
+                            if (!customer) {
+                                setShowLoginPrompt(true);
+                            } else {
+                                setShowMuhurtamModal(true);
+                            }
+                        }}>
+                            Ask for Muhurtam
+                        </button>
+                        <button className="book-btn" onClick={() => {
+                            if (!customer) {
+                                setShowLoginPrompt(true);
+                            } else {
+                                setShowBookingModal(true);
+                            }
+                        }}>
+                            Book Now
+                        </button>
                     </div>
                 </div>
 
@@ -120,8 +148,10 @@ const PriestProfile = () => {
                     setCustomer={setCustomer}
                     nakshatramList={nakshatramList}
                     onClose={() => setShowMuhurtamModal(false)}
-                    navigate={navigate}
                 />
+            )}
+            {showLoginPrompt && (
+                <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />
             )}
         </div>
     );

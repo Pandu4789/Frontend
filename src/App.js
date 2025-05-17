@@ -17,6 +17,7 @@ import PoojaItems from './PoojaItems';
 import CustomerMohurtam from './CustomerMohurtam';
 import PriestProfile from './PriestProfile';
 import MohurtamRequests from './MuhurtamRequests';
+import SessionTimeout from './SessionTimeout';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,6 +57,7 @@ function App() {
 
   return (
     <Router>
+      <SessionTimeout timeout={1 * 60 * 1000}> {/* 15 minutes timeout */}
       {/* Conditionally render Navbar based on role */}
       {isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
       {isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
@@ -106,6 +108,7 @@ function App() {
           </>
         )}
       </Routes>
+      </SessionTimeout>
     </Router>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle } from 'react-icons/fa';
+import {
+  FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle, FaOm
+} from 'react-icons/fa';
 import './CustomerNavbar.css';
 
 const CustomerNavbar = ({ onLogout }) => {
@@ -47,7 +49,14 @@ const CustomerNavbar = ({ onLogout }) => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-left">
+      {/* App Logo */}
+      <div className="app-icon" onClick={() => navigate('/events')}>
+        <FaOm />
+        <span className="app-name">PoojaConnect</span>
+      </div>
+
+      {/* Centered Navigation */}
+      <div className="navbar-center">
         {links.map((link) => (
           <button
             key={link.path}
@@ -60,9 +69,9 @@ const CustomerNavbar = ({ onLogout }) => {
         ))}
       </div>
 
+      {/* Profile Dropdown */}
       <div className="dropdown-wrapper" ref={dropdownRef}>
         <FaUserCircle className="profile-icon" onClick={handleDropdownToggle} />
-
         {dropdownOpen && (
           <div className="dropdown-menu">
             <div onClick={() => handleDropdownClick('profile')} className="dropdown-item">Profile</div>
