@@ -13,16 +13,25 @@ const MuhurtamRequests = () => {
   const [error, setError] = useState('');
   const [appointmentError, setAppointmentError] = useState('');
 
+  const priestId = localStorage.getItem('userId');
+
   useEffect(() => {
-    fetchRequests();
-    fetchAppointments();
-  }, []);
+    if (priestId) {
+      fetchRequests(priestId);
+      fetchAppointments(priestId);
+    } else {
+      console.error('Priest ID not found in localStorage');
+      toast.error('Priest ID not found. Please login again.');
+    }
+  }, [priestId]);
 
   const fetchRequests = async () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://localhost:8080/api/muhurtam/all');
+      console.log("Fetching muhurtam requests for priest:", priestId);
+
+      const response = await axios.get(`http://localhost:8080/api/muhurtam/priest/${priestId}`);
       setRequests(response.data);
       const pending = response.data.filter(req => !req.viewed).length;
       setPendingCount(pending || response.data.length);
@@ -35,11 +44,11 @@ const MuhurtamRequests = () => {
     }
   };
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = async (priestId) => {
     setLoading(true);
     setAppointmentError('');
     try {
-      const response = await axios.get('http://localhost:8080/api/booking/all');
+      const response = await axios.get(`http://localhost:8080/api/booking/priest/${priestId}`);
       setAppointments(response.data);
     } catch (err) {
       console.error('Failed to fetch appointment requests:', err);
@@ -53,8 +62,7 @@ const MuhurtamRequests = () => {
   const handleViewRequest = async (id) => {
     try {
       await axios.post(`http://localhost:8080/api/muhurtam/view/${id}`);
-      console.log(`Marked request ${id} as viewed on backend`);
-      fetchRequests();
+      fetchRequests(priestId); // Refresh requests after marking as viewed
       setViewedIds(prev => new Set(prev).add(id));
       setPendingCount(prev => Math.max(prev - 1, 0));
       toast.info(`Viewed request #${id}`);
@@ -67,10 +75,8 @@ const MuhurtamRequests = () => {
     try {
       const response = await axios.put(`http://localhost:8080/api/booking/accept/${id}`);
       if (response.status === 200) {
-        setAppointments(prevAppointments =>
-          prevAppointments.map(app =>
-            app.id === id ? { ...app, status: 'ACCEPTED' } : app
-          )
+        setAppointments(prev =>
+          prev.map(app => (app.id === id ? { ...app, status: 'ACCEPTED' } : app))
         );
         toast.success('Appointment accepted');
       }
@@ -84,10 +90,8 @@ const MuhurtamRequests = () => {
     try {
       const response = await axios.put(`http://localhost:8080/api/booking/reject/${id}`);
       if (response.status === 200) {
-        setAppointments(prevAppointments =>
-          prevAppointments.map(app =>
-            app.id === id ? { ...app, status: 'REJECTED' } : app
-          )
+        setAppointments(prev =>
+          prev.map(app => (app.id === id ? { ...app, status: 'REJECTED' } : app))
         );
         toast.success('Appointment rejected');
       }
@@ -97,9 +101,8 @@ const MuhurtamRequests = () => {
     }
   };
 
-  const fallback = (value) => {
-    return value === undefined || value === null || String(value).trim() === '' ? '-' : value;
-  };
+  const fallback = (value) =>
+    value === undefined || value === null || String(value).trim() === '' ? '-' : value;
 
   return (
     <div className="muhurtam-requests-container">
@@ -154,9 +157,7 @@ const MuhurtamRequests = () => {
                       <td>{fallback(req.email)}</td>
                       <td>
                         {!isViewed ? (
-                          <button onClick={() => handleViewRequest(req.id)}>
-                            Mark As Viewed
-                          </button>
+                          <button onClick={() => handleViewRequest(req.id)}>Mark As Viewed</button>
                         ) : (
                           <span>✅ Viewed</span>
                         )}
@@ -214,18 +215,8 @@ const MuhurtamRequests = () => {
                           <span>❌ Rejected</span>
                         ) : (
                           <>
-                            <button
-                              onClick={() => handleAcceptAppointment(app.id)}
-                              disabled={['ACCEPTED', 'REJECTED'].includes(status)}
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => handleRejectAppointment(app.id)}
-                              disabled={['ACCEPTED', 'REJECTED'].includes(status)}
-                            >
-                              Reject
-                            </button>
+                            <button onClick={() => handleAcceptAppointment(app.id)}>Accept</button>
+                            <button onClick={() => handleRejectAppointment(app.id)}>Reject</button>
                           </>
                         )}
                       </td>

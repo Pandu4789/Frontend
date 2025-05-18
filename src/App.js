@@ -57,7 +57,7 @@ function App() {
 
   return (
     <Router>
-      <SessionTimeout timeout={1 * 60 * 1000}> {/* 15 minutes timeout */}
+      <SessionTimeout timeout={10 * 60 * 1000}> {/* 10 minutes timeout */}
       {/* Conditionally render Navbar based on role */}
       {isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
       {isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}

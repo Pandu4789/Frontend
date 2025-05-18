@@ -53,6 +53,7 @@ const Login = ({ onLoginSuccess }) => {
           localStorage.setItem('username', data.username);
           localStorage.setItem('role', data.role);
           localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.userId);
 
           onLoginSuccess(data.role);
 

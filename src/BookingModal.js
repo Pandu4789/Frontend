@@ -20,20 +20,26 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
             return;
         }
 
+        if (!priest || !priest.id) {
+            toast.error('Priest information is missing.');
+            return;
+        }
+
         try {
             const payload = {
                 event: eventName,
                 name: customer.name,
                 phone: customer.phone,
                 address: customer.address,
-                note: customer.note,
-                date: appointmentDate ? appointmentDate.toISOString().split('T')[0] : null,
+                note: customer.note || '',
+                date: appointmentDate.toISOString().split('T')[0],
                 start: startTime,
-                end: endTime
+                end: endTime,
+                priestId: priest.id
             };
-
+console.log(payload)
             await axios.post('http://localhost:8080/api/booking', payload);
-            toast.success('Booking request sent!');
+            toast.success('Booking request sent successfully!');
             onClose();
         } catch (error) {
             console.error('Failed to send booking request:', error);
@@ -44,7 +50,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <h2>Choose Your Appointment Date</h2>
+                <h2>Book Appointment with {priest?.username || 'Priest'}</h2>
 
                 <label>
                     Event Name:
@@ -60,7 +66,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                     Name:
                     <input
                         type="text"
-                        placeholder="Name"
+                        placeholder="Your Name"
                         value={customer.name || ''}
                         onChange={e => setCustomer(prev => ({ ...prev, name: e.target.value }))}
                     />
@@ -70,7 +76,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                     Phone:
                     <input
                         type="tel"
-                        placeholder="Phone"
+                        placeholder="Phone Number"
                         value={customer.phone || ''}
                         onChange={e => setCustomer(prev => ({ ...prev, phone: e.target.value }))}
                     />
@@ -91,14 +97,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                     <input
                         type="date"
                         value={appointmentDate ? appointmentDate.toISOString().split('T')[0] : ''}
-                        onChange={e => {
-                            const value = e.target.value;
-                            if (value) {
-                                setAppointmentDate(new Date(value));
-                            } else {
-                                setAppointmentDate(null);
-                            }
-                        }}
+                        onChange={e => setAppointmentDate(e.target.value ? new Date(e.target.value) : null)}
                     />
                 </label>
 
@@ -124,7 +123,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                     Note:
                     <input
                         type="text"
-                        placeholder="Note"
+                        placeholder="Optional Note"
                         value={customer.note || ''}
                         onChange={e => setCustomer(prev => ({ ...prev, note: e.target.value }))}
                     />
@@ -132,7 +131,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
 
                 <div className="modal-actions">
                     <button onClick={handleBookNow}>Book Now</button>
-                    <button onClick={onClose}>Cancel</button>
+                    <button onClick={onClose} className="cancel-button">Cancel</button>
                 </div>
             </div>
         </div>

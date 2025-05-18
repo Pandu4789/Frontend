@@ -9,6 +9,10 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
     const [birthPlace, setBirthPlace] = useState('');
     const [showBirthDetailsPopup, setShowBirthDetailsPopup] = useState(false);
 
+    const handleInputChange = (field, value) => {
+        setCustomer(prev => ({ ...prev, [field]: value }));
+    };
+
     const handleSaveBirthDetails = () => {
         if (!birthTime || !birthPlace.trim()) {
             toast.error('Please fill both birth time and place.');
@@ -19,38 +23,37 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
     };
 
     const handleSendMuhurtamRequest = async () => {
-        if (!customer || !customer.name || !customer.email || !customer.phone || !customer.address) {
+        if (!customer || !customer.name?.trim() || !customer.email?.trim() || !customer.phone?.trim() || !customer.address?.trim()) {
             toast.error('Please fill in all customer details.');
             return;
         }
 
-        const hasNakshatram = nakshatram && nakshatram.trim() !== '';
-        const hasBirthDetails = birthTime && birthPlace && birthPlace.trim() !== '';
+        const isNakshatramValid = nakshatram.trim() !== '';
+        const isBirthDetailsValid = birthTime && birthPlace.trim();
 
-        if (!hasNakshatram && !hasBirthDetails) {
-            toast.error('Please fill either birth details or nakshatram.');
+        if (!isNakshatramValid && !isBirthDetailsValid) {
+            toast.error('Please fill either birth details or Nakshatram.');
             return;
         }
 
-        const datePart = birthTime ? birthTime.split('T')[0] : null;
-        const timePart = birthTime ? birthTime.split('T')[1] : null;
+        const [datePart, timePart] = birthTime ? birthTime.split('T') : [null, null];
+
+        const payload = {
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone,
+            address: customer.address,
+            note: customer.note || '',
+            nakshatram: isNakshatramValid ? nakshatram : null,
+            date: isBirthDetailsValid ? datePart : null,
+            time: isBirthDetailsValid ? timePart : null,
+            place: isBirthDetailsValid ? birthPlace : null,
+            priestId: priest?.id || null,
+        };
 
         try {
-            const payload = {
-                name: customer.name,
-                email: customer.email,
-                phone: customer.phone,
-                address: customer.address,
-                note: customer.note,
-                nakshatram: hasNakshatram ? nakshatram : null,
-                date: hasBirthDetails ? datePart : null,
-                time: hasBirthDetails ? timePart : null,
-                place: hasBirthDetails ? birthPlace : null
-            };
-
             await axios.post('http://localhost:8080/api/muhurtam/request', payload);
             toast.success(`Muhurtam request sent to Priest: ${priest.firstName} ${priest.lastName}`);
-
             onClose();
         } catch (error) {
             console.error('Failed to send Muhurtam request:', error);
@@ -61,7 +64,7 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                <h2>Select Your Nakshatram</h2>
+                <h2>Request a Muhurtam</h2>
 
                 <label>
                     Nakshatram:
@@ -80,35 +83,66 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
                 {customer ? (
                     <div className="customer-details">
                         <label>
+                            Name:
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                value={customer.name || ''}
+                                onChange={e => handleInputChange('name', e.target.value)}
+                            />
+                        </label>
+
+                        <label>
                             Email:
-                            <input type="email" placeholder="Email" value={customer.email || ''} onChange={e => setCustomer(prev => ({ ...prev, email: e.target.value }))} />
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                value={customer.email || ''}
+                                onChange={e => handleInputChange('email', e.target.value)}
+                            />
                         </label>
 
                         <label>
                             Phone:
-                            <input type="tel" placeholder="Phone" value={customer.phone || ''} onChange={e => setCustomer(prev => ({ ...prev, phone: e.target.value }))} />
+                            <input
+                                type="tel"
+                                placeholder="Phone"
+                                value={customer.phone || ''}
+                                onChange={e => handleInputChange('phone', e.target.value)}
+                            />
                         </label>
 
                         <label>
                             Address:
-                            <input type="text" placeholder="Address" value={customer.address || ''} onChange={e => setCustomer(prev => ({ ...prev, address: e.target.value }))} />
+                            <input
+                                type="text"
+                                placeholder="Address"
+                                value={customer.address || ''}
+                                onChange={e => handleInputChange('address', e.target.value)}
+                            />
                         </label>
 
                         <label>
                             Note:
-                            <input type="text" placeholder="Note" value={customer.note || ''} onChange={e => setCustomer(prev => ({ ...prev, note: e.target.value }))} />
+                            <input
+                                type="text"
+                                placeholder="Note (Optional)"
+                                value={customer.note || ''}
+                                onChange={e => handleInputChange('note', e.target.value)}
+                            />
                         </label>
                     </div>
                 ) : (
-                    <p>Continue to SignUp? <span className="signup-link" onClick={() => navigate('/signup')}>Sign Up</span></p>
+                    <p>
+                        Please <span className="signup-link" onClick={() => navigate('/signup')}>Sign Up</span> to continue.
+                    </p>
                 )}
 
                 <div className="modal-actions">
-                    <button onClick={handleSendMuhurtamRequest}>Send</button>
+                    <button onClick={handleSendMuhurtamRequest}>Send Request</button>
                     <button onClick={onClose}>Cancel</button>
                 </div>
 
-                {/* Birth Details Popup */}
                 {showBirthDetailsPopup && (
                     <div className="modal-overlay inner-popup">
                         <div className="modal-content">
@@ -116,12 +150,21 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
 
                             <label>
                                 Birth Date & Time:
-                                <input type="datetime-local" value={birthTime} onChange={e => setBirthTime(e.target.value)} />
+                                <input
+                                    type="datetime-local"
+                                    value={birthTime}
+                                    onChange={e => setBirthTime(e.target.value)}
+                                />
                             </label>
 
                             <label>
                                 Birth Place:
-                                <input type="text" placeholder="Birth Place" value={birthPlace} onChange={e => setBirthPlace(e.target.value)} />
+                                <input
+                                    type="text"
+                                    placeholder="Birth Place"
+                                    value={birthPlace}
+                                    onChange={e => setBirthPlace(e.target.value)}
+                                />
                             </label>
 
                             <div className="modal-actions">
