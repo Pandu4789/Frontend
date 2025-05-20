@@ -76,3 +76,31 @@
     color: red;
     font-weight: bold;
 }
+.filter-input {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px;
+  font-size: 14px;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.notification-badge {
+  background-color: #f0ad4e;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+}
+
+.filter-input {
+  margin-bottom: 10px;
+  padding: 6px 12px;
+  width: 300px;
+}

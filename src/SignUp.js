@@ -319,27 +319,30 @@ const SignUp = () => {
 
           {/* POOJAS (PRIEST ONLY) */}
           {form.role === 'priest' && (
-            <div style={styles.inputGroup}>
-              <Select
-                isMulti
-                name="poojas"
-                options={availablePoojas}
-                onChange={handlePoojaChange}
-                value={availablePoojas.filter((pooja) =>
-                  form.poojas.some((selected) => selected.id === pooja.value)
-                )}
-                placeholder="Select Services"
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    padding: '6px',
-                    fontSize: '16px',
-                    borderColor: '#ddd',
-                  }),
-                }}
-              />
-            </div>
-          )}
+  <div style={styles.inputGroup}>
+    <Select
+      isMulti
+      name="poojas"
+      options={availablePoojas}
+      onChange={handlePoojaChange}
+      value={availablePoojas.filter((pooja) =>
+        form.poojas.some((selected) => selected.id === pooja.value)
+      )}
+      placeholder="Select Services"
+      styles={{
+        control: (base) => ({
+          ...base,
+          padding: '6px',
+          fontSize: '16px',
+          borderColor: '#ddd',
+        }),
+      }}
+    />
+    <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>
+      Please select all the services that are applicable.
+    </small>
+  </div>
+)}
 
           {error && <p style={styles.errorText}>{error}</p>}
 

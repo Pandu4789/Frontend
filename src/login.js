@@ -123,17 +123,18 @@ const Login = ({ onLoginSuccess }) => {
           </div>
 
           {/* Remember Me */}
-          <div className="remember-me">
-            <label>
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={handleCheckboxChange}
-                style={{ marginRight: '8px' }}
-              />
-              Remember Me
-            </label>
-          </div>
+        <div className="remember-me">
+  <label className="remember-label">
+    <input
+      type="checkbox"
+      checked={rememberMe}
+      onChange={handleCheckboxChange}
+    />
+    <span>Remember Me</span>
+  </label>
+</div>
+
+
 
           {error && <p className="error-text">{error}</p>}
 
