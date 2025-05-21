@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaPhoneAlt } from 'react-icons/fa';  // ✅ Import phone icon
+import { FaPhoneAlt } from 'react-icons/fa';
 
 const PriestList = () => {
   const [priests, setPriests] = useState([]);
+  const [availablePoojas, setAvailablePoojas] = useState([]);
   const [filters, setFilters] = useState({ name: '', phone: '', poojaType: '' });
 
   const loadPriests = async () => {
@@ -18,7 +19,9 @@ const PriestList = () => {
         data = data.filter(p => p.phone && p.phone.includes(filters.phone));
       }
       if (filters.poojaType) {
-        data = data.filter(p => p.poojas && p.poojas.some(pooja => pooja.name.toLowerCase().includes(filters.poojaType.toLowerCase())));
+        data = data.filter(p => 
+          p.poojas && p.poojas.some(pooja => pooja.name === filters.poojaType)
+        );
       }
 
       setPriests(data);
@@ -26,6 +29,19 @@ const PriestList = () => {
       console.error('Failed to fetch priests:', err);
     }
   };
+
+  const loadAvailablePoojas = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/events'); // Adjust the endpoint if needed
+      setAvailablePoojas(response.data);
+    } catch (err) {
+      console.error('Failed to fetch pooja types:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadAvailablePoojas();
+  }, []);
 
   useEffect(() => {
     loadPriests();
@@ -56,12 +72,18 @@ const PriestList = () => {
           value={filters.phone}
           onChange={e => handleFilterChange('phone', e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Filter by pooja type"
+        
+        {/* 🔽 Dropdown for Pooja Type */}
+        <select
           value={filters.poojaType}
           onChange={e => handleFilterChange('poojaType', e.target.value)}
-        />
+        >
+          <option value="">Filter by pooja type</option>
+          {availablePoojas.map(pooja => (
+            <option key={pooja.id} value={pooja.name}>{pooja.name}</option>
+          ))}
+        </select>
+
         <button onClick={resetFilters} className="reset-btn">
           Reset Filters
         </button>
@@ -89,6 +111,8 @@ const PriestList = () => {
           </div>
         ))}
       </div>
+   
+
 
       <style jsx>{`
         .priest-directory {

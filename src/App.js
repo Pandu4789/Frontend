@@ -18,6 +18,7 @@ import CustomerMohurtam from './CustomerMohurtam';
 import PriestProfile from './PriestProfile';
 import MohurtamRequests from './MuhurtamRequests';
 import SessionTimeout from './SessionTimeout';
+import AdminPage from './AdminPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -97,6 +98,13 @@ function App() {
           </>
         )}
 
+        {/* Admin Routes */}
+        {userRole === 'admin' && (
+          <>
+            <Route path="/AdminPage" element={<AdminPage />} />
+          
+          </>
+        )}
         {/* Customer Routes */}
         {userRole === 'customer' && (
           <>

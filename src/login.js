@@ -62,6 +62,9 @@ const Login = ({ onLoginSuccess }) => {
           } else if (data.role === 'customer') {
             navigate('/events');
           }
+          else if (data.role === 'admin') {
+            navigate('/adminpage');
+          }
         } else {
           setError('Role not found in response');
         }
