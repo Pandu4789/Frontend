@@ -50,7 +50,7 @@ const ManageMuhurtamRequests = () => {
             <tr>
               <th className="p-2 border">S.No</th>
               <th className="p-2 border">Customer</th>
-              <th className="p-2 border">Priest</th>
+              <th className="p-2 border">Priest username</th>
               <th className="p-2 border">Viewed</th>
             </tr>
           </thead>
