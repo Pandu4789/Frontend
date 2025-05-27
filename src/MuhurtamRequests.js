@@ -223,7 +223,7 @@ const MuhurtamRequests = () => {
                   <tr key={app.id}>
                     <td>{index + 1}</td>
                     <td>{fallback(app.name)}</td>
-                    <td>{fallback(app.event)}</td>
+                    <td>{fallback(app.event?.name)}</td>
                     <td>{fallback(app.date)}</td>
                     <td>{fallback(app.start)}</td>
                     <td>{fallback(app.end)}</td>

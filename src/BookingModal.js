@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './PriestProfile.css';
@@ -9,6 +11,8 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [appointmentDate, setAppointmentDate] = useState(null);
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -59,6 +63,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
       console.log('Booking payload:', payload);
       await axios.post('http://localhost:8080/api/booking', payload);
       toast.success('Booking request sent successfully!');
+      setShowConfirmation(true);
       onClose();
     } catch (error) {
       console.error('Failed to send booking request:', error);
@@ -158,6 +163,23 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
           <button onClick={onClose} className="cancel-button">Cancel</button>
         </div>
       </div>
+      {showConfirmation && (
+  <div className="confirmation-box">
+    <h3>Thank you for booking an appointment with {priest?.username || 'the priest'}.</h3>
+    <p>You will be notified once the priest accepts your appointment.</p>
+    <p>
+      Meanwhile, you can check the list of required&nbsp;
+      <span
+        className="pooja-link"
+        onClick={() => navigate(`/pooja-items/${eventId}`)}
+      >
+        pooja items
+      </span>.
+    </p>
+    <button onClick={onClose} className="ok-button">OK</button>
+  </div>
+)}
+
     </div>
   );
 };

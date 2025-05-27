@@ -254,4 +254,31 @@ select:focus {
   .modal-actions button {
     width: 100%;
   }
+  .confirmation-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f0fdf4;
+  border: 1px solid #22c55e;
+  color: #166534;
+  text-align: center;
+}
+
+.pooja-link {
+  color: #0d9488;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ok-button {
+  margin-top: 1rem;
+  background-color: #10b981;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
 }
