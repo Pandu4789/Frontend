@@ -57,7 +57,7 @@ const PriestList = () => {
 
   return (
     <div className="priest-directory">
-      <h1>Divine Connect - Priest Directory</h1>
+      <h1>Priest Directory</h1>
       
       <div className="filters">
         <input
@@ -74,15 +74,18 @@ const PriestList = () => {
         />
         
         {/* 🔽 Dropdown for Pooja Type */}
-        <select
-          value={filters.poojaType}
-          onChange={e => handleFilterChange('poojaType', e.target.value)}
-        >
-          <option value="">Filter by pooja type</option>
-          {availablePoojas.map(pooja => (
-            <option key={pooja.id} value={pooja.name}>{pooja.name}</option>
-          ))}
-        </select>
+       <select
+  value={filters.poojaType}
+  onChange={e => handleFilterChange('poojaType', e.target.value)}
+  style={{
+    color: filters.poojaType === '' ? '#999' : '#333'
+  }}
+>
+  <option value="" disabled>Filter by pooja type</option>
+  {availablePoojas.map(pooja => (
+    <option key={pooja.id} value={pooja.name}>{pooja.name}</option>
+  ))}
+</select>
 
         <button onClick={resetFilters} className="reset-btn">
           Reset Filters
@@ -131,42 +134,46 @@ const PriestList = () => {
           font-weight: 600;
         }
         
-        .filters {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 30px;
-          flex-wrap: wrap;
-        }
-        
-        .filters input {
-          flex: 1;
-          min-width: 200px;
-          padding: 10px 15px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-          font-size: 14px;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .filters input:focus {
-          outline: none;
-          border-color: #3498db;
-          box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
-        }
-        
-        .reset-btn {
-          padding: 10px 20px;
-          background: #f5f5f5;
-          border: none;
-          border-radius: 6px;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        
-        .reset-btn:hover {
-          background: #e0e0e0;
-        }
+       .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+  justify-content: space-between;
+}
+
+.filters input,
+.filters select {
+  flex: 1 1 200px; /* Grow, shrink, min width */
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52,152,219,0.2);
+}
+
+.reset-btn {
+  padding: 10px 20px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1 1 150px; /* Allow it to grow/shrink too */
+}
+
+.reset-btn:hover {
+  background: #e0e0e0;
+}
+
         
         .priest-list {
           display: grid;
@@ -213,7 +220,6 @@ const PriestList = () => {
           gap: 8px;
           margin-bottom: 15px;
         }
-        
         .pooja-badge {
           background: #3498db;
           color: white;
@@ -247,19 +253,12 @@ const PriestList = () => {
           background: #2980b9;
         }
         
-        @media (max-width: 768px) {
-          .filters {
-            flex-direction: column;
-          }
-          
-          .filters input {
-            width: 100%;
-          }
-          
-          .priest-list {
-            grid-template-columns: 1fr;
-          }
-        }
+       @media (max-width: 768px) {
+  .priest-list {
+    grid-template-columns: 1fr;
+  }
+}
+
       `}</style>
     </div>
   );
