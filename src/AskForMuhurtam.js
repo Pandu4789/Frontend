@@ -8,6 +8,8 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
     const [birthTime, setBirthTime] = useState('');
     const [birthPlace, setBirthPlace] = useState('');
     const [showBirthDetailsPopup, setShowBirthDetailsPopup] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
 
     const handleInputChange = (field, value) => {
         setCustomer(prev => ({ ...prev, [field]: value }));
@@ -51,14 +53,15 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
             priestId: priest?.id || null,
         };
 
-        try {
-            await axios.post('http://localhost:8080/api/muhurtam/request', payload);
-            toast.success(`Muhurtam request sent to Priest: ${priest.firstName} ${priest.lastName}`);
-            onClose();
-        } catch (error) {
-            console.error('Failed to send Muhurtam request:', error);
-            toast.error('Failed to send request.');
-        }
+       try {
+  await axios.post('http://localhost:8080/api/muhurtam/request', payload);
+  setShowConfirmation(true); // show confirmation popup
+  toast.success(`Muhurtam request sent to Priest: ${priest.firstName} ${priest.lastName}`);
+} catch (error) {
+  console.error('Failed to send Muhurtam request:', error);
+  toast.error('Failed to send request.');
+}
+
     };
 
     return (
@@ -142,6 +145,21 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
                     <button onClick={handleSendMuhurtamRequest}>Send Request</button>
                     <button onClick={onClose}>Cancel</button>
                 </div>
+{showConfirmation && (
+  <div className="modal-overlay inner-popup">
+    <div className="modal-content">
+      <h3>
+        <strong>{priest?.firstName} {priest?.lastName || priest?.username}</strong> has received your Muhurtam request.
+      </h3>
+      <p>
+        <strong>{priest?.firstName} {priest?.lastName || priest?.username}</strong> will review your details and get back to you shortly with an auspicious time.
+      </p>
+      <div className="modal-actions">
+        <button onClick={() => { setShowConfirmation(false); onClose(); }}>OK</button>
+      </div>
+    </div>
+  </div>
+)}
 
                 {showBirthDetailsPopup && (
                     <div className="modal-overlay inner-popup">
