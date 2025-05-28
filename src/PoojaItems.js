@@ -5,6 +5,7 @@ import './PoojaItems.css';
 const PoojaItems = () => {
   const [events, setEvents] = useState([]);
   const [items, setItems] = useState([]);
+  const [originalItems, setOriginalItems] = useState([]); // Added for bullet list
   const [selectedEventId, setSelectedEventId] = useState('');
   const [toast, setToast] = useState(null);
   const [isBuying, setIsBuying] = useState(false);
@@ -25,11 +26,13 @@ const PoojaItems = () => {
             ...item,
             quantity: typeof item.quantity === 'number' ? item.quantity : 1,
           }));
-          setItems(itemsWithQuantity);
+          setOriginalItems(data); // Store original for bullet list
+          setItems(itemsWithQuantity); // Editable table copy
         })
         .catch(err => console.error('Error fetching pooja items:', err));
     } else {
       setItems([]);
+      setOriginalItems([]);
     }
   }, [selectedEventId]);
 
@@ -78,99 +81,98 @@ const PoojaItems = () => {
   const selectedEvent = events.find(e => e.id === parseInt(selectedEventId));
 
   return (
-  <div className="container" style={{ padding: '20px' }}>
-    {/* Header Centered */}
-    <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-      <h1>Pooja Items</h1>
-      <p>Select an event to see the recommended items.</p>
-    </div>
-
-    {/* Dropdown Row */}
-   <div className="dropdown-container">
-  <label htmlFor="eventSelect">Select Event:</label>
-  <select
-    id="eventSelect"
-    value={selectedEventId}
-    onChange={(e) => setSelectedEventId(e.target.value)}
-  >
-    <option value="">-- Select Event --</option>
-    {events.map(event => (
-      <option key={event.id} value={event.id}>{event.name}</option>
-    ))}
-  </select>
-</div>
-
-
-
-    {/* Main Content: Table and List side-by-side */}
-    <div style={{ display: 'flex', gap: '40px' }}>
-      {/* Table Section */}
-      <div style={{ flex: 3 }}>
-        <h2>Items Table</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Price/Unit</th>
-              <th>Subtotal</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length > 0 ? items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.itemName}</td>
-                <td>
-                  <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-                  <span style={{ margin: '0 10px' }}>{item.quantity}</span>
-                  <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
-                </td>
-                <td>₹{item.unitPrice}</td>
-                <td>₹{(item.unitPrice * item.quantity).toFixed(2)}</td>
-                <td>
-                  <button className="trash-button" onClick={() => handleRemoveItem(item.id)}>
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>
-                  {selectedEventId ? 'No items available for this event.' : 'Select an event to load items.'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Total and Buy Button */}
-        <div style={{ marginTop: '15px', textAlign: 'right' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
-            Total: ₹{totalPrice}
-          </div>
-          <button onClick={handleBuyItems} disabled={isBuying} className="buy-button">
-            <span style={{ marginRight: '8px' }}>🛒</span> {isBuying ? 'Processing...' : 'Buy Items'}
-          </button>
-        </div>
+    <div className="container" style={{ padding: '20px' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+        <h1>Pooja Items</h1>
+        <p>Select an event to see the recommended items.</p>
       </div>
 
-      {/* Right Section: Bullet List */}
-      {selectedEvent && (
-        <div style={{ flex: 2 }}>
-          <h3>Items list for selected pooja:</h3>
-          <ul>
-            {items.map(item => (
-              <li key={item.id}>{item.itemName} - {item.quantity}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+      {/* Event Dropdown */}
+      <div className="dropdown-container">
+        <label htmlFor="eventSelect">Select Event:</label>
+        <select
+          id="eventSelect"
+          value={selectedEventId}
+          onChange={(e) => setSelectedEventId(e.target.value)}
+        >
+          <option value="">-- Select Event --</option>
+          {events.map(event => (
+            <option key={event.id} value={event.id}>{event.name}</option>
+          ))}
+        </select>
+      </div>
 
-    {/* Toast Notification */}
-    {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
-  </div>
-);
-}
+      {/* Main Content */}
+      <div style={{ display: 'flex', gap: '40px' }}>
+        {/* Table Section */}
+        <div style={{ flex: 3 }}>
+          <h2>Recommended Items</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price/Unit</th>
+                <th>Subtotal</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length > 0 ? items.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.itemName}</td>
+                  <td>
+                    <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+                    <span style={{ margin: '0 10px' }}>{item.quantity}</span>
+                    <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                  </td>
+                  <td>₹{item.unitPrice}</td>
+                  <td>₹{(item.unitPrice * item.quantity).toFixed(2)}</td>
+                  <td>
+                    <button className="trash-button" onClick={() => handleRemoveItem(item.id)}>
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>
+                    {selectedEventId ? 'No items available for this event.' : 'Select an event to load items.'}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Total and Buy Button */}
+          <div style={{ marginTop: '15px', textAlign: 'right' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
+              Total: ₹{totalPrice}
+            </div>
+            <button onClick={handleBuyItems} disabled={isBuying} className="buy-button">
+              <span style={{ marginRight: '8px' }}>🛒</span> {isBuying ? 'Processing...' : 'Buy Items'}
+            </button>
+          </div>
+        </div>
+
+        {/* Bullet List Section */}
+        {selectedEvent && (
+          <div style={{ flex: 2 }}>
+            <h3>Items list for {selectedEvent.name}:</h3>
+            <ul>
+              {originalItems.map(item => (
+                <li key={item.id}>{item.itemName} - {item.quantity}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Toast Notification */}
+      {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
+    </div>
+  );
+};
+
 export default PoojaItems;
