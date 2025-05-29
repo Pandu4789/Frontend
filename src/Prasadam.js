@@ -1,191 +1,153 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import './Prasadam.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const categories = ['Sweets', 'Rice', 'Drinks'];
-
-const items = {
-  Sweets: [
-    { id: 1, name: 'Laddoo', price: 10, image: 'https://via.placeholder.com/150?text=Laddoo', desc: 'Delicious laddoo' },
-    { id: 2, name: 'Halwa', price: 15, image: 'https://via.placeholder.com/150?text=Halwa', desc: 'Sweet halwa' },
-  ],
-  Rice: [
-    { id: 3, name: 'Biryani', price: 50, image: 'https://via.placeholder.com/150?text=Biryani', desc: 'Tasty biryani' },
-    { id: 4, name: 'Fried Rice', price: 40, image: 'https://via.placeholder.com/150?text=Fried+Rice', desc: 'Fried rice special' },
-  ],
-  Drinks: [
-    { id: 5, name: 'Coke', price: 20, image: 'https://via.placeholder.com/150?text=Coke', desc: 'Cold drink' },
-    { id: 6, name: 'Juice', price: 25, image: 'https://via.placeholder.com/150?text=Juice', desc: 'Fresh juice' },
-  ],
-};
-
-export default function Prasadam() {
-  const [selectedCategory, setSelectedCategory] = useState('Sweets');
-  const [cart, setCart] = useState({});
+const Prasadam = () => {
+  const [items, setItems] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addItem = (item) => {
-    setCart((prev) => ({
-      ...prev,
-      [item.id]: { ...item, qty: (prev[item.id]?.qty || 0) + 1 },
-    }));
+  useEffect(() => {
+    fetch('http://localhost:8080/api/prasadam')
+      .then(res => res.json())
+      .then(data => setItems(data))
+      .catch(err => console.error('Error fetching prasadam:', err));
+  }, []);
+
+  const addToCart = (item) => {
+    const exists = cartItems.find(i => i.id === item.id);
+    if (!exists) {
+      setCartItems([...cartItems, { ...item, quantity: 1 }]);
+    }
   };
 
-  const removeItem = (item) => {
-    setCart((prev) => {
-      if (!prev[item.id]) return prev;
-      const newQty = prev[item.id].qty - 1;
-      if (newQty <= 0) {
-        const newCart = { ...prev };
-        delete newCart[item.id];
-        return newCart;
-      }
-      return { ...prev, [item.id]: { ...item, qty: newQty } };
-    });
+  const removeFromCart = (id) => {
+    setCartItems(cartItems.filter(i => i.id !== id));
   };
 
-  const deleteItem = (id) => {
-    const newCart = { ...cart };
-    delete newCart[id];
-    setCart(newCart);
+ const updateQuantity = (id, qty) => {
+  if (qty <= 0) {
+    // Remove the item if quantity is 0 or less
+    setCartItems(cartItems.filter(i => i.id !== id));
+  } else {
+    setCartItems(cartItems.map(i => (i.id === id ? { ...i, quantity: qty } : i)));
+  }
+};
+
+
+  const getTotal = () => {
+    return cartItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
   };
 
-  const totalCount = Object.values(cart).reduce((acc, i) => acc + i.qty, 0);
-  const totalPrice = Object.values(cart).reduce((acc, i) => acc + i.qty * i.price, 0);
-
-  const styles = {
-    container: { fontFamily: 'Arial, sans-serif', maxWidth: 1000, margin: '0 auto', padding: 20 },
-    topBar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-    menuButton: (active) => ({
-      marginRight: 10,
-      padding: '8px 12px',
-      border: 'none',
-      borderRadius: 5,
-      background: active ? '#007bff' : '#ddd',
-      color: active ? 'white' : 'black',
-      cursor: 'pointer'
-    }),
-    cartIcon: { position: 'relative', fontSize: 24, cursor: 'pointer' },
-    badge: { position: 'absolute', top: -5, right: -8, background: 'red', color: 'white', fontSize: 12, padding: '2px 6px', borderRadius: '50%' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 },
-    card: { border: '1px solid #ccc', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' },
-    productImage: { width: '100%', height: 150, objectFit: 'cover' },
-    content: { padding: 12, display: 'flex', flexDirection: 'column', flexGrow: 1 },
-    itemName: { fontWeight: 'bold', fontSize: 16, marginBottom: 5 },
-    desc: { fontSize: 13, color: '#666', marginBottom: 8 },
-    price: { fontWeight: 'bold', fontSize: 14, color: '#333', marginBottom: 12 },
-    addButton: {
-      width: '90%',
-      padding: 10,
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      cursor: 'pointer',
-      borderRadius: 8,
-      fontSize: 14,
-      margin: '0 auto 12px'
-    },
-    qtyControl: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      gap: 10,
-      margin: '0 auto 12px'
-    },
-    qtyButtonSmall: {
-      width: 30,
-      height: 30,
-      fontSize: 18,
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: 5,
-      cursor: 'pointer'
-    },
-    sideDrawer: (open) => ({
-      position: 'fixed',
-      top: 0,
-      right: open ? 0 : -320,
-      width: 300,
-      height: '100%',
-      background: '#fff',
-      boxShadow: '-2px 0 8px rgba(0,0,0,0.3)',
-      padding: 10,
-      transition: 'right 0.3s ease',
-      zIndex: 1000
-    }),
-    closeBtn: { background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', float: 'right' },
-    cartItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-    cartQty: { display: 'flex', alignItems: 'center' },
-    qtyButton: { width: 30, height: 30, fontSize: 18, margin: '0 5px' },
-    removeBtn: { background: 'none', border: 'none', color: 'red', fontSize: 12, cursor: 'pointer' },
-    checkoutBtn: { width: '100%', padding: 10, background: '#007bff', color: 'white', border: 'none', cursor: 'pointer', borderRadius: 5 }
+  const checkout = () => {
+    if (cartItems.length === 0) {
+      toast.warn("Cart is empty!");
+      return;
+    }
+    // Here you could also send data to the backend for order placement
+    toast.success("Order placed successfully!");
+    setCartItems([]);
+    setIsCartOpen(false);
   };
+
+  const filteredItems = categoryFilter === 'All'
+    ? items
+    : items.filter(item => item.category === categoryFilter);
+
+  const categories = ['All', ...new Set(items.map(i => i.category))];
 
   return (
-    <div style={styles.container}>
-      <div style={styles.topBar}>
-        <div>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              style={styles.menuButton(cat === selectedCategory)}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-        <div style={styles.cartIcon} onClick={() => setIsCartOpen(true)}>
-          🛒
-          {totalCount > 0 && <span style={styles.badge}>{totalCount}</span>}
-        </div>
+    <div className="prasadam-container">
+      <ToastContainer position="top-right" />
+      {/* <h1>Prasadam</h1> */}
+      <div className="filter-container">
+        <div className="category-buttons">
+  {categories.map(cat => (
+    <button
+      key={cat}
+      className={categoryFilter === cat ? 'active' : ''}
+      onClick={() => setCategoryFilter(cat)}
+    >
+      {cat}
+    </button>
+  ))}
+</div>
+
+        <div className="cart-icon" onClick={() => setIsCartOpen(true)}>
+  🛒
+  {cartItems.length > 0 && (
+    <span className="cart-count">
+      {cartItems.reduce((total, item) => total + item.quantity, 0)}
+    </span>
+  )}
+</div>
       </div>
 
-      <div style={styles.grid}>
-        {items[selectedCategory].map((item) => (
-          <div key={item.id} style={styles.card}>
-            <img src={item.image} alt={item.name} style={styles.productImage} />
-            <div style={styles.content}>
-              <div style={styles.itemName}>{item.name}</div>
-              <div style={styles.desc}>{item.desc}</div>
-              <div style={styles.price}>₹{item.price}</div>
-            </div>
-            {cart[item.id]?.qty ? (
-              <div style={styles.qtyControl}>
-                <button style={styles.qtyButtonSmall} onClick={() => removeItem(item)}>-</button>
-                <span>{cart[item.id].qty}</span>
-                <button style={styles.qtyButtonSmall} onClick={() => addItem(item)}>+</button>
-              </div>
-            ) : (
-              <button style={styles.addButton} onClick={() => addItem(item)}>Add to Cart</button>
-            )}
+
+      <div className="prasadam-grid">
+        {filteredItems.map(item => (
+          <div
+            key={item.id}
+            className={`prasadam-item ${!item.available ? 'unavailable' : ''}`}
+          >
+            <img src={item.imageUrl} alt={item.name} />
+            <h3>{item.name}</h3>
+            <small>{item.description}</small>
+            <p>${item.price}</p>
+            {item.available ? (
+  (() => {
+    const cartItem = cartItems.find(i => i.id === item.id);
+    return cartItem ? (
+      <div className="quantity-controls">
+        <button onClick={() => updateQuantity(item.id, cartItem.quantity - 1)} disabled={cartItem.quantity <= 0}>-</button>
+        <span>{cartItem.quantity}</span>
+        <button onClick={() => updateQuantity(item.id, cartItem.quantity + 1)}>+</button>
+      </div>
+    ) : (
+      <button onClick={() => addToCart(item)}>Add to Cart</button>
+    );
+  })()
+) : (
+  <div className="unavailable-overlay">Currently Unavailable</div>
+)}
+
           </div>
         ))}
       </div>
 
-      <div style={styles.sideDrawer(isCartOpen)}>
-        <button style={styles.closeBtn} onClick={() => setIsCartOpen(false)}>✕</button>
-        <h3>Your Cart</h3>
-        {Object.values(cart).length === 0 ? (
-          <p>Cart is empty.</p>
-        ) : (
-          <div>
-            {Object.values(cart).map((item) => (
-              <div key={item.id} style={styles.cartItem}>
-                <span>{item.name}</span>
-                <div style={styles.cartQty}>
-                  <button style={styles.qtyButton} onClick={() => removeItem(item)}>-</button>
-                  <span>{item.qty}</span>
-                  <button style={styles.qtyButton} onClick={() => addItem(item)}>+</button>
+      {isCartOpen && (
+        <div className="cart-drawer">
+          <h2>Your Cart</h2>
+          <button className="close-cart" onClick={() => setIsCartOpen(false)}>✖</button>
+          {cartItems.length === 0 ? (
+            <p>No items in cart.</p>
+          ) : (
+            <>
+              {cartItems.map(item => (
+                <div key={item.id} className="cart-item">
+                  <span>{item.name}</span>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                  />
+                  <span>${item.quantity * item.price}</span>
+                  <button onClick={() => removeFromCart(item.id)}>Remove</button>
                 </div>
-                <span>₹{item.qty * item.price}</span>
-                <button style={styles.removeBtn} onClick={() => deleteItem(item.id)}>Remove</button>
+              ))}
+              <div className="cart-total">
+                <strong>Total: ${getTotal()}</strong>
+                <button className="checkout-btn" onClick={checkout}>Checkout</button>
               </div>
-            ))}
-            <h4>Total: ₹{totalPrice}</h4>
-            <button style={styles.checkoutBtn}>Checkout</button>
-          </div>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default Prasadam;

@@ -7,6 +7,7 @@ import ManagePoojaServices from "./admin/ManagePoojaServices";
 import ManageEvents from "./admin/ManageEvents";
 import ManageMuhurtamRequests from "./admin/ManageMuhurtamRequests";
 import ManagePoojaItems from "./admin/ManagePoojaItems";
+import ManagePrasadams from "./admin/ManagePrasadams";
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("priests");
@@ -36,6 +37,8 @@ const AdminPage = () => {
         return <ManageMuhurtamRequests />;
       case "pooja-items":
         return <ManagePoojaItems />;
+      case "prasadam":
+        return <ManagePrasadams />;
       default:
         return <ManagePriests />;
     }
@@ -54,6 +57,7 @@ const AdminPage = () => {
         <button onClick={() => setActiveTab("events")} className="btn">Events</button>
         <button onClick={() => setActiveTab("muhurtam")} className="btn">Muhurtam Requests</button>
         <button onClick={() => setActiveTab("pooja-items")} className="btn">Pooja Items</button>
+        <button onClick={() => setActiveTab("prasadam")} className="btn">Prasadam</button>
         <button
           onClick={handleLogout}
           className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-4 rounded"

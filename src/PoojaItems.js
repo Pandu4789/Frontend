@@ -133,7 +133,7 @@ const PoojaItems = () => {
   return (
     <div className="container" style={{ padding: '20px' }}>
       <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-        <h1>Pooja Items</h1>
+        {/* <h1>Pooja Items</h1> */}
         <p>Select an event to see the recommended items.</p>
       </div>
 

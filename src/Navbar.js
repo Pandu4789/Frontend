@@ -65,7 +65,7 @@ const Navbar = ({ onLogout }) => {
             id="menu-toggle"
           />
           <h3 style={styles.logo} onClick={() => goToPage('/Dashboard')}>
-            My App
+            PRIESTify
           </h3>
         </div>
 
