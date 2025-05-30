@@ -62,20 +62,28 @@ function Calendar() {
   }, []);
 
   const loadAppointments = async () => {
-    try {
-      const res = await fetch("http://localhost:8080/api/appointments");
-      if (!res.ok) throw new Error(res.status);
-      const data = await res.json();
-      setEvents(data.map(a => ({
-        ...a,
-        start: new Date(a.start),
-        end: new Date(a.end),
-        title: a.name,
-      })));
-    } catch (err) {
-      console.error('Failed to load appointments:', err);
-    }
-  };
+  const priestId = localStorage.getItem("userId"); // Or whatever key you're using
+
+  if (!priestId) {
+    console.error("Priest ID not found in local storage.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/appointments/priest/${priestId}`);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    setEvents(data.map(a => ({
+      ...a,
+      start: new Date(a.start),
+      end: new Date(a.end),
+      title: a.name,
+    })));
+  } catch (err) {
+    console.error('Failed to load appointments:', err);
+  }
+};
+
 
   useEffect(() => {
     loadAppointments();
@@ -154,15 +162,29 @@ function Calendar() {
       ...formData,
       start,
       end,
-      title: formData.name
+      title: formData.name,
+      priestId: localStorage.getItem("userId")// Assuming you have priestId in localStorage
     };
 
     try {
-      await fetch(`http://localhost:8080/api/appointments${editId ? `/${editId}` : ''}`, {
-        method: editId ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const priestId = localStorage.getItem("userId"); // Or whatever key you're using
+
+if (!priestId) {
+  setErrorPopup("Priest ID not found. Please log in again.");
+  return;
+}
+
+const url = editId
+  ? `http://localhost:8080/api/appointments/${editId}`
+  : `http://localhost:8080/api/appointments/priest/${priestId}`;
+
+await fetch(url, {
+  method: editId ? 'PUT' : 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload),
+});
+
+
       await loadAppointments();
       closeModal();
     } catch (err) {
@@ -383,4 +405,3 @@ const btnStyle = {
 };
 
 export default Calendar;
-
