@@ -11,13 +11,11 @@ import ManagePrasadams from "./admin/ManagePrasadams";
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("priests");
-  const navigate = useNavigate(); // for redirection
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear auth-related data
-    localStorage.removeItem("token"); // or sessionStorage.clear() if using sessionStorage
-    localStorage.removeItem("role");  // optional
-    // Redirect to login page
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 
@@ -45,28 +43,103 @@ const AdminPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-center w-full">Admin Dashboard</h1>
+    <>
+      <style>{`
+        .admin-container {
+          min-height: 100vh;
+          background-color: #f9fafb;
+          padding: 24px;
+          font-family: Arial, sans-serif;
+        }
+        .header {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 24px;
+        }
+        .admin-heading {
+          color: black;
+          font-size: 32px;
+          font-weight: bold;
+          margin: 0;
+        }
+        .button-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          position: relative;
+          padding-right: 140px; /* reserve space for logout button */
+          margin-bottom: 24px;
+          justify-content: flex-start;
+        }
+        .btn {
+          color: black;
+          font-size: 18px;
+          font-weight: 600;
+          padding: 10px 22px;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          background-color: white;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+          user-select: none;
+          white-space: nowrap;
+        }
+        .btn:hover {
+          background-color: #e5e7eb; /* light gray */
+        }
+        .btn:focus {
+          outline: 2px solid #2563eb; /* blue outline for accessibility */
+          outline-offset: 2px;
+        }
+        .btn-logout {
+          position: absolute;
+          top: 0;
+          right: 0;
+          background-color: #dc2626;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-weight: 600;
+          transition: background-color 0.2s ease;
+          cursor: pointer;
+          height: 42px;
+          line-height: 22px;
+        }
+        .btn-logout:hover {
+          background-color: #b91c1c;
+        }
+        .content {
+          background-color: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          padding: 24px;
+        }
+      `}</style>
+
+      <div className="admin-container">
+        <div className="header">
+          <h1 className="admin-heading">Admin Dashboard</h1>
+        </div>
+
+        <div className="button-group">
+          <button className="btn" onClick={() => setActiveTab("priests")}>Priests</button>
+          <button className="btn" onClick={() => setActiveTab("customers")}>Customers</button>
+          <button className="btn" onClick={() => setActiveTab("appointments")}>Appointments</button>
+          <button className="btn" onClick={() => setActiveTab("pooja")}>Pooja Services</button>
+          <button className="btn" onClick={() => setActiveTab("events")}>Events</button>
+          <button className="btn" onClick={() => setActiveTab("muhurtam")}>Muhurtam Requests</button>
+          <button className="btn" onClick={() => setActiveTab("pooja-items")}>Pooja Items</button>
+          <button className="btn" onClick={() => setActiveTab("prasadam")}>Prasadam</button>
+          {/* add more buttons here if needed */}
+
+          <button className="btn-logout" onClick={handleLogout}>Logout</button>
+        </div>
+
+        <div className="content">{renderComponent()}</div>
       </div>
-      <div className="flex gap-3 flex-wrap justify-center mb-6">
-        <button onClick={() => setActiveTab("priests")} className="btn">Priests</button>
-        <button onClick={() => setActiveTab("customers")} className="btn">Customers</button>
-        <button onClick={() => setActiveTab("appointments")} className="btn">Appointments</button>
-        <button onClick={() => setActiveTab("pooja")} className="btn">Pooja Services</button>
-        <button onClick={() => setActiveTab("events")} className="btn">Events</button>
-        <button onClick={() => setActiveTab("muhurtam")} className="btn">Muhurtam Requests</button>
-        <button onClick={() => setActiveTab("pooja-items")} className="btn">Pooja Items</button>
-        <button onClick={() => setActiveTab("prasadam")} className="btn">Prasadam</button>
-        <button
-          onClick={handleLogout}
-          className="absolute top-6 right-6 bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-4 rounded"
-        >
-          Logout
-        </button>
-      </div>
-      <div className="bg-white shadow-md rounded p-4">{renderComponent()}</div>
-    </div>
+    </>
   );
 };
 

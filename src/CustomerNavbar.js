@@ -52,7 +52,7 @@ const CustomerNavbar = ({ onLogout }) => {
       {/* App Logo */}
       <div className="app-icon" onClick={() => navigate('/events')}>
         <FaOm />
-        <span className="app-name">PoojaConnect</span>
+        <span className="app-name">PRIESTify</span>
       </div>
 
       {/* Centered Navigation */}

@@ -19,6 +19,7 @@ import PriestProfile from './PriestProfile';
 import MohurtamRequests from './MuhurtamRequests';
 import SessionTimeout from './SessionTimeout';
 import AdminPage from './AdminPage';
+import Footer from './Footer';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -59,6 +60,7 @@ function App() {
   return (
     <Router>
       <SessionTimeout timeout={10 * 60 * 1000}> {/* 10 minutes timeout */}
+         <div style={{ paddingBottom: '80px' }}>
       {/* Conditionally render Navbar based on role */}
       {isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
       {isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
@@ -116,7 +118,11 @@ function App() {
           </>
         )}
       </Routes>
+      </div>
+      <Footer />
+        
       </SessionTimeout>
+      
     </Router>
   );
 }
