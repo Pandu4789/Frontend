@@ -36,10 +36,12 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [options, setOptions] = useState([]);
+  const [festivals, setFestivals] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [viewDate, setViewDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month');
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null); // null means no date selected => hide appointments list
   const [formData, setFormData] = useState({
     event: '', name: '', phone: '', date: new Date(), timeFrom: '', timeTo: '', address: ''
   });
@@ -49,24 +51,24 @@ export default function Calendar() {
     fetch(`${API_BASE}/api/events`)
       .then(res => res.json())
       .then(data => {
-        setEvents(data);
         const names = data.map(n => n.name);
         setOptions(names);
       })
       .catch(err => console.error("Failed to load events", err));
+
+    fetch(`${API_BASE}/api/festivals`)
+      .then(res => res.json())
+      .then(setFestivals)
+      .catch(err => console.error("Failed to load festivals", err));
   }, []);
 
   const loadAppointments = async () => {
     const priestId = localStorage.getItem("userId");
-    if (!priestId) {
-      console.error("Priest ID not found in local storage.");
-      return;
-    }
-
+    if (!priestId) return;
     try {
       const res = await fetch(`${API_BASE}/api/appointments/priest/${priestId}`);
-      if (!res.ok) throw new Error(res.status);
       const data = await res.json();
+      setAppointments(data);
       setEvents(data.map(a => ({
         ...a,
         start: new Date(a.start),
@@ -135,30 +137,15 @@ export default function Calendar() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-
-    if (!formData.timeFrom || !formData.timeTo) {
-      setErrorPopup('Please select both "From" and "To" times.');
-      return;
-    }
+    if (!formData.timeFrom || !formData.timeTo) return setErrorPopup('Please select both "From" and "To" times.');
 
     const start = toISO(formData.date, formData.timeFrom);
     const end = toISO(formData.date, formData.timeTo);
     const now = new Date();
 
-    if (start < now) {
-      setErrorPopup('Cannot create appointments in the past.');
-      return;
-    }
-
-    if (start >= end) {
-      setErrorPopup('Start time must be earlier than end time.');
-      return;
-    }
-
-    if (hasConflict(start, end)) {
-      setErrorPopup('Cannot select this time. Appointment already exists.');
-      return;
-    }
+    if (start < now) return setErrorPopup('Cannot create appointments in the past.');
+    if (start >= end) return setErrorPopup('Start time must be earlier than end time.');
+    if (hasConflict(start, end)) return setErrorPopup('Time conflict with another appointment.');
 
     const payload = {
       ...formData,
@@ -169,15 +156,9 @@ export default function Calendar() {
     };
 
     try {
-      const priestId = localStorage.getItem("userId");
-      if (!priestId) {
-        setErrorPopup("Priest ID not found. Please log in again.");
-        return;
-      }
-
       const url = editId
         ? `${API_BASE}/api/appointments/${editId}`
-        : `${API_BASE}/api/appointments/priest/${priestId}`;
+        : `${API_BASE}/api/appointments/priest/${payload.priestId}`;
 
       await fetch(url, {
         method: editId ? 'PUT' : 'POST',
@@ -194,37 +175,55 @@ export default function Calendar() {
 
   const handleDelete = async () => {
     if (!editId) return;
-    try {
-      await fetch(`${API_BASE}/api/appointments/${editId}`, { method: 'DELETE' });
-      await loadAppointments();
-      closeModal();
-    } catch (err) {
-      console.error('Delete failed:', err);
-    }
+    await fetch(`${API_BASE}/api/appointments/${editId}`, { method: 'DELETE' });
+    await loadAppointments();
+    closeModal();
   };
 
   const customDayPropGetter = date => {
-    const now = new Date();
-    if (isSameDay(date, now) && isSameMonth(date, now)) {
-      return { style: { backgroundColor: '#eaeaea' } };
+    const hasAppointment = appointments.some(a => isSameDay(new Date(a.start), date));
+    const hasFestival = festivals.some(f => isSameDay(new Date(f.date), date));
+    const today = new Date();
+    const isToday = isSameDay(date, today);
+
+    let style = {};
+
+    if (hasAppointment && hasFestival) {
+      style.background = 'linear-gradient(135deg, rgb(212, 239, 212) 50%, rgb(217, 231, 248) 50%)';
+    } else if (hasAppointment) {
+      style.backgroundColor = 'rgb(217, 231, 248)';
+    } else if (hasFestival) {
+      style.backgroundColor = 'rgb(212, 239, 212)';
     }
-    return {};
+
+    if (isToday) {
+      style.border = '2px solid #ff5722';
+      style.borderRadius = '4px';
+    }
+
+    return { style };
   };
 
+  // Filter festivals only for the current month/year shown in calendar
+  const festivalsInMonth = festivals.filter(f => {
+    if (!f.date) return false;
+    const festDate = new Date(f.date);
+    return festDate.getMonth() === viewDate.getMonth() && festDate.getFullYear() === viewDate.getFullYear();
+  });
+
   const now = new Date();
-  const isToday = isSameDay(formData.date, now);
+  const isToday = selectedDate ? isSameDay(selectedDate, now) : false;
   const filteredTimeOptions = useMemo(() => timeOptions.filter(t => {
     if (!isToday) return true;
-    const timeDate = toISO(now, t);
-    return timeDate > now;
-  }), [formData.date]);
+    return toISO(now, t) > now;
+  }), [selectedDate]);
 
   const fromIndex = filteredTimeOptions.indexOf(formData.timeFrom);
   const toTimeOptions = fromIndex >= 0 ? filteredTimeOptions.slice(fromIndex + 1) : filteredTimeOptions;
 
   return (
-    <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 20 }}>
+    <div style={{ padding: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Calendar</h2>
         <button
           onClick={openAdd}
@@ -235,31 +234,109 @@ export default function Calendar() {
       </div>
 
       {errorPopup && (
-        <div style={{
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          padding: '10px 20px',
-          margin: '10px 20px',
-          borderRadius: 4,
-          border: '1px solid #f5c6cb'
-        }}>
+        <div
+          style={{
+            backgroundColor: '#f8d7da',
+            color: '#721c24',
+            padding: '10px 20px',
+            margin: '10px 0',
+            borderRadius: 4,
+          }}
+        >
           {errorPopup}
         </div>
       )}
 
-      <BigCalendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 600, margin: '0 20px' }}
-        onSelectEvent={openEdit}
-        views={['month', 'week', 'day']}
-        date={viewDate}
-        onNavigate={setViewDate}
-        onView={setViewMode}
-        dayPropGetter={customDayPropGetter}
-      />
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ flex: 3 }}>
+          <BigCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 600 }}
+            onSelectEvent={openEdit}
+            views={{ month: true }}  // only allow month view, no other views
+            view="month"
+            date={viewDate}
+            onNavigate={setViewDate}
+            // no onView because we fix view to month
+            dayPropGetter={customDayPropGetter}
+            onSelectSlot={slotInfo => setSelectedDate(slotInfo.start)}
+            selectable
+            eventPropGetter={() => ({
+              style: { display: 'none' }
+            })}
+            toolbar={true}
+            components={{
+              toolbar: (props) => {
+                // Custom toolbar to hide view selector except month
+                return (
+                  <div className="rbc-toolbar" style={{ marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
+                    <div className="rbc-btn-group">
+                      <button type="button" onClick={() => props.onNavigate('PREV')}>
+                        &#8249;
+                      </button>
+                      <button type="button" onClick={() => props.onNavigate('TODAY')}>
+                        Today
+                      </button>
+                      <button type="button" onClick={() => props.onNavigate('NEXT')}>
+                        &#8250;
+                      </button>
+                    </div>
+                    <span className="rbc-toolbar-label" style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      {format(props.date, 'MMMM yyyy')}
+                    </span>
+                    {/* Hide view selectors completely */}
+                    <div style={{ visibility: 'hidden' }}>
+                      {/* Empty placeholder so layout doesn't shift */}
+                      <button>Month</button>
+                    </div>
+                  </div>
+                );
+              },
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            flex: 1,
+            maxWidth: '250px',
+            padding: '1rem',
+            height: 600,
+            overflowY: 'auto',
+          }}
+        >
+          <h3>Festivals:</h3>
+          <ul style={{ listStyleType: 'disc', paddingLeft: '1.2rem', margin: 0 }}>
+            {festivalsInMonth.map(f => {
+              const festDate = new Date(f.date);
+              return (
+                <li key={f.id}>
+                  {festDate.getDate()} - {f.name}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
+      {/* Show appointment list only when a date is selected */}
+      {selectedDate && (
+        <div style={{ marginTop: '2rem', borderTop: '1px solid #ccc', paddingTop: '1rem' }}>
+          <h3>Appointments on {format(selectedDate, 'MMMM do, yyyy')}</h3>
+          <ul>
+            {appointments
+              .filter(a => isSameDay(new Date(a.start), selectedDate))
+              .map(a => (
+                <li key={a.id}>
+                  <strong>{a.name}</strong> | {format(new Date(a.start), 'hh:mm a')} - {format(new Date(a.end), 'hh:mm a')} | Event: {a.event}
+                </li>
+              ))}
+          </ul>
+        </div>
+      )}
 
       <AppointmentModal
         showModal={showModal}
@@ -274,6 +351,6 @@ export default function Calendar() {
         filteredTimeOptions={filteredTimeOptions}
         toTimeOptions={toTimeOptions}
       />
-    </>
+    </div>
   );
 }
