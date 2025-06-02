@@ -9,6 +9,7 @@ import ManageMuhurtamRequests from "./admin/ManageMuhurtamRequests";
 import ManagePoojaItems from "./admin/ManagePoojaItems";
 import ManageFestivals from "./admin/ManageFestivals";
 import ManagePrasadams from "./admin/ManagePrasadams";
+import ManageDailyTimes from "./admin/ManageDailyTimes";
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState("priests");
@@ -40,6 +41,8 @@ const AdminPage = () => {
         return <ManagePrasadams />;
       case "festivals":
         return <ManageFestivals />;
+      case "daily-times":
+        return <ManageDailyTimes />;
       default:
         return <ManagePriests />;
     }
@@ -136,6 +139,7 @@ const AdminPage = () => {
           <button className="btn" onClick={() => setActiveTab("pooja-items")}>Pooja Items</button>
           <button className="btn" onClick={() => setActiveTab("prasadam")}>Prasadam</button>
           <button className="btn" onClick={() => setActiveTab("festivals")}>Festivals</button>
+          <button className="btn" onClick={() => setActiveTab("daily-times")}>Daily Times</button>
 
           {/* add more buttons here if needed */}
 

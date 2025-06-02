@@ -19,7 +19,7 @@ const PriestList = () => {
         data = data.filter(p => p.phone && p.phone.includes(filters.phone));
       }
       if (filters.poojaType) {
-        data = data.filter(p => 
+        data = data.filter(p =>
           p.poojas && p.poojas.some(pooja => pooja.name === filters.poojaType)
         );
       }
@@ -59,7 +59,7 @@ const PriestList = () => {
     <>
       <div className="priest-directory">
         <h1>Priest Directory</h1>
-        
+
         <div className="filters">
           <input
             type="text"
@@ -73,7 +73,7 @@ const PriestList = () => {
             value={filters.phone}
             onChange={e => handleFilterChange('phone', e.target.value)}
           />
-          
+
           <select
             value={filters.poojaType}
             onChange={e => handleFilterChange('poojaType', e.target.value)}

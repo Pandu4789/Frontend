@@ -1,0 +1,264 @@
+.telugu-calendar {
+  padding: 20px;
+  font-family: 'Noto Sans Telugu', sans-serif;
+  color: #6b1e1e;
+}
+
+.calendar-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+/* Layout */
+.calendar-layout {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+/* Calendar */
+.react-calendar {
+  width: 840px;
+  background: white;
+  border-radius: 8px;
+  font-family: 'Noto Sans Telugu', sans-serif;
+  border-collapse: collapse;
+  display: inline-block;
+}
+
+/* Navigation (Month/Year & Arrows) */
+.react-calendar__navigation {
+  height: 50px;
+  margin-bottom: 10px;
+}
+
+.react-calendar__navigation button {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #6b1e1e;
+}
+
+/* Weekdays (Sun, Mon...) */
+.react-calendar__month-view__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: #f9f2f2;
+  border-bottom: 1px solid #bbb; /* lighter border */
+  color: #6b1e1e;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 8px 0;
+  border-left: 1px solid #bbb;
+  border-right: 1px solid #bbb;
+}
+
+/* Vertical borders between weekday names */
+.react-calendar__month-view__weekdays__weekday:not(:last-child) {
+  border-right: 1px solid #bbb;
+}
+
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
+
+/* Days grid with outer border */
+.react-calendar__month-view__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid #bbb; /* lighter outer border */
+  border-radius: 8px;
+  gap: 0;
+}
+
+/* Calendar Day Tiles */
+.react-calendar__tile {
+  width: 80px !important;
+  height: 80px !important;
+  padding: 0;
+  border: 1px solid #ccc !important; /* lighter border on all sides */
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 0;
+  background: white;
+  color: #6b1e1e;
+}
+
+.react-calendar__tile--neighboringMonth {
+  color: lightgray;
+  border-color: #eee !important; /* very light border for neighboring months */
+}
+
+.react-calendar__tile--active {
+  background: #f0dcdc !important;
+  color: #6b1e1e !important;
+}
+
+/* Thinner horizontal border between weeks */
+.react-calendar__month-view__days > button:not(:nth-last-child(-n+7)) {
+  border-bottom: 1px solid #bbb !important;
+}
+
+/* Remove default margins/padding in tile content */
+.react-calendar__tile > * {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.react-calendar__month-view__days__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.react-calendar__month-view__days__day abbr {
+  display: none;
+}
+
+/* Tile content fills the tile */
+.tile-content {
+  flex: 1;
+  width: 100%;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.date-number {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.moon-symbol {
+  font-size: 1.2rem;
+  margin-bottom: 2px;
+}
+
+/* Festival List */
+.festival-list {
+  width: 250px;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff8f8;
+  font-family: 'Noto Sans Telugu', sans-serif;
+  color: #4a2c2c;
+}
+
+.festival-list h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #6b1e1e;
+}
+
+.festival-list ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Appointments & Daily Times */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 250px;
+}
+
+.appointment-box,
+.daily-times-box {
+  border: 1px solid #bbb;
+  background-color: #fff8f8;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Telugu', sans-serif;
+  color: #4a2c2c;
+  max-height: 300px;
+  overflow-y: auto;
+}
+/* Highlight today's date with a subtle background and border */
+.react-calendar__tile.selected-date {
+  background-color: #f0dcdc !important;
+  color: #6b1e1e !important;
+}
+
+.react-calendar__tile.today-date {
+  background-color: #fff3b0 !important; /* soft yellow background */
+  color: #b8860b !important; /* dark golden text */
+  font-weight: bold;
+}
+
+
+
+.appointment-box h3,
+.daily-times-box h3 {
+  text-align: center;
+  color: #6b1e1e;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+.appointment-box ul,
+.daily-times-box ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.appointment-box p,
+.daily-times-box p,
+.festival-list p {
+  margin-left: 20px;
+  font-size: 0.95rem;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .calendar-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .react-calendar,
+  .festival-list,
+  .right-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .festival-list {
+    order: 2;
+  }
+
+  .right-panel {
+    order: 3;
+  }
+
+  .react-calendar__tile {
+    width: calc((100vw - 40px) / 7) !important;
+    height: calc((100vw - 40px) / 7) !important;
+  }
+}
