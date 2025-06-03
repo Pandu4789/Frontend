@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import CustomerNavbar from './CustomerNavbar';
+import SplashScreen from './SplashScreen';
 import Login from './login';
 import Signup from './SignUp';
 import Dashboard from './Dashboard';
@@ -24,8 +25,13 @@ import Footer from './Footer';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false); // Hide splash after 3 seconds
+    }, 1000);
+
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
     console.log('Token:', token);
@@ -38,6 +44,7 @@ function App() {
       setIsAuthenticated(false);
       setUserRole(null);
     }
+     return () => clearTimeout(timer);
   }, []); // Run only once on component mount
 
   const handleLoginSuccess = (role) => {
@@ -56,7 +63,9 @@ function App() {
 
   console.log('isAuthenticated:', isAuthenticated);
   console.log('userRole:', userRole); // Debugging
-
+ if (showSplash) {
+    return <SplashScreen />;
+  }
   return (
     <Router>
       <SessionTimeout timeout={10 * 60 * 1000}> {/* 10 minutes timeout */}
