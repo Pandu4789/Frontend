@@ -86,9 +86,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  border-radius: 0;
+  border-radius: 8px;
   background: white;
   color: #6b1e1e;
+}
+.neighboring-month {
+  color: gray !important;
+  background-color: #f5f5f5 !important;
+  border-color: #ddd !important;
+}
+.holiday-date {
+  color: red !important;
+  font-weight: bold;
+}
+.neighboring-month .moon-symbol {
+  opacity: 0.3;
+}
+.neighboring-month .date-number {
+ 
+  opacity: 0.6;
 }
 
 .react-calendar__tile--neighboringMonth {
@@ -131,6 +147,7 @@
 
 /* Tile content fills the tile */
 .tile-content {
+  position: relative;
   flex: 1;
   width: 100%;
   padding-top: 4px;
@@ -148,8 +165,14 @@
 }
 
 .moon-symbol {
-  font-size: 1.2rem;
-  margin-bottom: 2px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.7rem;
+  pointer-events: none;
+  user-select: none;
+  color: #6b1e1e; /* or black */
+  z-index: 10;
 }
 
 /* Festival List */
@@ -256,7 +279,24 @@
   .right-panel {
     order: 3;
   }
-
+.date-number {
+    font-size: 0.8rem; /* smaller date number */
+  }
+  
+  .moon-symbol {
+    font-size: 0.4rem;
+    top: 2px;
+    right: 2px;
+  }
+  
+  .react-calendar__month-view__weekdays {
+    font-size: 0.75rem;
+    justify-content: center;
+  }
+   .react-calendar__tile--neighboringMonth {
+    color: lightgray !important;
+    border-color: #eee !important;
+  }
   .react-calendar__tile {
     width: calc((100vw - 40px) / 7) !important;
     height: calc((100vw - 40px) / 7) !important;

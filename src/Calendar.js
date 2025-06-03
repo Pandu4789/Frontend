@@ -100,15 +100,27 @@ export default function TeluguCalendar() {
   };
 
   // Highlight today and selected date with custom classes
-  const tileClassName = ({ date, view }) => {
-    if (view !== 'month') return '';
+ const tileClassName = ({ date, view }) => {
+  if (view !== 'month') return '';
 
-    const today = new Date();
-    if (isSameDay(date, selectedDate)) return 'selected-date';
-    if (isSameDay(date, today)) return 'today-date';
+  const classes = [];
+  const today = new Date();
 
-    return '';
-  };
+  const isFestival = festivals.some(f => isSameDay(new Date(f.date), date));
+  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+  if (isFestival || isWeekend) classes.push('holiday-date');
+  if (isSameDay(date, selectedDate)) classes.push('selected-date');
+  if (isSameDay(date, today)) classes.push('today-date');
+
+  if (date.getMonth() !== activeStartDate.getMonth()) {
+    classes.push('neighboring-month');
+  }
+
+  return classes.join(' ');
+};
+
+
 
   return (
     <div className="telugu-calendar">
@@ -147,40 +159,35 @@ export default function TeluguCalendar() {
         {/* RIGHT: Appointments + Daily Times */}
         <div className="right-panel">
           <div className="appointment-box">
-  <h3>Appointments</h3>
-  {selectedDate ? (
-    getAppointments(selectedDate).length > 0 ? (
-      <ul>
-        {getAppointments(selectedDate).map(a => (
-         <li key={a.id} style={{ marginBottom: '12px' }}>
-  <strong>{a.event}</strong><br />
-  <b>Name:</b> {a.name}<br />
-  <b>Phone:</b> {a.phone}<br />
-  <b>Time:</b> {format(new Date(a.start), 'hh:mm a')} - {format(new Date(a.end), 'hh:mm a')}
-</li>
-
-
-        ))}
-      </ul>
-    ) : (
-      <p>No Appointments</p> // ✅ Outside <ul> logic but same style
-    )
-  ) : (
-    <ul><li>Select Date</li></ul> // ✅ Consistent structure
-  )}
-</div>
-
-
+            <h3>Appointments</h3>
+            {selectedDate ? (
+              getAppointments(selectedDate).length > 0 ? (
+                <ul>
+                  {getAppointments(selectedDate).map(a => (
+                    <li key={a.id} style={{ marginBottom: '12px' }}>
+                      <strong>{a.event}</strong><br />
+                      <b>Name:</b> {a.name}<br />
+                      <b>Phone:</b> {a.phone}<br />
+                      <b>Time:</b> {format(new Date(a.start), 'hh:mm a')} - {format(new Date(a.end), 'hh:mm a')}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No Appointments</p> // ✅ Outside <ul> logic but same style
+              )
+            ) : (
+              <ul><li>Select Date</li></ul> // ✅ Consistent structure
+            )}
+          </div>
           <div className="daily-times-box">
             <h3>Daily Times</h3>
             {selectedDate && dailyTimes.length > 0 ? (
               dailyTimes.map((dt, idx) => (
                 <ul key={idx}>
                   <li><b>Yamagandam:</b> {formatTime(dt.yamagandamStart, selectedDate)} - {formatTime(dt.yamagandamEnd, selectedDate)}</li>
-
                   <li><b>Rahukalam:</b> {formatTime(dt.rahukalamStart, selectedDate)} - {formatTime(dt.rahukalamEnd, selectedDate)}</li>
-<li><b>Varjam:</b> {formatTime(dt.varjamStart, selectedDate)} - {formatTime(dt.varjamEnd, selectedDate)}</li>
-<li><b>Durmohurtam:</b> {formatTime(dt.durmohurtamStart, selectedDate)} - {formatTime(dt.durmohurtamEnd, selectedDate)}</li>
+                  <li><b>Varjam:</b> {formatTime(dt.varjamStart, selectedDate)} - {formatTime(dt.varjamEnd, selectedDate)}</li>
+                  <li><b>Durmohurtam:</b> {formatTime(dt.durmohurtamStart, selectedDate)} - {formatTime(dt.durmohurtamEnd, selectedDate)}</li>
 
                 </ul>
               ))
