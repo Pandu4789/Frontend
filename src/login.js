@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './login.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // For password toggle
+import { MdOutlineMailOutline } from "react-icons/md"; // For email icon
+import { MdOutlineLock } from 'react-icons/md'; // For password icon
+import './login.css'; // Make sure this is the correct path to your CSS file
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    username: '',
+    email: '', // Changed from username to email
     password: '',
   });
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [isSubmitting, setIsSubmitting] = useState(false); // State for button loading
 
-  // Load saved username if Remember Me was checked
+  // Load saved email if Remember Me was checked
   useEffect(() => {
-    const savedUsername = localStorage.getItem('rememberedUsername');
-    if (savedUsername) {
-      setForm(prev => ({ ...prev, username: savedUsername }));
+    const savedEmail = localStorage.getItem('rememberedEmail'); // Changed to rememberedEmail
+    if (savedEmail) {
+      setForm(prev => ({ ...prev, email: savedEmail })); // Set email
       setRememberMe(true);
     }
   }, []);
@@ -31,29 +36,34 @@ const Login = ({ onLoginSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true); // Set submitting state
 
     try {
       const res = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        // Send email instead of username
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
 
       if (res.ok) {
         const data = await res.json();
 
         if (data.role) {
-          // Save remembered username if checkbox is checked
+          // Save remembered email if checkbox is checked
           if (rememberMe) {
-            localStorage.setItem('rememberedUsername', form.username);
+            localStorage.setItem('rememberedEmail', form.email); // Save email
           } else {
-            localStorage.removeItem('rememberedUsername');
+            localStorage.removeItem('rememberedEmail');
           }
 
-          localStorage.setItem('username', data.username);
+          localStorage.setItem('userEmail', data.email); // Store email
+          localStorage.setItem('firstName', data.firstName); // Store firstName
+          localStorage.setItem('lastName', data.lastName); // Store lastName
           localStorage.setItem('role', data.role);
-          localStorage.setItem('token', data.token);
           localStorage.setItem('userId', data.userId);
+          // Token is not part of the login response in your current backend.
+          // If your backend provides a token, save it here: localStorage.setItem('token', data.token);
 
           onLoginSuccess(data.role);
 
@@ -81,72 +91,81 @@ const Login = ({ onLoginSuccess }) => {
     } catch (err) {
       setError('An unexpected error occurred. Please try again later.');
       console.error(err);
+    } finally {
+      setIsSubmitting(false); // Reset submitting state
     }
   };
 
   const handleForgotPassword = () => {
-    navigate('/forgotpassword');
+    navigate('/forgotpassword'); // This page will also need to be updated to use email
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Welcome Back 👋</h2>
-        <p className="auth-subtitle">Login to continue</p>
+    <div className="login-container">
+      <div className="login-card">
+        <h2 className="login-title">Welcome Back 👋</h2>
+        <p className="login-subtitle">Login to continue</p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="input-group">
+        <form onSubmit={handleSubmit} className="login-form-container">
+          <div className="login-input-group">
+            <MdOutlineMailOutline className="login-input-icon" /> {/* Using email icon */}
             <input
-              name="username"
-              type="text"
-              placeholder="Username"
-              value={form.username}
+              name="email" // Changed name to email
+              type="email" // Changed type to email
+              placeholder="Email ID"
+              value={form.email}
               onChange={handleChange}
               required
-              className="auth-input"
+              className="login-auth-input"
             />
           </div>
-          <div className="input-group">
+          <div className="login-input-group">
+            <MdOutlineLock className="login-input-icon" />
             <input
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
               required
-              className="auth-input"
+              className="login-auth-input"
             />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="login-password-toggle"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
-          {/* Forgot Password below password */}
           <div className="forgot-password-link-inline">
-            <a className="link" onClick={handleForgotPassword}>
+            <a className="login-link" onClick={handleForgotPassword}>
               Forgot Password?
             </a>
           </div>
 
-          {/* Remember Me */}
-        <div className="remember-me">
-  <label className="remember-label">
-    <input
-      type="checkbox"
-      checked={rememberMe}
-      onChange={handleCheckboxChange}
-    />
-    <span>Remember Me</span>
-  </label>
-</div>
+          <div className="remember-me">
+            <label className="remember-label">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={handleCheckboxChange}
+                className="remember-checkbox"
+              />
+              <span>Remember Me</span>
+            </label>
+          </div>
 
+          {error && <p className="login-error-text">{error}</p>}
 
-
-          {error && <p className="error-text">{error}</p>}
-
-          <button type="submit" className="auth-btn">Login</button>
+          <button type="submit" className="login-auth-btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Logging In...' : 'Login'}
+          </button>
         </form>
 
-        <p className="switch-link">
+        <p className="login-switch-link">
           Don't have an account?{' '}
-          <a className="link" onClick={() => navigate('/signup')}>
+          <a className="login-link" onClick={() => navigate('/signup')}>
             Sign Up
           </a>
         </p>
@@ -154,9 +173,10 @@ const Login = ({ onLoginSuccess }) => {
         <div className="guest-link">
           <button
             type="button"
-            className="auth-btn guest-btn"
+            className="login-auth-btn guest-btn"
             onClick={() => {
-              localStorage.setItem('username', 'guest');
+              // Note: For guest, email/userId might not be set. Adjust as needed.
+              localStorage.setItem('userEmail', 'guest@example.com');
               localStorage.setItem('role', 'customer');
               onLoginSuccess('customer');
               navigate('/events');

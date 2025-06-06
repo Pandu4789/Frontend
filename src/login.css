@@ -1,117 +1,206 @@
-.auth-container {
+/* LoginPage.css */
+
+/* Overall Container - Similar to SignUp's auth-container */
+.login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #74ebd5, #acb6e5);
+    background-color: #FEF3E4; /* Hindu priest theme background */
     padding: 20px;
-  }
-  
-  .auth-card {
-    background: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    color: #333;
+}
+
+/* Auth Card - Similar to SignUp's auth-card */
+.login-card {
+    background-color: #fff;
     padding: 40px 30px;
     border-radius: 12px;
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1); /* Slightly less intense shadow than given */
     max-width: 400px;
     width: 100%;
     text-align: center;
-  }
-  
-  .auth-title {
+}
+
+/* Auth Title - Similar to SignUp's auth-title/section-heading */
+.login-title {
     font-size: 28px;
     margin-bottom: 10px;
-    color: #333;
-  }
-  .forgot-password-link-inline {
-    text-align: right;
-    margin-top: 4px;
-    margin-bottom: 12px;
-  }
-  
-  .forgot-password-link-inline .link {
-    font-size: 0.9rem;
-    color: #007bff;
-    cursor: pointer;
-  }
-  
-.remember-me {
-  display: flex;
-  justify-content: flex-start; /* Aligns items to the left */
-  margin-bottom: 12px;
+    color: #B74F2F;
+    font-weight: 600;
+    text-align: center; /* Center the text */
 }
 
-.remember-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  user-select: none;
-  white-space: nowrap;
-}
-.form-container {
-  align-items: flex-start; /* Not center */
-}
 
-  .auth-subtitle {
+/* Auth Subtitle */
+.login-subtitle {
     font-size: 16px;
     margin-bottom: 30px;
     color: #666;
-  }
-  
-  .auth-form {
+}
+
+/* Form Container */
+.login-form-container {
     display: flex;
     flex-direction: column;
-  }
-  
-  .input-group {
-    margin-bottom: 20px;
-  }
-  
-  .auth-input {
-    width: 90%;
-    padding: 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
+    /* align-items: flex-start; /* Keeping this from your snippet, adjust if not needed */ 
+}
+
+/* Input Group */
+.login-input-group {
+    position: relative; /* Needed for icons/toggles inside */
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px; /* Consistent with SignUp */
+    background-color: #fff;
+    min-height: 52px; /* Consistent with SignUp inputs */
+    margin-bottom: 20px; /* From your snippet */
+}
+
+/* Input Icon - For icon inside input group */
+.login-input-icon {
+    color: #999;
+    margin-left: 15px; /* Consistent with SignUp */
+    margin-right: 10px; /* Consistent with SignUp */
+    font-size: 20px;
+}
+
+/* Auth Input - For text, email, password fields */
+.login-auth-input {
+    flex-grow: 1;
+    border: none; /* Border is on input-group */
     outline: none;
-    transition: border 0.3s;
-  }
-  
-  .auth-input:focus {
-    border-color: #74ebd5;
-  }
-  
-  .error-text {
-    color: red;
+    padding: 12px 15px; /* From your snippet, consistent with SignUp */
+    font-size: 16px;
+    color: #333;
+    /* Transition for focus state */
+    transition: border-color 0.3s;
+}
+
+.login-auth-input:focus {
+    border-color: #B74F2F; /* Themed focus color */
+    box-shadow: 0 0 0 2px rgba(183, 79, 47, 0.2); /* Consistent with SignUp focus */
+}
+
+.login-auth-input::placeholder {
+    color: #BBB;
+}
+
+/* Password Toggle Icon */
+.login-password-toggle {
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Forgot Password Link Inline */
+.forgot-password-link-inline {
+    text-align: right;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+/* Remember Me Checkbox Group */
+.remember-me {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+/* Remember Me Label */
+.remember-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    white-space: nowrap;
+    color: #555; /* Consistent with other text */
+}
+
+/* Remember Me Checkbox */
+.remember-checkbox {
+    transform: scale(1.1); /* Slightly larger checkbox */
+    accent-color: #B74F2F; /* Themed accent color */
+}
+
+
+/* Error Text */
+.login-error-text {
+    color: #D32F2F; /* Consistent red error color */
     font-size: 14px;
     margin-bottom: 15px;
-  }
-  
-  .auth-btn {
-    padding: 12px;
-    background-color: #74ebd5;
+    text-align: left; /* Align left for form errors */
+}
+
+/* Auth Button (Login Button) - Similar to SignUp's auth-btn */
+.login-auth-btn {
+    padding: 15px 25px; /* Increased padding for consistency with SignUp */
+    background-color: #BF360C; /* Deep orange-red, consistent with SignUp Register button */
     border: none;
     color: white;
     font-size: 18px;
-    border-radius: 8px;
+    font-weight: 600; /* Added font-weight for consistency */
+    border-radius: 5px; /* Consistent with SignUp */
     cursor: pointer;
     transition: background-color 0.3s;
-  }
-  
-  .auth-btn:hover {
-    background-color: #58c0c2;
-  }
-  
-  .switch-link {
+    width: 100%; /* Full width */
+    margin-top: 5px; /* Adjusted margin */
+}
+
+.guest-btn {
+    padding: 15px 25px; /* Increased padding for consistency with SignUp */
+    background-color: #BF360C; /* Deep orange-red, consistent with SignUp Register button */
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 600; /* Added font-weight for consistency */
+    border-radius: 5px; /* Consistent with SignUp */
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: auto; /* Full width */
+    margin-top: 5px; /* Adjusted margin */
+}
+
+
+.login-auth-btn:hover {
+    background-color: #D84315; /* Darker orange-red on hover */
+}
+
+.login-auth-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Switch Link (e.g., "Don't have an account? Sign Up") */
+.login-switch-link {
     margin-top: 20px;
     font-size: 14px;
     color: #555;
-  }
-  
-  .link {
-    color: #74ebd5;
+}
+
+/* Link within Switch Link / Forgot Password Link */
+.login-link {
+    color: #BF360C; /* Deep orange-red, consistent with SignUp link */
     cursor: pointer;
-    text-decoration: underline;
-  }
-  
+    text-decoration: underline; /* From your snippet */
+    font-weight: bold; /* Added font-weight for consistency */
+}
+
+.login-link:hover {
+    text-decoration: underline; /* Ensures hover state is consistent */
+}
+
+/* Specific adjustment for inputs when inside input-group for consistent left padding */
+.login-input-group .login-auth-input {
+    /* If the input group has an icon, its left padding is handled by the icon margin */
+    /* If no icon, the input itself needs left padding. */
+    padding-left: 15px; /* Ensures text starts consistently from left */
+}
