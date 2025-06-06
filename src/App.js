@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation
+} from 'react-router-dom';
+
 import Navbar from './Navbar';
 import CustomerNavbar from './CustomerNavbar';
 import SplashScreen from './SplashScreen';
@@ -21,37 +28,178 @@ import MohurtamRequests from './MuhurtamRequests';
 import SessionTimeout from './SessionTimeout';
 import AdminPage from './AdminPage';
 import Footer from './Footer';
+import ProtectedRoute from './ProtectedRoute';
 
-function App() {
+function MainApp({
+  isAuthenticated,
+  userRole,
+  handleLoginSuccess,
+  handleLogout,
+  showSplash
+}) {
+  const location = useLocation();
+
+  const currentPath = location.pathname;
+  const hideNavAndFooterRoutes = ['/login', '/signup', '/forgotpassword'];
+  const shouldShowLayout = !hideNavAndFooterRoutes.includes(currentPath);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <SessionTimeout timeout={10 * 60 * 1000}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        {/* Navbar */}
+        {shouldShowLayout && isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
+        {shouldShowLayout && isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
+
+        {/* Main content */}
+        <div style={{ flex: 1, paddingTop: shouldShowLayout ? '70px' : 0, paddingBottom: '80px' }}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? (
+                  userRole === 'priest' ? <Navigate to="/dashboard" /> :
+                  userRole === 'customer' ? <Navigate to="/events" /> :
+                  userRole === 'admin' ? <Navigate to="/adminpage" /> :
+                  <Navigate to="/login" />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+
+            {/* Auth Routes */}
+            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgotpassword" element={<ForgotPassword />} />
+
+            {/* Common Routes */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/priests/:id" element={<PriestProfile />} />
+
+            {/* Priest Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <Calendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mohurtam"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <Mohurtam />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/requests"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <MohurtamRequests />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/adminpage"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['admin']} userRole={userRole}>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Routes */}
+            <Route
+              path="/events"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                  <Events />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer-mohurtam"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                  <CustomerMohurtam />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/book-priest"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                  <BookPriest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pooja-items"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                  <PoojaItems />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/prasadam"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                  <Prasadam />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+
+        {/* Footer */}
+        {shouldShowLayout && <Footer />}
+      </div>
+    </SessionTimeout>
+  );
+}
+
+export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false); // Hide splash after 3 seconds
-    }, 1000);
-
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
-    console.log('Token:', token);
-    console.log('Role:', role); // Debugging
 
     if (token && role) {
       setIsAuthenticated(true);
-      setUserRole(role);
-    } else {
-      setIsAuthenticated(false);
-      setUserRole(null);
+      setUserRole(role.toLowerCase());
     }
-     return () => clearTimeout(timer);
-  }, []); // Run only once on component mount
+
+    const timer = setTimeout(() => setShowSplash(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLoginSuccess = (role) => {
-    console.log('Login successful, role:', role); // Debugging
+    const normalizedRole = role.toLowerCase();
     setIsAuthenticated(true);
-    setUserRole(role);
-    localStorage.setItem('role', role); // Save role to localStorage
+    setUserRole(normalizedRole);
+    localStorage.setItem('role', normalizedRole);
+    localStorage.setItem('token', 'sample_token'); // Replace with actual token from backend
   };
 
   const handleLogout = () => {
@@ -61,79 +209,15 @@ function App() {
     localStorage.removeItem('role');
   };
 
-  console.log('isAuthenticated:', isAuthenticated);
-  console.log('userRole:', userRole); // Debugging
- if (showSplash) {
-    return <SplashScreen />;
-  }
   return (
     <Router>
-      <SessionTimeout timeout={10 * 60 * 1000}> {/* 10 minutes timeout */}
-         <div style={{ paddingBottom: '80px' }}>
-      {/* Conditionally render Navbar based on role */}
-      {isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
-      {isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
-
-      <Routes>
-        {/* Redirect based on role */}
-        <Route 
-          path="/" 
-          element={
-            isAuthenticated ? (
-              userRole === 'priest' ? <Navigate to="/dashboard" /> : <Navigate to="/events" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/login" 
-          element={<Login onLoginSuccess={handleLoginSuccess} />} 
-        />
-        
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/help" element={<Help />} />
-        <Route path="/priests/:id" element={<PriestProfile />} />
-
-
-        {/* Priest Routes */}
-        {userRole === 'priest' && (
-          <>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/mohurtam" element={<Mohurtam />} />
-            <Route path="/Requests" element={<MohurtamRequests />} />
-          </>
-        )}
-
-        {/* Admin Routes */}
-        {userRole === 'admin' && (
-          <>
-            <Route path="/AdminPage" element={<AdminPage />} />
-          
-          </>
-        )}
-        {/* Customer Routes */}
-        {userRole === 'customer' && (
-          <>
-            <Route path="/events" element={<Events />} />
-            <Route path="/customer-mohurtam" element={<CustomerMohurtam />} />
-            <Route path="/book-priest" element={<BookPriest />} />
-            <Route path="/pooja-items" element={<PoojaItems />} />
-            <Route path="/prasadam" element={<Prasadam />} />
-          </>
-        )}
-      </Routes>
-      </div>
-      <Footer />
-        
-      </SessionTimeout>
-      
+      <MainApp
+        isAuthenticated={isAuthenticated}
+        userRole={userRole}
+        handleLoginSuccess={handleLoginSuccess}
+        handleLogout={handleLogout}
+        showSplash={showSplash}
+      />
     </Router>
   );
 }
-
-export default App;

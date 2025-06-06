@@ -4,48 +4,39 @@ import './ForgotPassword.css';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [step, setStep] = useState(1); // To control the flow (1: username, 2: new password)
+  const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
+  const handleEmailChange = (e) => setEmail(e.target.value);
+  const handleNewPasswordChange = (e) => setNewPassword(e.target.value);
+  const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value);
 
-  const handleNewPasswordChange = (e) => {
-    setNewPassword(e.target.value);
-  };
-
-  const handleConfirmPasswordChange = (e) => {
-    setConfirmPassword(e.target.value);
-  };
-
-  const handleUsernameSubmit = async (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-  
+
     try {
-      const res = await fetch('http://localhost:8080/api/auth/validate-username', {
+      const res = await fetch('http://localhost:8080/api/auth/validate-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ email }),
       });
-  
+
       if (res.ok) {
-        setStep(2); // Go to new password screen
+        setStep(2);
       } else {
         const msg = await res.text();
-        setError(msg); // Invalid username error
+        setError(msg);
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again later.');
     }
   };
-  
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
@@ -61,48 +52,53 @@ const ForgotPassword = () => {
       const res = await fetch('http://localhost:8080/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, newPassword }),
+        body: JSON.stringify({ email, newPassword }),
       });
 
       if (res.ok) {
         setMessage('Password reset successfully! You can now log in.');
-        setTimeout(() => navigate('/login'), 2000); // Redirect to login page after 2 seconds
+        setTimeout(() => navigate('/login'), 2000);
       } else {
         const msg = await res.text();
-        setError(msg); // Error resetting password
+        setError(msg);
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again later.');
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Forgot Password?</h2>
+    <div className="forget-password-container">
+      <div className="forget-password-card">
+        <h2 className="forget-password-title">Forgot Password?</h2>
+        <p className="forget-password-subtitle">
+          {step === 1
+            ? 'Enter your registered email to reset your password.'
+            : 'Set your new password below.'}
+        </p>
 
         {step === 1 ? (
-          <form onSubmit={handleUsernameSubmit} className="auth-form">
-            <div className="input-group">
+          <form onSubmit={handleEmailSubmit} className="forget-password-form-container">
+            <div className="forget-password-input-group">
               <input
-                type="text"
-                name="username"
-                placeholder="Enter your username"
-                value={username}
-                onChange={handleUsernameChange}
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={handleEmailChange}
                 required
-                className="auth-input"
+                className="forget-password-auth-input"
               />
             </div>
 
-            {error && <p className="error-text">{error}</p>}
-            {message && <p className="success-text">{message}</p>}
+            {error && <p className="forget-password-error-text">{error}</p>}
+            {message && <p className="forget-password-success-text">{message}</p>}
 
-            <button type="submit" className="auth-btn">Submit</button>
+            <button type="submit" className="forget-password-auth-btn">Submit</button>
           </form>
         ) : (
-          <form onSubmit={handlePasswordSubmit} className="auth-form">
-            <div className="input-group">
+          <form onSubmit={handlePasswordSubmit} className="forget-password-form-container">
+            <div className="forget-password-input-group">
               <input
                 type="password"
                 name="newPassword"
@@ -110,10 +106,10 @@ const ForgotPassword = () => {
                 value={newPassword}
                 onChange={handleNewPasswordChange}
                 required
-                className="auth-input"
+                className="forget-password-auth-input"
               />
             </div>
-            <div className="input-group">
+            <div className="forget-password-input-group">
               <input
                 type="password"
                 name="confirmPassword"
@@ -121,22 +117,22 @@ const ForgotPassword = () => {
                 value={confirmPassword}
                 onChange={handleConfirmPasswordChange}
                 required
-                className="auth-input"
+                className="forget-password-auth-input"
               />
             </div>
 
-            {error && <p className="error-text">{error}</p>}
-            {message && <p className="success-text">{message}</p>}
+            {error && <p className="forget-password-error-text">{error}</p>}
+            {message && <p className="forget-password-success-text">{message}</p>}
 
-            <button type="submit" className="auth-btn">Reset Password</button>
+            <button type="submit" className="forget-password-auth-btn">Reset Password</button>
           </form>
         )}
 
-        <p className="switch-link">
+        <p className="forget-password-switch-link">
           Remembered your password?{' '}
-          <a className="link" onClick={() => navigate('/login')}>
+          <span className="forget-password-link" onClick={() => navigate('/login')}>
             Login
-          </a>
+          </span>
         </p>
       </div>
     </div>
