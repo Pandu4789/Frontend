@@ -25,10 +25,26 @@ const SignUp = () => {
     role: 'customer',
     bio: '',
     selectedServices: [],
+    selectedLanguages: [],
     offersHoroscopeReading: false,
   });
 
   const [availableServices, setAvailableServices] = useState([]);
+  const availableLanguages = [ 
+    { value: 'English', label: 'English' },
+    { value: 'Hindi', label: 'Hindi' },
+    { value: 'Tamil', label: 'Tamil' },
+    { value: 'Telugu', label: 'Telugu' },
+    { value: 'Kannada', label: 'Kannada' },
+    { value: 'Malayalam', label: 'Malayalam' },
+    { value: 'Gujarati', label: 'Gujarati' },
+    { value: 'Bengali', label: 'Bengali' },
+    { value: 'Marathi', label: 'Marathi' },
+    { value: 'Punjabi', label: 'Punjabi' },
+    { value: 'Sanskrit', label: 'Sanskrit' },
+    // Add more languages as needed
+  ];
+
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -76,7 +92,7 @@ const SignUp = () => {
         setAvailableServices(
           data.map((service) => ({
             label: service.name,
-            value: service.id,
+            value: service.name,
           }))
         );
       } catch (err) {
@@ -96,6 +112,12 @@ const SignUp = () => {
       selectedServices: selectedOptions || [],
     }));
   };
+  const handleLanguagesChange = (selectedOptions) => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      selectedLanguages: selectedOptions || [],
+    }));
+  };
 
   const handleRoleChange = (selectedRole) => {
     setForm((prevForm) => ({
@@ -104,6 +126,7 @@ const SignUp = () => {
       ...(selectedRole === 'customer' && {
         bio: '',
         selectedServices: [],
+        selectedLanguages: [],
         offersHoroscopeReading: false,
       }),
     }));
@@ -151,6 +174,7 @@ const SignUp = () => {
       if (form.role === 'priest') {
         payload.bio = form.bio;
         payload.servicesOffered = form.selectedServices.map(service => service.value);
+        payload.languagesSpoken = form.selectedLanguages.map(lang => lang.value);
         payload.offersHoroscopeReading = form.offersHoroscopeReading;
       }
 
@@ -703,6 +727,24 @@ const SignUp = () => {
                   />
                   <small style={styles.smallText}>
                     Please select all the spiritual services you provide.
+                  </small>
+                </div>
+                {/* LANGUAGES SPOKEN (now a multi-select) */}
+                <div style={{ ...styles.inputContainer, ...styles.formRow }}>
+                  <label htmlFor="languagesSpokenSelect" style={styles.inputLabel}>Languages Spoken</label>
+                  <Select
+                    id="languagesSpokenSelect"
+                    isMulti
+                    name="languagesSpoken"
+                    options={availableLanguages}
+                    value={form.selectedLanguages}
+                    onChange={handleLanguagesChange}
+                    placeholder="Select Languages You Speak"
+                    styles={styles.reactSelect}
+                    required={form.role === 'priest' && form.selectedLanguages.length === 0}
+                  />
+                  <small style={styles.smallText}>
+                    Please select all the languages you can communicate in.
                   </small>
                 </div>
 

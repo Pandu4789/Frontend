@@ -33,8 +33,8 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userName = localStorage.getItem('userName') || 'Priest User';
-  const priestId = localStorage.getItem('priestId') || 'ID123';
+  const firstName = localStorage.getItem('firstName') || 'Priest';
+ const priestId = localStorage.getItem('userId') || 'ID123';
   const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePicture'));
 
   const sidebarWidthCollapsed = '0px';
@@ -185,7 +185,7 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
       {profileOpen && (
         <div ref={profileDropdownRef} style={styles.dropdown}>
           <div style={styles.dropdownHeader}>
-            <div style={styles.dropdownUserName}>{userName}</div>
+            <div style={styles.dropdownUserName}>{firstName}</div>
             <div style={styles.dropdownUserEmail}>ID: {priestId}</div>
           </div>
 
@@ -314,7 +314,7 @@ const styles = {
     fontSize: '16px',
   },
   dropdownUserEmail: {
-    color: colors.textAccent,
+    color: colors.dropdownText,
     fontSize: '13px',
   },
   dropdownItem: {

@@ -1,170 +1,291 @@
+/* Profile Container - centered and clean */
 .profile-container {
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #FEF3E4; /* Matching login bg with Hindu priest theme */
   padding: 20px;
-  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  color: #333;
+  box-sizing: border-box;
+  margin-bottom: 30px; /* to avoid overlap with footer */
+  /* This margin-top needs to be positive and sufficient to clear your header */
+  margin-top: -10px; /* Adjust this value based on your actual header height (e.g., if header is 70px tall) */
 }
 
+/* Profile Card - clean white card with subtle shadow */
 .profile-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 30px; /* Base padding for the card content */
   width: 100%;
   max-width: 600px;
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative; /* VERY IMPORTANT: Establishes positioning context for absolutely positioned children */
+  /* No special padding-top needed here anymore, as the image will be positioned from top: 20px */
 }
 
+/* Profile Image Wrapper - Adjusted to be fully INSIDE the card */
 .profile-image-wrapper {
-  position: relative;
+  position: absolute; /* Position relative to .profile-card */
+  top: 20px; /* Position 20px from the TOP edge of the profile-card */
+  left: 50%; /* Start at the center */
+  transform: translateX(-50%); /* Move back by half its width to truly center */
   width: 150px;
   height: 150px;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: 20px;
+  border-radius: 50%; /* Makes the wrapper itself circular */
+  background-color: #e0e0e0;
+  border: 5px solid #fff; /* White border around the circle */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow: hidden; /* Ensures any content inside (like the image) stays within the circle */
+  display: flex; /* Used to center default icon/image if it's smaller */
+  justify-content: center;
+  align-items: center;
+  /* Removed old flex-direction: column and margin: auto; */
 }
 
+/* Profile Image */
 .profile-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* This is KEY for images to fill the circle without distortion */
+  border-radius: 50%; /* Ensures the image itself is circular */
+  display: block;
 }
 
-.profile-image.default-profile-icon {
-  font-size: 50px;
-  color: #ddd;
-  display: flex;
+/* Default profile icon when no image */
+.default-profile-icon {
+  font-size: 5em; /* Adjust size to fill the circle */
+  color: #ccc;
+  /* The wrapper's flex properties (justify-content, align-items) will center it */
+  width: 100%; /* Ensure icon takes full width/height to be centered by flexbox */
+  height: 100%;
+  display: flex; /* Explicitly set to ensure flex behavior even if inherited */
   justify-content: center;
   align-items: center;
-  height: 100%;
 }
 
-.change-photo-btn {
-  position: absolute;
-  bottom: 10px; /* Aligns button at the bottom of the profile picture */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #007BFF;
+/* Camera icon for edit - Adjusted to be OVERLAID on the image, in the corner */
+.camera-icon-wrapper {
+  position: absolute; /* Position relative to its parent, .profile-image-wrapper */
+  bottom: -10px; /* Adjust distance from bottom of the circle */
+  right: 30px;  /* Adjust distance from right of the circle */
+  background-color: #BF360C;
   color: white;
-  padding: 5px 10px;
-  font-size: 12px;
-  border-radius: 5px;
+  border-radius: 50%;
+  padding: 8px; /* Size of the button */
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10; /* Ensures the camera icon is on top of the profile image */
+  /* Removed margin-top from here */
 }
 
-.profile-section {
-  width: 100%;
-  margin-bottom: 15px;
+.camera-icon-wrapper:hover {
+  background-color: #D84315;
 }
 
-.profile-section label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
+.camera-icon {
+  font-size: 1.2em;
+  pointer-events: none; /* Allows clicks to pass through to the parent label */
 }
 
-.profile-input{
-background-color: #f8f9fa;}
-.profile-file-input,
-textarea {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-}
-
-.centered-username {
+/* Profile Name (heading) - Adjusted margin-top to position it BELOW the image */
+.profile-container h2 {
+  color: #B74F2F;
+  font-size: 2.2em;
+  /* Calculation: image_top_offset (20px) + image_height (150px) + desired_gap_below_image (e.g., 20px) = 190px */
+  margin-top: 170px; /* This pushes the heading down to clear the image */
+  margin-bottom: 25px;
+  font-weight: 600;
   text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
 }
 
-.profile-edit-btn,
-.profile-save-btn {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  background-color: #28a745;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-top: 10px;
-}
-
-.profile-edit-btn {
-  background-color: #ffc107;
-}
-
-.services-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.services-list li {
-  background-color: #f8f9fa;
-  padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-}
-.profile-name-row {
+/* Name row with two inputs side by side */
+.profile-row {
   display: flex;
   gap: 20px;
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-.half-width {
-  flex: 1;
-}
-.profile-input-container {
-  width: 100%;
-  max-width: 400px; /* Adjust the width as needed */
-  margin: 0 auto;
-}
-.profile-title {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
   margin-bottom: 20px;
 }
-.profile-url-section {
-  margin-top: 10px;
+
+.profile-row .profile-section {
+  flex: 1;
 }
 
-.url-copy-wrapper {
+/* Profile section (each label + field) */
+.profile-section {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* Label styling */
+.profile-section label {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  font-size: 1em;
+}
+
+/* Input and textarea styling for editable fields */
+.profile-section input,
+.profile-section textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  font-size: 1em;
+  color: #333;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.profile-section input:focus,
+.profile-section textarea:focus {
+  outline: none;
+  border-color: #BF360C;
+  background-color: #FEF3E4;
+}
+
+/* Read-only inputs */
+input:read-only {
+  background-color: #f9f9f9;
+  color: #666;
+  cursor: default;
+}
+
+/* Profile URL section with copy button */
+.profile-url-section .url-copy-wrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.url-input {
+.profile-url-section .url-input {
   flex-grow: 1;
-  padding: 6px 10px;
-  font-size: 0.9rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f8f8f8;
-  user-select: all; /* Makes it easier to select */
+  background-color: #fff;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  color: #333;
+  user-select: text;
+  cursor: text;
 }
 
+/* Copy button style */
 .copy-button {
-  background-color: #4f46e5;
-  border: none;
+  background-color: #BF360C;
   color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 15px;
   cursor: pointer;
+  font-size: 1em;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
 .copy-button:hover {
-  background-color: #3730a3;
+  background-color: #D84315;
+}
+
+/* Buttons at bottom */
+.profile-actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.profile-actions button {
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.save-btn {
+  background-color: #BF360C;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #D84315;
+}
+
+.save-btn.disabled,
+.save-btn:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.cancel-btn {
+  background-color: #eee;
+  color: #666;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #ccc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-row {
+    flex-direction: column;
+  }
+  .profile-card {
+    padding: 20px; /* Reduced padding for smaller screens */
+    /* No specific padding-top needed here if image is inside */
+  }
+  h2 {
+    font-size: 1.8em;
+    /* Adjust margin-top for smaller image on mobile */
+    margin-top: 155px; /* (Image top 15px + height 120px) + 20px gap */
+  }
+  .profile-image-wrapper {
+    width: 120px; /* Smaller image */
+    height: 120px;
+    top: 15px; /* Adjust top for smaller size */
+  }
+  .camera-icon-wrapper {
+    bottom: 3px; /* Closer to corner on mobile */
+    right: 3px;
+    padding: 6px; /* Smaller padding for button */
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 15px; /* Even smaller padding */
+    /* No specific padding-top needed here */
+  }
+  h2 {
+    font-size: 1.5em;
+    /* Adjust margin-top for smallest image on mobile */
+    margin-top: 120px; /* (Image top 10px + height 100px) + 10px gap */
+  }
+  .profile-image-wrapper {
+    width: 100px;
+    height: 100px;
+    top: 10px; /* Adjust top for smallest size */
+  }
+  .camera-icon-wrapper {
+    padding: 5px; /* Even smaller padding */
+    font-size: 0.9em; /* Smaller icon */
+  }
 }

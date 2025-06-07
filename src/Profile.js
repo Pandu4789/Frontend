@@ -3,191 +3,346 @@ import './Profile.css';
 import { FaCamera, FaUser, FaCopy } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select'; // Import react-select
 
 const Profile = () => {
-  const [profile, setProfile] = useState({
-    id: '',
-    profilePicture: '',
-    bio: '',
-    mailId: '',
-  });
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-  const [user, setUser] = useState({
-    id: '',
+  // State to hold profile data (editable copy)
+  // services and languages will now store array of { value: string, label: string } objects for react-select
+  const [profileData, setProfileData] = useState({
+    profileId: '',
+    userId: '',
     firstName: '',
     lastName: '',
     username: '',
     phone: '',
-    address: '',
-    password: '',
-    services: [],
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    email: '',
+    profilePicture: '',
+    bio: '',
+    services: [], // Will store [{ value: 'Pooja Name', label: 'Pooja Name' }]
+    languages: [], // Will store [{ value: 'English', label: 'English' }]
+    role: '',
   });
 
+  // This will keep the original profile data fetched from server to revert changes if needed
+  const [originalProfileData, setOriginalProfileData] = useState(null); // Also stores {value, label} objects
+
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentField, setCurrentField] = useState('');
-  const [currentValue, setCurrentValue] = useState('');
+  const [availableServices, setAvailableServices] = useState([]); // Options for the services dropdown
 
-  const role = localStorage.getItem('role'); // 'priest' or 'customer'
+  // Hardcoded list of languages (same as SignUp)
+  const availableLanguages = [
+    { value: 'English', label: 'English' },
+    { value: 'Hindi', label: 'Hindi' },
+    { value: 'Tamil', label: 'Tamil' },
+    { value: 'Telugu', label: 'Telugu' },
+    { value: 'Kannada', label: 'Kannada' },
+    { value: 'Malayalam', label: 'Malayalam' },
+    { value: 'Gujarati', label: 'Gujarati' },
+    { value: 'Bengali', label: 'Bengali' },
+    { value: 'Marathi', label: 'Marathi' },
+    { value: 'Punjabi', label: 'Punjabi' },
+    { value: 'Sanskrit', label: 'Sanskrit' },
+    // Add more languages as needed
+  ];
 
-  const openModal = (field, value) => {
-    setCurrentField(field);
-    if (field === 'services') {
-      setCurrentValue(value.join(', '));
-    } else if (field === 'password') {
-      // Do not show plain password in modal, show empty or placeholder
-      setCurrentValue('');
-    } else {
-      setCurrentValue(value || '');
-    }
-    setIsModalOpen(true);
-  };
 
-  const closeModal = () => setIsModalOpen(false);
+  const userEmail = localStorage.getItem('userEmail');
+  const userRole = localStorage.getItem('role');
 
-  const handleModalSave = async () => {
-    let updatedUser = { ...user };
-    let updatedProfile = { ...profile };
-
-    if (currentField === 'services') {
-      updatedUser.services = currentValue
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s);
-    } else if (currentField === 'password') {
-      if (currentValue.trim()) {
-        updatedUser.password = currentValue.trim();
+  // Fetch available services (similar to SignUp)
+  useEffect(() => {
+    const fetchEventServices = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/events`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        const data = await res.json();
+        setAvailableServices(
+          data.map((service) => ({
+            label: service.name,
+            value: service.name,
+          }))
+        );
+      } catch (err) {
+        console.error("Error loading available services:", err);
+        // Optionally, show a toast error for services loading
       }
-      // If empty, do not update password
-    } else if (currentField in user) {
-      updatedUser[currentField] = currentValue;
-    } else {
-      updatedProfile[currentField] = currentValue;
-    }
+    };
+    fetchEventServices();
+  }, [API_URL]);
 
-    setUser(updatedUser);
-    setProfile(updatedProfile);
-    closeModal();
 
-    try {
-      // Update User fields
-      const userRes = await fetch('http://localhost:8080/api/auth/updateUser', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedUser),
-      });
-
-      if (!userRes.ok) throw new Error('User update failed');
-
-      // Update Profile fields
-      const profileRes = await fetch('http://localhost:8080/api/profile/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedProfile),
-      });
-
-      if (!profileRes.ok) throw new Error('Profile update failed');
-
-      toast.success('Profile updated successfully!');
-    } catch (err) {
-      console.error('Update error:', err);
-      toast.error('Failed to update profile.');
-    }
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setProfile(prev => ({ ...prev, profilePicture: imageUrl }));
-      updateProfilePictureOnServer(file);
-    }
-  };
-
-  const updateProfilePictureOnServer = async (file) => {
-    const formData = new FormData();
-    formData.append('profilePicture', file);
-    formData.append('profileId', profile.id);
-
-    try {
-      const res = await fetch('http://localhost:8080/api/profile/updateProfilePicture', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (res.ok) {
-        toast.success('Profile picture updated!');
-        // Optionally refresh profile data here
-      } else {
-        toast.error('Failed to update picture.');
-      }
-    } catch (err) {
-      console.error('Error uploading image:', err);
-      toast.error('Error uploading picture.');
-    }
-  };
-
-  const fetchProfile = async () => {
-    const username = localStorage.getItem('username');
-    if (!username) {
+  const fetchProfileData = async () => {
+    if (!userEmail) {
       setLoading(false);
+      toast.error('User email not found in local storage. Please log in.');
       return;
     }
 
     try {
-      const res = await fetch(`http://localhost:8080/api/profile?username=${username}`);
+      const res = await fetch(`http://localhost:8080/api/profile?email=${userEmail}`);
       if (res.ok) {
         const data = await res.json();
-
-        setUser({
-          id: data.userId || '',
+        console.log('Fetched profile data:', data); // Log the raw data to inspect structure
+        const formattedData = {
+          profileId: data.profileId || '',
+          userId: data.userId || '',
           firstName: data.firstName || '',
           lastName: data.lastName || '',
-          username: data.username || '',
+          username: userEmail,
           phone: data.phone || '',
-          address: data.address || '',
-          password: data.password || '',
-          services: data.services || [],
-        });
-
-        setProfile({
-          id: data.profileId || '',
+          addressLine1: data.addressLine1 || '',
+          addressLine2: data.addressLine2 || '',
+          city: data.city || '',
+          state: data.state || '',
+          zipCode: data.zipCode || '',
+          email: data.email || '',
           profilePicture: data.profilePicture ? `http://localhost:8080${data.profilePicture}` : '',
           bio: data.bio || '',
-          mailId: data.mailId || '',
-        });
+          // Convert incoming string arrays to {value, label} objects for react-select
+          services: (data.services || []).map(s => ({ value: s, label: s })),
+          languages: (data.languages || []).map(l => ({ value: l, label: l })),
+          role: data.role || '',
+        };
+        setProfileData(formattedData);
+        setOriginalProfileData(formattedData); // Save original in the same format
       } else {
-        toast.error('Failed to load profile.');
+        const errorText = await res.text();
+        console.error(`Failed to load profile: ${res.status} - ${errorText}`);
+        toast.error('Failed to load profile. Please check console for details.');
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      toast.error('Failed to load profile.');
+      toast.error('Failed to load profile. Network error or server issue.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Copy URL to clipboard function
-  const copyProfileURL = () => {
-      const url = `http://localhost:3000/priests/${user.id}`;
-    navigator.clipboard.writeText(url)
-      .then(() => toast.success('Profile URL copied to clipboard!'))
-      .catch(() => toast.error('Failed to copy URL.'));
+  useEffect(() => {
+    fetchProfileData();
+  }, [userEmail]); // Dependency on userEmail to refetch if it changes
+
+  // Detect if any field was changed compared to original data
+  const isChanged = () => {
+    if (!originalProfileData) return false; // Cannot compare if original is not loaded
+
+    // Helper to compare two arrays of {value, label} objects by their values
+    const areArraysOfObjectsChanged = (arr1, arr2) => {
+        const values1 = (arr1 || []).map(item => item.value).sort();
+        const values2 = (arr2 || []).map(item => item.value).sort();
+        return JSON.stringify(values1) !== JSON.stringify(values2);
+    };
+
+    // Compare specific fields
+    if (profileData.firstName !== originalProfileData.firstName) return true;
+    if (profileData.lastName !== originalProfileData.lastName) return true;
+    if (profileData.phone !== originalProfileData.phone) return true;
+    if (profileData.addressLine1 !== originalProfileData.addressLine1) return true;
+    if (profileData.addressLine2 !== originalProfileData.addressLine2) return true;
+    if (profileData.city !== originalProfileData.city) return true;
+    if (profileData.state !== originalProfileData.state) return true;
+    if (profileData.zipCode !== originalProfileData.zipCode) return true;
+    if (profileData.bio !== originalProfileData.bio) return true;
+    // profilePicture is handled by its own upload, but we can compare its URL
+    if (profileData.profilePicture !== originalProfileData.profilePicture) return true;
+
+    // Compare services and languages using the helper
+    if (areArraysOfObjectsChanged(profileData.services, originalProfileData.services)) return true;
+    if (areArraysOfObjectsChanged(profileData.languages, originalProfileData.languages)) return true;
+
+    return false;
   };
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  // Save all changes at once
+  const handleSaveChanges = async () => {
+    try {
+      const updatePayload = {
+        userId: profileData.userId,
+        profileId: profileData.profileId,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+        addressLine1: profileData.addressLine1,
+        addressLine2: profileData.addressLine2,
+        city: profileData.city,
+        state: profileData.state,
+        zipCode: profileData.zipCode,
+        mailId: profileData.email,  // note API expects mailId
+        bio: profileData.bio,
+        // Convert services and languages back to string arrays for the backend
+        services: (profileData.services || []).map(s => s.value),
+        languages: (profileData.languages || []).map(l => l.value),
+      };
 
-  if (loading) return <div>Loading...</div>;
+      const res = await fetch(`${API_URL}/api/profile/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatePayload),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Update failed: ${res.status} - ${errorText}`);
+      }
+
+      toast.success('Profile updated successfully!');
+      // Update originalProfileData with the current profileData (which is already in {value, label} format)
+      setOriginalProfileData(profileData);
+    } catch (err) {
+      console.error('Update error:', err);
+      toast.error('Failed to update profile: ' + err.message);
+    }
+  };
+
+  // Cancel edits and revert to original
+  const handleCancelChanges = () => {
+    setProfileData(originalProfileData);
+  };
+
+  const copyProfileURL = () => {
+    if (profileData.userId) {
+      const url = `http://localhost:3000/priests/${profileData.userId}`;
+      navigator.clipboard.writeText(url)
+        .then(() => toast.success('Profile URL copied to clipboard!'))
+        .catch(() => toast.error('Failed to copy URL.'));
+    } else {
+      toast.error('User ID not available to generate URL.');
+    }
+  };
+
+  // Handler for profile picture change
+  const handleImageChange = async (e) => {
+    const file = e.target.files ? e.target.files.length > 0 ? e.target.files.item(0) : null : null;
+    if (!file) return;
+
+    // Show selected image immediately using object URL
+    const imageUrl = URL.createObjectURL(file);
+    setProfileData(prev => ({ ...prev, profilePicture: imageUrl }));
+
+    // Prepare form data for upload
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+    formData.append('profileId', profileData.profileId);
+
+    try {
+      const res = await fetch(`${API_URL}/api/profile/updateProfilePicture`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        toast.success('Profile picture updated!');
+        // Update profile picture URL with server response path
+        const newPicturePath = `http://localhost:8080${data.newPath}`;
+        setProfileData(prev => ({ ...prev, profilePicture: newPicturePath }));
+        setOriginalProfileData(prev => ({ ...prev, profilePicture: newPicturePath })); // Update original as well
+      } else {
+        toast.error('Failed to update picture.');
+        // Revert to the previously saved picture URL if available, otherwise clear it
+        setProfileData(prev => ({
+          ...prev,
+          profilePicture: originalProfileData ? originalProfileData.profilePicture : '',
+        }));
+      }
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      toast.error('Error uploading picture.');
+      // Revert on error as well
+      setProfileData(prev => ({
+        ...prev,
+        profilePicture: originalProfileData ? originalProfileData.profilePicture : '',
+      }));
+    }
+  };
+
+  if (loading) return <div className="loading-container">Loading profile...</div>;
+
+  // Helper to handle input changes for text/textarea
+  const handleInputChange = (field, value) => {
+    // This is for regular text inputs, not for react-select
+    setProfileData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handlers for react-select components
+  const handleServicesChange = (selectedOptions) => {
+    setProfileData(prev => ({
+      ...prev,
+      services: selectedOptions || [],
+    }));
+  };
+
+  const handleLanguagesChange = (selectedOptions) => {
+    setProfileData(prev => ({
+      ...prev,
+      languages: selectedOptions || [],
+    }));
+  };
+
+
+  // Styles for react-select components - copied from SignUp for consistency
+  const reactSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: `1px solid ${state.isFocused ? '#B74F2F' : '#DDD'}`,
+      borderRadius: '8px', // Match overall profile card border-radius
+      boxShadow: state.isFocused ? '0 0 0 1px #B74F2F' : 'none',
+      '&:hover': {
+        borderColor: '#B74F2F',
+      },
+      minHeight: '52px', // Consistent height
+      boxSizing: 'border-box',
+      padding: '0 5px', // Add some internal padding
+      backgroundColor: '#FFF', // Ensure white background
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: '#FFECB3', // Light orange/saffron tint
+      borderRadius: '3px',
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: '#555',
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: '#999',
+      '&:hover': {
+        backgroundColor: '#FFD54F',
+        color: '#333',
+      },
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused ? '#FFF3E0' : null, // Lighter hover
+      color: '#333',
+      '&:active': {
+        backgroundColor: '#FFECB3', // Active selection background
+      },
+    }),
+    placeholder: (base) => ({
+      ...base,
+      color: '#999', // Lighter placeholder text
+    }),
+  };
+
 
   return (
     <div className="profile-container">
       <ToastContainer />
       <div className="profile-card">
         <div className="profile-image-wrapper">
-          {profile.profilePicture ? (
-            <img src={profile.profilePicture} alt="Profile" className="profile-image" />
+          {profileData.profilePicture ? (
+            <img src={profileData.profilePicture} alt="Profile" className="profile-image" />
           ) : (
             <FaUser className="profile-image default-profile-icon" />
           )}
@@ -203,106 +358,107 @@ const Profile = () => {
           />
         </div>
 
-        <h2>{user.firstName} {user.lastName}</h2>
+        <h2>{profileData.firstName} {profileData.lastName}</h2>
 
-        <div className="profile-name-row">
-          <div className="profile-section half-width">
-            <label>First Name</label>
+        {/* Editable fields with labels and inputs below */}
+        <div className="profile-row">
+          <div className="profile-section">
+            <label className="field-label">First Name</label>
             <input
               type="text"
-              value={user.firstName}
-              onClick={() => openModal('firstName', user.firstName)}
-              readOnly
-              className="clickable-input"
+              value={profileData.firstName}
+              onChange={(e) => handleInputChange('firstName', e.target.value)}
             />
           </div>
-          <div className="profile-section half-width">
-            <label>Last Name</label>
+          <div className="profile-section">
+            <label className="field-label">Last Name</label>
             <input
               type="text"
-              value={user.lastName}
-              onClick={() => openModal('lastName', user.lastName)}
-              readOnly
-              className="clickable-input"
+              value={profileData.lastName}
+              onChange={(e) => handleInputChange('lastName', e.target.value)}
             />
           </div>
         </div>
 
         <div className="profile-section">
-          <label>Username</label>
+          <label className="field-label">Email (read-only)</label>
+          <input type="email" value={profileData.username} readOnly />
+        </div>
+
+        <div className="profile-section">
+          <label className="field-label">Phone</label>
           <input
-            type="text"
-            value={user.username}
-            readOnly
-            className="readonly-input"
+            type="tel"
+            value={profileData.phone}
+            onChange={(e) => handleInputChange('phone', e.target.value)}
           />
         </div>
 
         <div className="profile-section">
-          <label>Phone</label>
+          <label className="field-label">Address Line 1</label>
           <input
             type="text"
-            value={user.phone}
-            onClick={() => openModal('phone', user.phone)}
-            readOnly
-            className="clickable-input"
+            value={profileData.addressLine1}
+            onChange={(e) => handleInputChange('addressLine1', e.target.value)}
           />
         </div>
 
         <div className="profile-section">
-          <label>Address</label>
+          <label className="field-label">Address Line 2</label>
           <input
             type="text"
-            value={user.address}
-            onClick={() => openModal('address', user.address)}
-            readOnly
-            className="clickable-input"
+            value={profileData.addressLine2}
+            onChange={(e) => handleInputChange('addressLine2', e.target.value)}
           />
+        </div>
+
+        <div className="profile-row">
+          <div className="profile-section">
+            <label className="field-label">City</label>
+            <input
+              type="text"
+              value={profileData.city}
+              onChange={(e) => handleInputChange('city', e.target.value)}
+            />
+          </div>
+          <div className="profile-section">
+            <label className="field-label">State</label>
+            <input
+              type="text"
+              value={profileData.state}
+              onChange={(e) => handleInputChange('state', e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="profile-section">
-          <label>Email ID</label>
+          <label className="field-label">Zip Code</label>
           <input
             type="text"
-            value={profile.mailId}
-            onClick={() => openModal('mailId', profile.mailId)}
-            readOnly
-            className="clickable-input"
+            value={profileData.zipCode}
+            onChange={(e) => handleInputChange('zipCode', e.target.value)}
           />
         </div>
 
-        <div className="profile-section">
-          <label>Password</label>
-          <input
-            type="password"
-            value={'********'}
-            onClick={() => openModal('password', '')}
-            readOnly
-            className="clickable-input"
-            title="Click to change password"
-          />
-        </div>
-
-        {role === 'priest' && (
+        {profileData.role === 'priest' && (
           <>
             <div className="profile-section">
-              <label>Bio</label>
+              <label className="field-label">Bio</label>
               <textarea
-                value={profile.bio}
-                onClick={() => openModal('bio', profile.bio)}
-                readOnly
-                className="clickable-textarea"
+                rows={4}
+                value={profileData.bio}
+                onChange={(e) => handleInputChange('bio', e.target.value)}
               />
             </div>
 
             <div className="profile-section profile-url-section">
-              <label>URL</label>
+              <label className="field-label">Profile URL</label>
               <div className="url-copy-wrapper">
                 <input
                   type="text"
-                  value={`http://localhost:3000/priests/${user.id}`}
+                  value={`http://localhost:3000/priests/${profileData.userId}`}
                   readOnly
-                  className="url-input"
+                  className="read-only-input url-input"
                 />
                 <button onClick={copyProfileURL} className="copy-button" title="Copy URL">
                   <FaCopy />
@@ -310,52 +466,50 @@ const Profile = () => {
               </div>
             </div>
 
+            {/* Services Multi-Select */}
             <div className="profile-section">
-              <label>Pooja Services</label>
-              <ul
-                className="services-list"
-                onClick={() => openModal('services', user.services)}
-                style={{ cursor: 'pointer' }}
-                title="Click to edit services"
-              >
-                {user.services.length > 0 ? user.services.map((service, idx) => (
-                  <li key={idx}>{service}</li>
-                )) : <li>No services added</li>}
-              </ul>
+              <label className="field-label">Pooja Services</label>
+              <Select
+                isMulti
+                name="services"
+                options={availableServices} // Use the fetched available services
+                value={profileData.services} // Expects array of {value, label} objects
+                onChange={handleServicesChange}
+                placeholder="Select Services You Offer"
+                styles={reactSelectStyles}
+              />
+            </div>
+
+            {/* Languages Multi-Select */}
+            <div className="profile-section">
+              <label className="field-label">Languages</label>
+              <Select
+                isMulti
+                name="languages"
+                options={availableLanguages} // Use the hardcoded available languages
+                value={profileData.languages} // Expects array of {value, label} objects
+                onChange={handleLanguagesChange}
+                placeholder="Select Languages You Speak"
+                styles={reactSelectStyles}
+              />
             </div>
           </>
         )}
-      </div>
 
-      {isModalOpen && (
-        <div className="modal-backdrop" onClick={closeModal}>
-          <div
-            className="modal-content"
-            onClick={e => e.stopPropagation()} // Prevent closing when clicking inside modal
+        {/* Buttons fixed below the form */}
+        <div className="profile-actions">
+          <button
+            onClick={handleSaveChanges}
+            disabled={!isChanged()}
+            className={isChanged() ? 'save-btn' : 'save-btn disabled'}
           >
-            <h3>Edit {currentField.charAt(0).toUpperCase() + currentField.slice(1)}</h3>
-            {currentField === 'bio' ? (
-              <textarea
-                value={currentValue}
-                onChange={(e) => setCurrentValue(e.target.value)}
-                rows={4}
-              />
-            ) : (
-              <input
-                type={currentField === 'password' ? 'password' : 'text'}
-                value={currentValue}
-                onChange={(e) => setCurrentValue(e.target.value)}
-                autoFocus
-              />
-            )}
-
-            <div className="modal-actions">
-              <button onClick={handleModalSave}>Save</button>
-              <button onClick={closeModal}>Cancel</button>
-            </div>
-          </div>
+            Save Changes
+          </button>
+          <button onClick={handleCancelChanges} className="cancel-btn" disabled={!isChanged()}>
+            Cancel
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 };
