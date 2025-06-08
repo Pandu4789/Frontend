@@ -1,0 +1,487 @@
+/* Color variables from your previous components */
+:root {
+  --primaryDark: #4A2000;
+  --textLight: #FFD700;
+  --textAccent: #F5F5DC;
+  --activeBgDark: #6F3000;
+  --navbarBg: #4A2000;
+  --navbarTextLight: #FFD700;
+  --mainContentBg: #FDF5E6; /* Light background for the overall page */
+  --profileHeadingColor: #B74F2F; /* Heading color for sections */
+  --cardBgLight: #FEF3E4; /* Background for booking cards and overall page */
+  --cardBorderLight: #DDD; /* Light border for cards */
+  --cardShadowSubtle: rgba(0, 0, 0, 0.1);
+
+  /* Booking Card Specific Colors */
+  --bookingCardBg: #FEF3E4;
+  --bookingCardBorder: #E0E0E0;
+  --bookingConfirmedBg: #E0FFE0; /* Lighter green for confirmed */
+  --bookingConfirmedText: #28A745; /* Green */
+  --bookingPendingBg: #FFF8E1; /* Lighter yellow for pending */
+  --bookingPendingText: #FFC107; /* Yellow/Orange */
+  --bookingDetailIcon: #888; /* Grey for detail icons */
+
+  /* Priest List Specific Colors */
+  --priestCardBg: #FFF;
+  --priestCardBorder: #E0E0E0;
+  --priestButtonBg: #B74F2F; /* Matching profile heading for primary actions */
+  --priestButtonHoverBg: #D46C4A; /* Lighter shade for hover */
+  --priestInputBorder: #DDD;
+  --priestInputFocusBorder: #B74F2F; /* Matching heading color for focus */
+  --priestShadowLight: rgba(0,0,0,0.08);
+  --priestShadowMedium: rgba(0,0,0,0.12);
+}
+
+.priest-booking-page-container {
+  background-color: var(--mainContentBg); /* Overall light background */
+  padding: 20px;
+  max-width: 1200px; /* Consistent with other main content areas */
+  margin: 0 auto;
+  min-height: calc(100vh - var(--navbar-height, 60px) - var(--footer-height, 80px)); /* Adjust for navbar/footer */
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--primaryDark);
+}
+
+/* --- Priest Directory Section --- */
+.priest-directory {
+  margin-bottom: 40px; /* Space between priest list and bookings */
+  padding: 0 20px; /* Internal padding for desktop */
+}
+
+.priest-directory h1 {
+  text-align: center;
+  color: var(--profileHeadingColor);
+  margin-bottom: 30px;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+  justify-content: center; /* Center filters */
+}
+
+.filters input,
+.filters select {
+  flex: 1 1 220px; /* Allow items to grow/shrink, with a base of 220px */
+  padding: 12px 15px;
+  border: 1px solid var(--priestInputBorder);
+  border-radius: 8px;
+  font-size: 1rem;
+  box-shadow: 0 1px 3px var(--priestShadowLight);
+  color: var(--primaryDark); /* Default text color */
+  background-color: var(--priestCardBg);
+}
+
+.filters select.placeholder-selected {
+  color: #999; /* Placeholder text color */
+}
+
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: var(--priestInputFocusBorder);
+  box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2); /* Focus ring color */
+}
+
+.reset-btn {
+  padding: 12px 25px;
+  background: var(--mainContentBg); /* Lighter background for reset */
+  border: 1px solid var(--priestInputBorder);
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--primaryDark);
+  font-weight: 500;
+}
+
+.reset-btn:hover {
+  background: var(--quickLinkHoverBg); /* Lighter hover */
+  box-shadow: 0 2px 5px var(--priestShadowLight);
+}
+
+.priest-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px; /* Slightly larger gap */
+  justify-content: center; /* Center cards if they don't fill a row */
+}
+
+.priest-card {
+  background: var(--priestCardBg);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px var(--priestShadowLight);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 380px; /* Ensure consistent card height */
+}
+
+.priest-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px var(--priestShadowMedium);
+}
+
+.priest-image-container {
+  width: 120px; /* Fixed width for circular image */
+  height: 120px; /* Fixed height for circular image */
+  border-radius: 50%; /* Make it a circle */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--mainContentBg); /* Light background for placeholder */
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 3px solid var(--profileHeadingColor); /* Border around image */
+}
+
+.priest-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%; /* Ensure image itself is circular */
+}
+
+.priest-image-placeholder {
+  width: 100%; /* Fill container */
+  height: 100%; /* Fill container */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--textAccent); /* From provided color scheme */
+  color: var(--primaryDark); /* From provided color scheme */
+}
+
+.placeholder-icon {
+  font-size: 80px; /* Size of FaUserCircle if used */
+}
+
+.priest-card h2 {
+  margin: 0 0 10px 0;
+  color: var(--primaryDark);
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.bio {
+  color: #666;
+  margin: 15px 0 20px 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  flex-grow: 1; /* Allows bio to take available space */
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Limit to 4 lines */
+  line-clamp: 4; /* Standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.view-profile {
+  display: inline-block;
+  margin-top: auto; /* Pushes button to bottom */
+  padding: 10px 20px;
+  background: var(--priestButtonBg);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  text-decoration: none;
+}
+
+.view-profile:hover {
+  background: var(--priestButtonHoverBg);
+  transform: translateY(-2px);
+}
+
+/* --- Your Bookings Section Styles --- */
+.your-bookings-container {
+  background-color: var(--mainContentBg); /* Same as page background or slight variation */
+  padding: 20px; /* Internal padding */
+  border-radius: 8px;
+  /* Optional: box-shadow if you want this section to stand out */
+}
+
+.bookings-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--profileHeadingColor);
+  margin-bottom: 25px;
+  text-align: center; /* Center the title */
+}
+
+.bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid for cards */
+  gap: 25px; /* Space between booking cards */
+  justify-content: center; /* Center cards if there are fewer than full row */
+}
+
+.booking-card {
+  background-color: var(--bookingCardBg);
+  border: 1px solid var(--bookingCardBorder);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 12px var(--cardShadowSubtle);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.booking-type {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primaryDark);
+  margin: 0;
+}
+
+.booking-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-icon {
+  font-size: 1.1rem;
+}
+
+.status-icon.confirmed {
+  color: var(--bookingConfirmedText);
+}
+
+.booking-status .status-text.confirmed {
+  color: var(--bookingConfirmedText);
+}
+
+.booking-status.confirmed {
+  background-color: var(--bookingConfirmedBg);
+}
+
+.status-icon.pending {
+  color: var(--bookingPendingText);
+}
+
+.booking-status .status-text.pending {
+  color: var(--bookingPendingText);
+}
+
+.booking-status.pending {
+  background-color: var(--bookingPendingBg);
+}
+
+.booking-priest {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.booking-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 25px; /* Row and column gap */
+  margin-top: auto; /* Push details to bottom if card height varies */
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.detail-icon {
+  color: var(--bookingDetailIcon);
+  font-size: 1.1rem;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .priest-booking-page-container {
+    padding: 15px;
+  }
+  
+  /* Priest Directory */
+  .priest-directory {
+    padding: 0 15px;
+  }
+
+  .priest-directory h1 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+
+  .filters {
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+
+  .filters input,
+  .filters select,
+  .reset-btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  .priest-list {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Smaller cards on tablet */
+    gap: 20px;
+  }
+
+  .priest-card {
+    padding: 20px;
+    min-height: 350px;
+  }
+
+  .priest-image-container {
+    width: 100px;
+    height: 100px;
+  }
+  .placeholder-icon {
+    font-size: 70px;
+  }
+  .priest-card h2 {
+    font-size: 1.4rem;
+  }
+  .bio {
+    font-size: 0.9rem;
+  }
+  .view-profile {
+    padding: 9px 18px;
+    font-size: 0.95rem;
+  }
+
+  /* Your Bookings Section */
+  .bookings-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .bookings-grid {
+    grid-template-columns: 1fr; /* Stack cards on mobile */
+    gap: 15px;
+  }
+
+  .booking-card {
+    padding: 20px;
+  }
+
+  .booking-type {
+    font-size: 1.3rem;
+  }
+
+  .booking-status {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .booking-priest {
+    font-size: 0.95rem;
+  }
+
+  .detail-item {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .priest-booking-page-container {
+    padding: 10px;
+  }
+
+  /* Priest Directory */
+  .priest-directory {
+    padding: 0 10px;
+  }
+
+  .priest-directory h1 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+
+  .filters {
+    flex-direction: column; /* Stack filters vertically */
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .filters input,
+  .filters select,
+  .reset-btn {
+    flex: auto; /* Take full width */
+  }
+
+  .priest-list {
+    grid-template-columns: 1fr; /* Single column on very small mobile */
+    gap: 15px;
+  }
+
+  .priest-card {
+    padding: 15px;
+    min-height: auto; /* Auto height on very small screens */
+  }
+  .priest-image-container {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 15px;
+  }
+  .placeholder-icon {
+    font-size: 60px;
+  }
+  .priest-card h2 {
+    font-size: 1.3rem;
+  }
+  .bio {
+    font-size: 0.85rem;
+    margin: 10px 0 15px 0;
+  }
+  .view-profile {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  /* Your Bookings Section */
+  .bookings-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .booking-card {
+    padding: 15px;
+  }
+
+  .booking-type {
+    font-size: 1.2rem;
+  }
+
+  .booking-status {
+    font-size: 0.8rem;
+  }
+}

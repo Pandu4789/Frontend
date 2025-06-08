@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Make sure React is imported
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
@@ -7,6 +7,8 @@ import './PriestProfile.css';
 import BookingModal from './BookingModal';
 import AskForMuhurtam from './AskForMuhurtam';
 import LoginPromptModal from './LoginPromptModal';
+
+import { FaPhoneAlt, FaUserCircle, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 
 const PriestProfile = () => {
     const [priest, setPriest] = useState(null);
@@ -19,6 +21,57 @@ const PriestProfile = () => {
     const [nakshatramList, setNakshatramList] = useState([]);
 
     const { id: Id } = useParams();
+
+    // Helper function to format the address
+   const formatAddress = (priestData) => {
+    if (!priestData) return 'N/A';
+
+    const addressLines = [];
+
+    // Line 1: addressLine1
+    if (priestData.addressLine1) {
+        addressLines.push(priestData.addressLine1);
+    }
+
+    // Line 2: addressLine2
+    if (priestData.addressLine2) {
+        addressLines.push(priestData.addressLine2);
+    }
+
+    // Line 3: City, State (without Zip)
+    const cityState = [];
+    if (priestData.city) cityState.push(priestData.city);
+    if (priestData.state) cityState.push(priestData.state);
+    if (cityState.length > 0) {
+        addressLines.push(cityState.join(', '));
+    }
+
+    // Line 4: Zip code (on its own line, no comma)
+    if (priestData.zipCode) {
+        addressLines.push(priestData.zipCode);
+    }
+
+    // Line 5: Country
+    if (priestData.country) {
+        addressLines.push(priestData.country);
+    }
+
+    if (addressLines.length === 0) {
+        return 'N/A';
+    }
+
+    return (
+        <>
+            {addressLines.map((line, index) => (
+                <React.Fragment key={index}>
+                    {line}
+                    {index < addressLines.length - 1 && <br />}
+                </React.Fragment>
+            ))}
+        </>
+    );
+};
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,9 +100,9 @@ const PriestProfile = () => {
                     const data = customerRes.data;
                     setCustomer({
                         name: `${data.firstName} ${data.lastName}`,
-                        email: data.mailId,
+                        email: data.email,
                         phone: data.phone,
-                        address: data.address,
+                        address: data.address, // Keep if you still use a single address field elsewhere
                         note: '',
                     });
                 } else {
@@ -66,44 +119,56 @@ const PriestProfile = () => {
         fetchData();
     }, [Id]);
 
-    if (loading) return <div className="loading">Loading...</div>;
-    if (error || !priest) return <div className="error">{error || "Priest not found."}</div>;
+    if (loading) return <div className="pp-profile-loading-error">Loading priest profile...</div>;
+    if (error || !priest) return <div className="pp-profile-loading-error">{error || "Priest not found."}</div>;
 
     return (
-        <div className="profile-wrapper">
-            <div className="profile-main">
-                <div className="profile-left">
-                    <h1 className="priest-name">{priest.firstName} {priest.lastName}</h1>
+        <div className="pp-profile-wrapper">
+            <div className="pp-profile-main">
+                <div className="pp-profile-left">
+                    <h1 className="pp-priest-name">{priest.firstName} {priest.lastName}</h1>
 
-                    <div className="profile-section">
+                    <div className="pp-profile-section">
                         <h2>About</h2>
                         <p>{priest.profile?.bio || "No bio available."}</p>
                     </div>
 
-                    <div className="profile-section">
+                    <div className="pp-profile-section">
                         <h2>Services</h2>
-                        <div className="services">
+                        <div className="pp-services-grid">
                             {priest.poojas && priest.poojas.length > 0 ? (
                                 priest.poojas.map((pooja, index) => (
-                                    <span key={index} className="service-tag">{pooja.name}</span>
+                                    <span key={index} className="pp-service-tag">{pooja.name}</span>
                                 ))
                             ) : (
-                                <p>No services listed.</p>
+                                <p className="pp-no-data-message">No services listed.</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="pp-profile-section">
+                        <h2>Languages</h2>
+                        <div className="pp-services-grid">
+                            {priest.languages && priest.languages.length > 0 ? (
+                                priest.languages.map((language, index) => (
+                                    <span key={index} className="pp-service-tag">{language.name}</span>
+                                ))
+                            ) : (
+                                <p className="pp-no-data-message">No languages listed.</p>
                             )}
                         </div>
                     </div>
 
-                    <div className="profile-section">
+                    <div className="pp-profile-section">
                         <h2>Contact Info</h2>
-                        <div className="contact-info">
-                            <p>📞 {priest.phone || 'N/A'}</p>
-                            <p>✉️ {priest.mailId || 'N/A'}</p>
-                            <p>📍 {priest.address || 'N/A'}</p>
+                        <div className="pp-contact-info">
+                            <p><FaPhoneAlt className="pp-contact-icon" /> <span className="pp-contact-detail">{priest.phone || 'N/A'}</span></p>
+                            <p><FaEnvelope className="pp-contact-icon" /> <span className="pp-contact-detail">{priest.email || 'N/A'}</span></p>
+                            <p><FaMapMarkerAlt className="pp-contact-icon" /> <span className="pp-contact-detail">{formatAddress(priest)}</span></p>
                         </div>
                     </div>
 
-                    <div className="buttons">
-                        <button className="muhurtam-btn" onClick={() => {
+                    <div className="pp-profile-actions">
+                        <button className="pp-muhurtam-btn" onClick={() => {
                             if (!customer) {
                                 setShowLoginPrompt(true);
                             } else {
@@ -112,7 +177,7 @@ const PriestProfile = () => {
                         }}>
                             Ask for Muhurtam
                         </button>
-                        <button className="book-btn" onClick={() => {
+                        <button className="pp-book-btn" onClick={() => {
                             if (!customer) {
                                 setShowLoginPrompt(true);
                             } else {
@@ -124,11 +189,14 @@ const PriestProfile = () => {
                     </div>
                 </div>
 
-                <div className="profile-right">
+                <div className="pp-profile-right">
                     {priest.profile?.profilePicture ? (
-                        <img src={priest.profile.profilePicture} alt="Priest" className="priest-image" />
+                        <img src={priest.profile.profilePicture} alt="Priest" className="pp-priest-profile-image" />
                     ) : (
-                        <div className="priest-image-placeholder">No Image</div>
+                        <div className="pp-priest-profile-image-placeholder">
+                            <FaUserCircle className="pp-placeholder-icon" />
+                            <span>No Image Available</span>
+                        </div>
                     )}
                 </div>
             </div>

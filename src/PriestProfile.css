@@ -1,312 +1,393 @@
-.profile-wrapper {
-  padding: 40px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
+/* Color variables from your existing components */
+:root {
+  --primaryDark: #4A2000;
+  --textLight: #FFD700;
+  --textAccent: #F5F5DC;
+  --activeBgDark: #6F3000;
+  --navbarBg: #4A2000;
+  --navbarTextLight: #FFD700;
+  --mainContentBg: #FDF5E6; /* Overall page background */
+  --profileHeadingColor: #B74F2F; /* Headings, primary elements */
+  --cardBgLight: #FEF3E4; /* Light card backgrounds */
+  --cardBorderLight: #DDD; /* Light borders */
+  --cardShadowSubtle: rgba(0, 0, 0, 0.08); /* Softer, layered shadows */
+  --cardShadowMedium: rgba(0, 0, 0, 0.15); /* For hover/depth */
+  --cardShadowStrong: rgba(0, 0, 0, 0.25); /* For strong shadows */
+
+  /* Button Colors */
+  --primaryButtonBg: var(--profileHeadingColor);
+  --primaryButtonHoverBg: #D46C4A;
+  --secondaryButtonBg: #E0E0E0;
+  --secondaryButtonHoverBg: #CCC;
+  --buttonTextColor: #FFF;
+  --secondaryButtonTextColor: #555;
+
+  /* Service Tag Colors */
+  --serviceTagBg: var(--cardBgLight);
+  --serviceTagBorder: var(--profileHeadingColor);
+  --serviceTagText: var(--profileHeadingColor);
+  --serviceTagHoverBg: var(--profileHeadingColor);
+  --serviceTagHoverText: var(--textAccent);
 }
 
-.profile-main {
-  display: flex;
-  flex-direction: row;
-  background: white;
+/* --- Global Profile Wrapper --- */
+.pp-profile-wrapper {
+  max-width: 1000px; /* Adjust to your preferred max width for content */
+  margin: 40px auto; /* More vertical margin for breathing room */
+  padding: 30px; /* Slightly more internal padding */
+  background-color: var(--mainContentBg);
+  border-radius: 16px; /* Larger border-radius for softer look */
+  box-shadow: 0 10px 30px var(--cardShadowSubtle), 0 3px 6px rgba(0, 0, 0, 0.05); /* Layered shadow */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--primaryDark);
+}
+
+/* --- Loading/Error State --- */
+.pp-profile-loading-error {
+  text-align: center;
+  font-size: 1.6rem; /* Slightly larger font size */
+  color: var(--profileHeadingColor);
+  padding: 60px 20px; /* More padding */
+  margin-top: 60px; /* More margin */
+  background-color: var(--mainContentBg);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 1100px;
-  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
 }
 
-.profile-left {
-  flex: 2;
-  padding-right: 30px;
-}
-
-.profile-right {
-  flex: 1;
+/* --- Main Profile Layout (Flex for left/right columns) --- */
+.pp-profile-main {
   display: flex;
-  justify-content: center;
-  align-items: start;
+  gap: 50px; /* More space between left and right columns */
+  flex-wrap: wrap; /* Allows columns to stack on smaller screens */
+  justify-content: center; /* Center content when stacked */
+  align-items: flex-start; /* Align items to top, especially useful when stacked */
 }
 
-.priest-image {
+.pp-profile-left {
+  flex: 2; /* Takes 2 parts of available space */
+  min-width: 320px; /* Minimum width before wrapping */
+}
+
+.pp-profile-right {
+  flex: 1; /* Takes 1 part of available space */
+  display: flex;
+  justify-content: center; /* Center image */
+  align-items: flex-start; /* Align image to top */
+  min-width: 280px; /* Minimum width for image column */
+}
+
+/* --- Priest Image --- */
+.pp-priest-profile-image {
   width: 100%;
-  max-width: 280px;
-  height: auto;
-  border-radius: 10px;
+  max-width: 350px; /* Larger max size for the image */
+  height: 350px; /* Fixed height to ensure square aspect, adjust if images vary */
+  border-radius: 50%; /* Make it a perfect circle */
   object-fit: cover;
-  border: 5px solid #eaeaea;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+  border: 5px solid var(--profileHeadingColor); /* Thicker, prominent border */
+  transition: transform 0.3s ease-out;
 }
 
-.priest-image-placeholder {
-  width: 280px;
-  height: 280px;
-  background-color: #eaeaea;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #777;
-  font-size: 16px;
+.pp-priest-profile-image:hover {
+  transform: scale(1.02); /* Subtle zoom on hover */
 }
 
-.priest-name {
-  font-size: 36px;
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.profile-section {
-  margin-bottom: 30px;
-}
-
-.profile-section h2 {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.profile-section p {
-  color: #555;
-  line-height: 1.6;
-}
-
-.services {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.service-tag {
-  background: #3498db;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-}
-
-.contact-info p {
-  font-size: 16px;
-  color: #444;
-  margin: 8px 0;
-}
-
-.buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.buttons button {
-  padding: 12px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.book-btn {
-  background: #e67e22;
-  color: white;
-}
-
-.muhurtam-btn {
-  background: #2ecc71;
-  color: white;
-}
-
-.loading,
-.error {
-  font-size: 18px;
-  text-align: center;
-  padding: 40px;
-  color: #888;
-}
-/* PriestProfile.css */
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.pp-priest-profile-image-placeholder {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  max-width: 350px;
+  height: 350px; /* Fixed height for placeholder */
+  background-color: var(--textAccent);
+  border-radius: 50%; /* Make it a perfect circle */
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  z-index: 1000;
-}
-.confirmation-box {
-  background-color: #f8f9fa;
-  padding: 20px;
-  margin-top: 20px;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.confirmation-box h3 {
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-.ok-button {
-  margin-top: 10px;
-  background-color: #28a745;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.ok-button:hover {
-  background-color: #218838;
-}
-
-
-.modal-content {
-  background-color: #fff;
-  width: 90%;
-  max-width: 500px;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  position: relative;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.modal-content h2,
-.modal-content h3 {
-  margin-bottom: 1rem;
-  color: #333;
-  font-size: 1.5rem;
-  text-align: center;
-}
-
-label {
-  display: block;
-  margin-bottom: 1rem;
+  align-items: center;
+  color: var(--primaryDark);
+  font-size: 1.4rem;
   font-weight: 500;
-  color: #444;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 5px solid var(--profileHeadingColor);
 }
 
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 6px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
+.pp-priest-profile-image-placeholder .pp-placeholder-icon {
+  font-size: 100px; /* Larger icon in placeholder */
+  margin-bottom: 10px;
+  color: var(--primaryDark);
 }
 
-input:focus,
-select:focus {
-  border-color: #0077cc;
-  outline: none;
+/* --- Priest Name --- */
+.pp-priest-name {
+  font-size: 3.5rem; /* Larger and more prominent */
+  color: var(--primaryDark);
+  text-align: center;
+  margin-bottom: 35px; /* More space below name */
+  font-weight: 800;
+  letter-spacing: -0.03em; /* Tighter letter spacing */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.5rem;
+/* --- Profile Sections --- */
+.pp-profile-section {
+  background-color: #fff;
+  padding: 30px; /* More internal padding */
+  border-radius: 12px; /* Consistent border-radius */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03); /* Layered shadow for sections */
+  margin-bottom: 25px;
+  border: 1px solid var(--cardBorderLight); /* Subtle border */
 }
 
-.modal-actions button {
-  flex: 1;
-  padding: 10px 16px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #0077cc;
-  color: white;
-  transition: background-color 0.3s ease;
+.pp-profile-section:last-of-type {
+  margin-bottom: 0;
 }
 
-.modal-actions button:hover {
-  background-color: #005fa3;
+.pp-profile-section h2 {
+  font-size: 1.8rem; /* Larger section titles */
+  color: var(--profileHeadingColor); /* Thematic color */
+  margin-bottom: 20px; /* More space below title */
+  border-bottom: 3px solid var(--profileHeadingColor); /* Thicker underline */
+  padding-bottom: 8px; /* More padding below underline */
+  display: inline-block;
+  font-weight: 700;
 }
 
-.customer-details {
-  margin-top: 1rem;
+.pp-profile-section p {
+  font-size: 1.05rem; /* Slightly larger text for readability */
+  line-height: 1.7; /* Increased line height */
+  color: #444; /* Slightly darker grey for body text */
 }
 
-.small-link {
-  color: #0077cc;
-  text-decoration: underline;
-  cursor: pointer;
-  margin-bottom: 1rem;
+.pp-no-data-message {
+  font-style: italic;
+  color: #888;
   font-size: 0.95rem;
 }
 
-.signup-link {
-  color: #0077cc;
-  text-decoration: underline;
-  cursor: pointer;
-  font-weight: bold;
+/* --- Services Tags --- */
+.pp-services-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* Slightly larger gap */
 }
 
-/* Inner birth detail popup */
-.inner-popup {
-  z-index: 1100;
-  background-color: rgba(0, 0, 0, 0.6);
+.pp-service-tag {
+  background-color: var(--serviceTagBg);
+  color: var(--serviceTagText);
+  padding: 10px 18px; /* Larger padding for tags */
+  border-radius: 25px; /* More rounded pill shape */
+  font-size: 0.95rem; /* Slightly larger font */
+  font-weight: 600;
+  border: 1px solid var(--serviceTagBorder);
+  transition: all 0.3s ease; /* Smoother transitions */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle shadow */
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.pp-service-tag:hover {
+  background-color: var(--serviceTagHoverBg);
+  color: var(--serviceTagHoverText);
+  transform: translateY(-3px) scale(1.02); /* More engaging hover */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive tweaks */
-@media (max-width: 500px) {
-  .modal-content {
-    padding: 1.2rem;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
-  .confirmation-box {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
-  background-color: #f0fdf4;
-  border: 1px solid #22c55e;
-  color: #166534;
-  text-align: center;
+/* --- Contact Info --- */
+.pp-contact-info p {
+  font-size: 1.05rem; /* Consistent text size */
+  margin-bottom: 12px; /* More space between items */
+  color: var(--primaryDark);
+  display: flex;
+  align-items: center;
+  gap: 12px; /* More space between icon and text */
 }
 
-.pooja-link {
-  color: #0d9488;
-  font-weight: bold;
-  text-decoration: underline;
-  cursor: pointer;
+.pp-contact-info p:last-child {
+  margin-bottom: 0;
 }
 
-.ok-button {
-  margin-top: 1rem;
-  background-color: #10b981;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+.pp-contact-icon {
+  font-size: 1.4rem; /* Larger icon size */
+  color: var(--profileHeadingColor); /* Thematic color for icons */
+}
+
+.pp-contact-info p .pp-contact-detail {
+  color: #555;
+}
+
+/* --- Action Buttons --- */
+.pp-profile-actions {
+  display: flex;
+  gap: 25px; /* More space between buttons */
+  margin-top: 40px; /* More space above buttons */
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.pp-muhurtam-btn,
+.pp-book-btn {
+  padding: 18px 35px; /* Larger buttons */
   border: none;
+  border-radius: 35px; /* More rounded pill shape */
+  font-size: 1.2rem; /* Larger font size */
+  font-weight: 700; /* Bolder text */
   cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px; /* Ensure buttons have a consistent minimum width */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Button shadow */
 }
 
+.pp-muhurtam-btn {
+  background-color: var(--secondaryButtonBg);
+  color: var(--secondaryButtonTextColor);
+  border: 1px solid var(--secondaryButtonBg);
+}
+
+.pp-muhurtam-btn:hover {
+  background-color: var(--secondaryButtonHoverBg);
+  transform: translateY(-3px); /* More pronounced lift */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+.pp-book-btn {
+  background-color: var(--primaryButtonBg);
+  color: var(--buttonTextColor);
+}
+
+.pp-book-btn:hover {
+  background-color: var(--primaryButtonHoverBg);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { /* Adjust breakpoint for larger tablets/smaller desktops */
+  .pp-profile-wrapper {
+    max-width: 800px;
+    padding: 30px;
+    margin: 30px auto;
+  }
+  .pp-priest-name {
+    font-size: 3rem;
+    margin-bottom: 30px;
+  }
+  .pp-profile-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+  }
+  .pp-profile-section p, .pp-contact-info p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) { /* Main stacking breakpoint */
+  .pp-profile-wrapper {
+    padding: 25px;
+    margin: 25px auto;
+  }
+
+  .pp-profile-main {
+    flex-direction: column; /* Stack columns */
+    gap: 30px;
+  }
+
+  .pp-profile-left,
+  .pp-profile-right {
+    min-width: unset; /* Reset min-width */
+    flex: none; /* Reset flex-grow */
+  }
+
+  .pp-priest-name {
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+  }
+
+  .pp-profile-section {
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+
+  .pp-profile-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .pp-profile-section p,
+  .pp-contact-info p,
+  .pp-service-tag {
+    font-size: 0.95rem;
+  }
+
+  .pp-priest-profile-image,
+  .pp-priest-profile-image-placeholder {
+    max-width: 280px; /* Adjust image size for stacked layout */
+    height: 280px;
+  }
+  .pp-priest-profile-image-placeholder .pp-placeholder-icon {
+    font-size: 70px;
+  }
+
+  .pp-profile-actions {
+    gap: 15px; /* Closer buttons when stacked */
+  }
+  .pp-muhurtam-btn,
+  .pp-book-btn {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 480px) { /* Smaller mobile screens */
+  .pp-profile-wrapper {
+    padding: 15px;
+    margin: 15px auto;
+    border-radius: 10px;
+  }
+
+  .pp-profile-main {
+    gap: 20px;
+  }
+
+  .pp-priest-name {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+
+  .pp-profile-section {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .pp-profile-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .pp-profile-section p,
+  .pp-contact-info p,
+  .pp-service-tag {
+    font-size: 0.88rem; /* Slightly smaller text */
+    line-height: 1.5;
+  }
+
+  .pp-priest-profile-image,
+  .pp-priest-profile-image-placeholder {
+    max-width: 220px;
+    height: 220px;
+  }
+  .pp-priest-profile-image-placeholder .pp-placeholder-icon {
+    font-size: 50px;
+  }
+
+  .pp-profile-actions {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px;
+    margin-top: 25px;
+  }
+
+  .pp-muhurtam-btn,
+  .pp-book-btn {
+    width: 100%; /* Full width when stacked */
+    padding: 12px 20px;
+    font-size: 1rem;
+    min-width: unset; /* Allow to shrink with full width */
+  }
 }

@@ -58,6 +58,7 @@ const Login = ({ onLoginSuccess }) => {
           }
 
           localStorage.setItem('userEmail', data.email); // Store email
+          localStorage.setItem('username', data.email); // Store username
           localStorage.setItem('firstName', data.firstName); // Store firstName
           localStorage.setItem('lastName', data.lastName); // Store lastName
           localStorage.setItem('role', data.role);
