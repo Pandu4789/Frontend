@@ -1,59 +1,123 @@
-/* Container using CSS Grid for responsive layout */
+/* Events.css (Add skeleton styles) */
+
 .masonry {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  columns: 3;
+  column-gap: 20px;
 }
 
-/* Individual event card */
 .event-card {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
-  cursor: pointer;
-  background-color: #fff; /* fallback background */
 }
 
-/* Hover effect for scale */
-.event-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-}
-
-/* Image on top */
 .event-image {
   width: 100%;
-  height: 150px;
+  height: auto;
   object-fit: cover;
-  display: block;
 }
 
-/* Content section below image */
 .event-content {
-  padding: 1rem;
-  color: #333;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  padding: 15px;
 }
 
-/* Title styling */
 .event-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
 }
 
-/* Description styling */
 .event-description {
   font-size: 0.9rem;
+  color: #666;
   line-height: 1.4;
-  flex-grow: 1;
+}
+
+/* Skeleton Loader Styles */
+.skeleton-card {
+  background-color: #f0f0f0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animation for skeleton loader */
+.skeleton-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 150px; /* Placeholder height for image */
+  background-color: #e0e0e0;
+}
+
+.skeleton-content {
+  padding: 15px;
+}
+
+.skeleton-line {
+  height: 1em; /* Adjust as needed */
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+}
+
+.skeleton-line.short {
+  width: 70%;
+}
+
+.skeleton-line.medium {
+  width: 90%;
+}
+
+.skeleton-line.long {
+  width: 100%;
+}
+
+.no-events-message {
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+  padding: 20px;
+  grid-column: 1 / -1; /* Center message across all columns in masonry */
+}
+
+
+/* Responsive adjustments for masonry columns */
+@media (max-width: 1024px) {
+  .masonry {
+    columns: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .masonry {
+    columns: 1;
+  }
+
+  .event-card {
+    height: auto !important;
+  }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Help.css'; // Make sure path is correct
+import './Help.css';
 
 const Help = () => {
   return (

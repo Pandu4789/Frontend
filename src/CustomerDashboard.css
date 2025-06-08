@@ -1,0 +1,406 @@
+/* Color variables from your previous components */
+:root {
+  --primaryDark: #4A2000;
+  --textLight: #FFD700;
+  --textAccent: #F5F5DC;
+  --activeBgDark: #6F3000;
+  --navbarBg: #4A2000;
+  --navbarTextLight: #FFD700;
+  --mainContentBg: #FDF5E6; /* Main content background color */
+  --profileHeadingColor: #B74F2F; /* Heading color for some sections */
+  --cardBgColor: #FDEBC1; /* Color for event cards (as defined in DashboardEventsDisplay) */
+  --dashboardSectionBg: #FDF5E6; /* Light background for dashboard sections */
+  --quickLinkCardBg: #FFF; /* White background for quick links */
+  --quickLinkHoverBg: #FEF3E4; /* Light hover background */
+  --quickLinkBorder: #EEE; /* Light border */
+  --shadowColor: rgba(0, 0, 0, 0.1);
+  --ctaButtonBg: linear-gradient(145deg, #B74F2F, #D46C4A); /* Warm gradient for CTA */
+  --ctaButtonText: #FFF;
+}
+
+.dashboard-container {
+  max-width: 1200px; /* Consistent with your other centered content */
+  margin: 20px auto; /* Center the dashboard content */
+  padding: 20px;
+  background-color: var(--dashboardSectionBg); /* Overall light background */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--shadowColor);
+}
+
+.dashboard-section {
+  margin-bottom: 30px; /* Space between sections */
+  padding: 20px;
+  background-color: #fff; /* White background for individual sections */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadowColor);
+  position: relative; /* Needed for carousel buttons */
+}
+
+.dashboard-section:last-child {
+  margin-bottom: 0; /* No bottom margin for the last section */
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--profileHeadingColor); /* Using the warm heading color */
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- Personalized Greeting & Summary --- */
+.user-summary-section {
+  text-align: center;
+  padding: 25px 20px;
+}
+
+.user-greeting {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primaryDark);
+  margin-bottom: 15px;
+}
+
+.user-stats {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  color: var(--profileHeadingColor);
+  font-weight: 500;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  color: var(--activeBgDark);
+}
+
+/* --- Image Carousel Section (remains largely the same) --- */
+.image-carousel-section {
+  padding: 0;
+  overflow: hidden;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: 100%;
+}
+
+.carousel-item {
+  min-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  padding: 15px 10px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  z-index: 10;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.carousel-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.carousel-button.prev {
+  left: 10px;
+}
+
+.carousel-button.next {
+  right: 10px;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dot.active {
+  background-color: var(--navbarTextLight);
+}
+
+/* --- Today's Muhurtham Widget --- */
+.muhurtham-widget {
+  padding: 25px 20px;
+  text-align: center;
+}
+
+.muhurtham-details p {
+  font-size: 1rem;
+  color: var(--primaryDark);
+  margin-bottom: 8px;
+}
+
+.muhurtham-details strong {
+  color: var(--profileHeadingColor);
+}
+
+.muhurtham-note {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 15px;
+}
+
+/* --- Prominent Call-to-Action for Booking --- */
+.book-priest-cta {
+  text-align: center;
+  padding: 30px 20px;
+  background-color: var(--mainContentBg); /* A slightly different background */
+  border: 1px solid var(--quickLinkBorder);
+}
+
+.book-priist-cta .section-title {
+  margin-bottom: 15px;
+  justify-content: center; /* Center title in this section */
+}
+
+.book-priest-cta p {
+  font-size: 1.1rem;
+  color: var(--primaryDark);
+  margin-bottom: 25px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-button {
+  background: var(--ctaButtonBg);
+  color: var(--ctaButtonText);
+  padding: 15px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex; /* For icon alignment */
+  align-items: center;
+  gap: 10px;
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button-icon {
+  font-size: 1.1rem;
+}
+
+/* --- Quick Links Section (remains largely the same) --- */
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.quick-link-card {
+  background-color: var(--quickLinkCardBg);
+  border: 1px solid var(--quickLinkBorder);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.quick-link-card:hover {
+  background-color: var(--quickLinkHoverBg);
+  border-color: var(--profileHeadingColor);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.quick-link-icon {
+  font-size: 2.5rem;
+  color: var(--profileHeadingColor);
+  margin-bottom: 10px;
+}
+
+.quick-link-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primaryDark);
+  margin-bottom: 5px;
+}
+
+.quick-link-description {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* --- Events Display Section --- */
+/* (Styles for actual cards are in Events.css) */
+/* Add skeleton styles below */
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  .dashboard-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  /* User Summary */
+  .user-greeting {
+    font-size: 1.8rem;
+  }
+  .user-stats {
+    gap: 20px;
+  }
+  .stat-item {
+    font-size: 1rem;
+  }
+  .stat-icon {
+    font-size: 1.3rem;
+  }
+
+  /* Carousel */
+  .carousel-item img {
+    height: 250px; /* Adjust height for tablets */
+  }
+  .carousel-button {
+    padding: 10px 5px;
+    font-size: 1.2rem;
+  }
+
+  /* Muhurtham Widget */
+  .muhurtham-details p {
+    font-size: 0.9rem;
+  }
+
+  /* CTA Button */
+  .cta-button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+  }
+  .book-priest-cta p {
+    font-size: 1rem;
+  }
+
+  /* Quick Links */
+  .quick-links-grid {
+    grid-template-columns: 1fr; /* Stack quick links on mobile */
+    gap: 15px;
+  }
+  .quick-link-card {
+    padding: 15px;
+    min-height: 120px;
+  }
+  .quick-link-icon {
+    font-size: 2rem;
+  }
+  .quick-link-title {
+    font-size: 1.1rem;
+  }
+  .quick-link-description {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-section {
+    padding: 10px;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  /* User Summary */
+  .user-greeting {
+    font-size: 1.5rem;
+  }
+  .user-stats {
+    flex-direction: column; /* Stack stats */
+    gap: 10px;
+  }
+
+  /* Carousel */
+  .carousel-item img {
+    height: 180px;
+    border-radius: 0;
+  }
+  .carousel-button {
+    font-size: 1rem;
+    padding: 8px 3px;
+  }
+  .carousel-dots {
+    bottom: 5px;
+    gap: 5px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* CTA Button */
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}
