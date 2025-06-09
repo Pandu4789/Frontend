@@ -1,257 +1,322 @@
-:root {
-  --primary-color: #FF9800;
-  --light-bg: #FFF9E6;
-  --white-bg: #fff;
-  --light-border: #ddd;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --text-color: #333;
-  --muted-color: #555;
-  --error-color: #e53935;
-  --success-color: #43a047;
-  --warning-color: #fb8c00;
+/* PoojaItems.css */
+
+.pooja-items-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: #fcfbf8; /* Light background for the container */
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
-* {
-  box-sizing: border-box;
+.pooja-main-title {
+    text-align: center;
+    color: #B74F2F; /* Deep orange/brown */
+    margin-bottom: 10px;
+    font-size: 2.2em;
+    font-weight: 700;
 }
 
-body, html {
-  margin: 0;
-  background: var(--light-bg);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--text-color);
+.pooja-main-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1.1em;
 }
 
-.container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-h1, h2, h3 {
-  color: var(--primary-color);
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.description {
-  text-align: center;
-  color: var(--muted-color);
-  margin-bottom: 20px;
-  font-size: 1rem;
-}
-
-.dropdown-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.dropdown-container label {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-select {
-  width: 200px;
-  padding: 8px 10px;
-  border: 1px solid var(--light-border);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background: white;
-}
-
-select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 4px rgba(255, 152, 0, 0.5);
-}
-
-.main-content {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.item-list {
-  flex: 1;
-  background: #fffef2;
-  padding: 16px 20px;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px var(--shadow-color);
-}
-
-.item-list ul {
-  padding-left: 20px;
-  list-style-type: disc;
-  color: var(--text-color);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-
-.section {
-  flex: 2;
-  background: var(--white-bg);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px var(--shadow-color);
-  margin-bottom: 20px;
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 10px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
-  font-size: 0.95rem;
-}
-
-table button {
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.trash-button svg {
-  color: #4d4d4d;
-  transition: color 0.2s ease;
-}
-
-.trash-button:hover svg {
-  color: #f5302a;
-}
-
-.total-buy-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-top: 20px;
-}
-
-.total {
-  font-weight: bold;
-  font-size: 1.5rem;
-  color: var(--primary-color);
-}
-
-.buy-button {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.buy-button:hover {
-  background: #e68a00;
-  transform: scale(1.03);
-}
-
-.card-style {
-  background: var(--white-bg);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 20px;
-  border: 1px solid #eee;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 20px;
-}
-
-.card-style:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-}
-
-/* Toast Notifications */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--primary-color);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.95;
-  animation: slideIn 0.3s ease forwards;
-  z-index: 9999;
-}
-
-.toast.error { background: var(--error-color); }
-.toast.success { background: var(--success-color); }
-.toast.warning { background: var(--warning-color); }
-
-@keyframes slideIn {
-  from { transform: translateY(50px); opacity: 0; }
-  to { transform: translateY(0); opacity: 0.95; }
-}
-
-/* Print Button Styling */
-.print-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 1rem;
-  color: #000;
-  cursor: pointer;
-  font-weight: 500;
-  user-select: none;
-  transition: opacity 0.2s ease;
-}
-
-.print-label:hover {
-  opacity: 0.7;
-}
-
-.print-label svg {
-  width: 18px;
-  height: 18px;
-  fill: #000;
-}
-
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .total-buy-section {
+.event-select-dropdown {
+    display: flex;
+    justify-content: center;
     align-items: center;
-  }
+    margin-bottom: 40px;
+    gap: 15px;
 }
 
-@media (max-width: 480px) {
-  .dropdown-container {
+.select-label {
+    font-size: 1.1em;
+    color: #555;
+    font-weight: 600;
+}
+
+.pooja-select {
+    padding: 10px 15px;
+    border: 2px solid #e0c8b2; /* Lighter orange/brown */
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1em;
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    min-width: 250px;
+}
+
+.pooja-select:focus {
+    border-color: #B74F2F;
+    box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2);
+}
+
+/* Pooja Details Card */
+.pooja-details-card {
+    background-color: #fff;
+    border-radius: 12px;
+    border: 1px solid #e0c8b2;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    display: flex;
     flex-direction: column;
+    gap: 25px;
+}
+
+.pooja-header-section {
+    display: flex;
     align-items: flex-start;
-  }
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #f0e6da; /* Dotted line separator */
+}
 
-  select {
-    width: 100%;
-  }
+.pooja-title-description {
+    flex-grow: 1;
+    margin-left: 0; /* Ensure text starts from the very left when icon is removed */
+}
 
-  .item-list,
-  .section {
-    padding: 12px;
-  }
+.pooja-name {
+    font-size: 1.8em;
+    color: #8C472A; /* Slightly darker orange/brown */
+    margin-bottom: 8px;
+    font-weight: 700;
+}
 
-  .item-list ul {
-    font-size: 0.9rem;
-  }
+.pooja-description {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.6;
+}
+
+.pooja-category-section {
+    background-color: #f0e6da; /* Background for category tag */
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-flex; /* To make it fit content */
+    align-items: center;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #8C472A;
+    margin-bottom: 15px; /* Space below the tag */
+}
+
+.category-label {
+    margin-right: 8px;
+    opacity: 0.8;
+}
+
+.items-required-section {
+    background-color: #fdfaf7; /* Very light background for items section */
+    border: 1px solid #f0e6da;
+    border-radius: 10px;
+    padding: 20px;
+    /* This text-align might be overridden by flexbox but good to keep as a fallback */
+    text-align: left;
+}
+
+.section-header {
+    display: flex;
+    align-items: center; /* Vertically align icon and text */
+    gap: 12px;
+    margin-bottom: 15px;
+    /* FORCE LEFT ALIGNMENT */
+    justify-content: flex-start !important; /* Use !important as a temporary measure if needed */
+    width: 100%; /* Ensure it takes full width to respect flex-start */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+    /* Optional: Uncomment for debugging to see its boundaries */
+    /* background-color: rgba(255, 0, 0, 0.1); */
+}
+
+.section-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: #8C472A;
+}
+
+.section-title {
+    font-size: 1.1em;
+    color: #8C472A;
+    font-weight: 600;
+    margin: 0; /* Reset margin from h3 */
+    text-align: left !important; /* Force text alignment too */
+}
+
+.items-list {
+    list-style: none; /* Remove default list style */
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+    gap: 10px 20px;
+}
+
+.items-list li {
+    font-size: 1em;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-icon svg {
+    width: 10px; /* Small dot icon */
+    height: 10px;
+    fill: #B74F2F; /* Icon color for list items */
+}
+
+.no-items-message {
+    color: #888;
+    font-style: italic;
+    grid-column: 1 / -1; /* Span across all columns */
+    text-align: center;
+    padding: 15px 0;
+}
+
+.pooja-footer-details {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px dashed #f0e6da;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+    color: #444;
+}
+
+.detail-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #8C472A;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.detail-value {
+    color: #B74F2F; /* Highlight values */
+    font-weight: 600;
+}
+
+.print-list-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background-color: #B74F2F; /* Primary button color */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: center; /* Center button within flex container */
+    margin-top: 25px;
+    box-shadow: 0 4px 10px rgba(183, 79, 47, 0.3);
+}
+
+.print-list-btn:hover {
+    background-color: #8C472A; /* Darker on hover */
+    transform: translateY(-2px);
+}
+
+.print-list-btn svg {
+    fill: #fff;
+    width: 20px;
+    height: 20px;
+}
+
+.no-selection-message {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+    border: 1px dashed #e0c8b2;
+    border-radius: 12px;
+    color: #777;
+    font-size: 1.1em;
+    margin-top: 30px;
+}
+
+/* Toast Messages */
+.pooja-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 25px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: fadeInOut 3s forwards;
+}
+
+.pooja-toast.success {
+    background-color: #4CAF50; /* Green for success */
+}
+
+.pooja-toast.warning {
+    background-color: #ff9800; /* Orange for warning */
+}
+
+.pooja-toast.error {
+    background-color: #f44336; /* Red for error */
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pooja-items-container {
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+    .pooja-header-section {
+        flex-direction: column;
+        align-items: flex-start; /* Align content to the left when stacked */
+        text-align: left;
+    }
+
+    .pooja-footer-details {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start; /* Align items to the left when stacked */
+    }
+
+    .pooja-select {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .event-select-dropdown {
+        flex-direction: column;
+    }
+
+    .items-list {
+        grid-template-columns: 1fr; /* Single column on smaller screens */
+    }
 }

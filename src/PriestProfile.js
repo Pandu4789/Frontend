@@ -73,51 +73,67 @@ const PriestProfile = () => {
 };
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [priestRes, nakshatraRes] = await Promise.all([
-                    axios.get(`http://localhost:8080/api/auth/priests/${Id}`),
-                    axios.get('http://localhost:8080/api/nakshatram')
-                ]);
-                setPriest(priestRes.data);
-                setNakshatramList(nakshatraRes.data);
-            } catch (err) {
-                console.error('Priest or Nakshatram load failed:', err);
-                setError('Failed to load priest or nakshatram data');
-                toast.error('Error loading data');
-                setLoading(false);
-                return;
-            }
+    
+        useEffect(() => {
+    const fetchData = async () => {
+        try {
+            // Step 1: Get basic priest data (firstName, lastName, phone, email, etc.)
+            const priestRes = await axios.get(`http://localhost:8080/api/auth/priests/${Id}`);
+            const basicPriest = priestRes.data;
+            console.log('Basic Priest Data:', basicPriest);
 
-            // Optional customer fetch
-            try {
-                const username = localStorage.getItem('username');
-                if (username) {
-                    const customerRes = await axios.get(`http://localhost:8080/api/profile`, {
-                        params: { username }
-                    });
-                    const data = customerRes.data;
-                    setCustomer({
-                        name: `${data.firstName} ${data.lastName}`,
-                        email: data.email,
-                        phone: data.phone,
-                        address: data.address, // Keep if you still use a single address field elsewhere
-                        note: '',
-                    });
-                } else {
-                    setCustomer(null);
-                }
-            } catch (err) {
-                console.warn('Customer not logged in or profile fetch failed (OK for guest):', err);
+            // Step 2: Get full profile using priest's email
+            const profileRes = await axios.get(`http://localhost:8080/api/profile?email=${basicPriest.email}`);
+            const profileData = profileRes.data;
+            console.log('Profile Data:', profileData);
+            // Step 3: Merge both results
+            const fullPriest = {
+                ...basicPriest,
+                bio: profileData.bio,
+                poojas: profileData.services,
+                languages: profileData.languages
+            };
+
+            setPriest(fullPriest);
+
+            // Step 4: Get nakshatram list
+            const nakshatraRes = await axios.get('http://localhost:8080/api/nakshatram');
+            setNakshatramList(nakshatraRes.data);
+        } catch (err) {
+            console.error('Error fetching priest/profile/nakshatram:', err);
+            setError('Failed to load priest profile or nakshatram.');
+            toast.error('Error loading data');
+            setLoading(false);
+            return;
+        }
+
+        // Fetch customer if logged in
+        try {
+            const email = localStorage.getItem('email');
+            if (email) {
+                const customerRes = await axios.get(`http://localhost:8080/api/profile?email=${email}`);
+                const data = customerRes.data;
+                setCustomer({
+                    name: `${data.firstName} ${data.lastName}`,
+                    email: data.email,
+                    phone: data.phone,
+                    address: data.address,
+                    note: '',
+                });
+            } else {
                 setCustomer(null);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (err) {
+            console.warn('Customer not logged in or profile fetch failed (OK for guest):', err);
+            setCustomer(null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchData();
-    }, [Id]);
+    fetchData();
+}, [Id]);
+
 
     if (loading) return <div className="pp-profile-loading-error">Loading priest profile...</div>;
     if (error || !priest) return <div className="pp-profile-loading-error">{error || "Priest not found."}</div>;
@@ -130,31 +146,34 @@ const PriestProfile = () => {
 
                     <div className="pp-profile-section">
                         <h2>About</h2>
-                        <p>{priest.profile?.bio || "No bio available."}</p>
+                        <p>{priest.bio || "No bio available."}</p>
                     </div>
 
                     <div className="pp-profile-section">
                         <h2>Services</h2>
                         <div className="pp-services-grid">
+                            {console.log('Poojas:', priest.poojas)}
                             {priest.poojas && priest.poojas.length > 0 ? (
-                                priest.poojas.map((pooja, index) => (
-                                    <span key={index} className="pp-service-tag">{pooja.name}</span>
-                                ))
-                            ) : (
-                                <p className="pp-no-data-message">No services listed.</p>
-                            )}
+  priest.poojas.map((pooja, index) => (
+    <span key={index} className="pp-service-tag">{pooja}</span>
+  ))
+) : (
+  <p className="pp-no-data-message">No services listed.</p>
+)}
+
                         </div>
                     </div>
                     <div className="pp-profile-section">
                         <h2>Languages</h2>
                         <div className="pp-services-grid">
-                            {priest.languages && priest.languages.length > 0 ? (
-                                priest.languages.map((language, index) => (
-                                    <span key={index} className="pp-service-tag">{language.name}</span>
-                                ))
-                            ) : (
-                                <p className="pp-no-data-message">No languages listed.</p>
-                            )}
+                           {priest.languages && priest.languages.length > 0 ? (
+  priest.languages.map((language, index) => (
+    <span key={index} className="pp-service-tag">{language}</span>
+  ))
+) : (
+  <p className="pp-no-data-message">No languages listed.</p>
+)}
+
                         </div>
                     </div>
 

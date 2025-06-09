@@ -1,266 +1,263 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaTrash } from 'react-icons/fa';
 import './PoojaItems.css';
 
 const PoojaItems = () => {
-  const [events, setEvents] = useState([]);
+  const [poojas, setPoojas] = useState([]);
   const [items, setItems] = useState([]);
-  const [originalItems, setOriginalItems] = useState([]);
-  const [selectedEventId, setSelectedEventId] = useState('');
-  const [toast, setToast] = useState(null);
-  const [isBuying, setIsBuying] = useState(false);
+  const [selectedPoojaId, setSelectedPoojaId] = useState('');
+  const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:8080/api/events')
       .then(res => res.json())
-      .then(data => setEvents(data))
-      .catch(err => console.error('Error fetching events:', err));
+      .then(data => setPoojas(data))
+      .catch(err => console.error('Error fetching poojas:', err));
   }, []);
 
   useEffect(() => {
-    if (selectedEventId) {
-      fetch(`http://localhost:8080/api/pooja-items/event/${selectedEventId}`)
+    if (selectedPoojaId) {
+      fetch(`http://localhost:8080/api/pooja-items/event/${selectedPoojaId}`)
         .then(res => res.json())
         .then(data => {
-          const itemsWithQuantity = data.map(item => ({
-            ...item,
-            quantity: typeof item.quantity === 'number' ? item.quantity : 1,
-          }));
-          setOriginalItems(data);
-          setItems(itemsWithQuantity);
+          setItems(data);
         })
         .catch(err => console.error('Error fetching pooja items:', err));
     } else {
       setItems([]);
-      setOriginalItems([]);
     }
-  }, [selectedEventId]);
+  }, [selectedPoojaId]);
 
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
       return () => clearTimeout(timer);
     }
-  }, [toast]);
+  }, [toastMessage]);
 
-  const handleQuantityChange = (id, delta) => {
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(0, item.quantity + delta) }
-          : item
-      )
-    );
-  };
-
-  const handleRemoveItem = (id) => {
-    setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, quantity: 0 } : item))
-    );
-  };
-
-  const handleBuyItems = () => {
-    const itemsToBuy = items.filter(item => item.quantity > 0);
-    if (itemsToBuy.length === 0) {
-      setToast({ type: 'warning', message: 'No items selected!' });
-      return;
-    }
-    setIsBuying(true);
-    setTimeout(() => {
-      setIsBuying(false);
-      setToast({ type: 'success', message: 'Purchase successful!' });
-       setItems(prev =>
-      prev.map(item => {
-        const originalItem = originalItems.find(ori => ori.id === item.id);
-        return {
-          ...item,
-          quantity: originalItem ? originalItem.quantity || 1 : 1,
-        };
-      })
-    );
-
-  }, 1000);
-  };
-
-  const totalPrice = useMemo(() =>
-    items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0).toFixed(2),
-    [items]
+  const selectedPooja = useMemo(() =>
+    poojas.find(p => p.id === parseInt(selectedPoojaId)),
+    [poojas, selectedPoojaId]
   );
 
-  const selectedEvent = events.find(e => e.id === parseInt(selectedEventId));
-
   const handlePrintItems = () => {
-    if (!originalItems.length) return;
-
+     console.log('Print button clicked');
+    if (!selectedPooja) {
+      setToastMessage({ type: 'warning', message: 'Please select a Pooja to print!' });
+      return;
+    }
     const printContent = `
       <html>
         <head>
-          <title>Print Items for ${selectedEvent?.name || ''}</title>
+          <title>${selectedPooja.name} Pooja Items List</title>
           <style>
             body {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              padding: 30px;
+              color: #333;
+              line-height: 1.6;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            .pooja-header {
+              background-color: #f7ede0;
               padding: 20px;
-              color: black;
+              border-radius: 8px;
+              margin-bottom: 25px;
+              border: 1px solid #e0c8b2;
+            }
+            h1 {
+              color: #B74F2F;
+              text-align: center;
+              margin-bottom: 10px;
             }
             h2 {
-              text-align: center;
-              color: #333;
+              color: #B74F2F;
+              margin-top: 25px;
+              margin-bottom: 15px;
+              border-bottom: 1px solid #eee;
+              padding-bottom: 5px;
+            }
+            p {
+              margin-bottom: 10px;
+              font-size: 0.95rem;
+              color: #555;
+            }
+            .category, .duration, .price {
+              font-weight: bold;
+              color: #8C472A;
             }
             ul {
               list-style-type: disc;
-              padding-left: 20px;
+              padding-left: 25px;
+              margin-top: 10px;
+            }
+            li {
+              margin-bottom: 8px;
               font-size: 1rem;
-              line-height: 1.6;
+            }
+            .section-title-print {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              color: #8C472A;
+              font-size: 1.2rem;
+              margin-bottom: 15px;
+            }
+            .section-title-print svg {
+              width: 24px;
+              height: 24px;
+              fill: #8C472A;
             }
           </style>
         </head>
         <body>
-          <h2>Items List for ${selectedEvent?.name || ''}</h2>
+          <div class="pooja-header">
+            <h1>${selectedPooja.name || 'Pooja'}</h1>
+            <p>${selectedPooja.description || 'Dedicated to Goddess Lakshmi, the bestower of wealth, prosperity, and good fortune. Often performed on Fridays or during Diwali.'}</p>
+            <p><span class="category">Category:</span> ${selectedPooja.category || 'Wealth & Prosperity'}</p>
+            <p><span class="duration">Duration:</span> ${selectedPooja.duration || '1.5 - 2 hours'}</p>
+            <p><span class="price">Estimated Price:</span> ${selectedPooja.estimatedPrice || '$71 - $151'}</p>
+          </div>
+
+          <div class="section-title-print">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
+              </svg>
+              <h3>Items Required</h3>
+          </div>
           <ul>
-            ${originalItems.map(item => `<li>${item.itemName} - ${item.quantity}</li>`).join('')}
+            ${items.length > 0 ? items.map(item => `<li>${item.itemName}${item.quantity ? ` - ${item.quantity}` : ''}</li>`).join('') : '<li>No items listed.</li>'}
           </ul>
         </body>
       </html>`;
 
-    const printWindow = window.open('', '', 'width=600,height=600');
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    } else {
+      setToastMessage({ type: 'error', message: 'Pop-up blocked! Please allow pop-ups for printing.' });
+    }
   };
 
-  return (
-    <div className="container" style={{ padding: '20px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-        {/* <h1>Pooja Items</h1> */}
-        <p>Select an event to see the recommended items.</p>
-      </div>
 
-      <div className="dropdown-container" style={{ marginBottom: '20px' }}>
-        <label htmlFor="eventSelect">Select Event:</label>
+  return (
+    <div className="pooja-items-container">
+      <h1 className="pooja-main-title">Pooja Guide</h1>
+      {/* <p className="pooja-main-description">Choose a Pooja to explore its complete ritual details: items needed, estimated time, cost, and significance.</p> */}
+
+      <div className="event-select-dropdown">
+        <label htmlFor="poojaSelect" className="select-label">Select Pooja:</label>
         <select
-          id="eventSelect"
-          value={selectedEventId}
-          onChange={(e) => setSelectedEventId(e.target.value)}
-          style={{ width: '200px', padding: '5px' }}
+          id="poojaSelect"
+          value={selectedPoojaId}
+          onChange={(e) => setSelectedPoojaId(e.target.value)}
+          className="pooja-select"
         >
-          <option value="">-- Select Event --</option>
-          {events.map(event => (
-            <option key={event.id} value={event.id}>{event.name}</option>
+          <option value="">-- Select Pooja --</option>
+          {poojas.map(pooja => (
+            <option key={pooja.id} value={pooja.id}>
+              {pooja.name}
+            </option>
           ))}
         </select>
       </div>
 
-      <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
-        <div style={{ flex: 3, minWidth: '60%' }}>
-          <div className="card" style={{
-  position: 'relative',
-  backgroundColor: 'white',           // 👈 sets background color to white
-  borderRadius: '10px',
-  padding: '20px',
-  boxShadow: '0 0 10px rgba(0,0,0,0.1)' // Optional for a subtle shadow
-}}>
-
-            <h2>Recommended Items</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                  <th>Price/Unit</th>
-                  <th>Subtotal</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.length > 0 ? items.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.itemName}</td>
-                    <td>
-                      <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-                      <span style={{ margin: '0 10px' }}>{item.quantity}</span>
-                      <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
-                    </td>
-                    <td>${item.unitPrice}</td>
-                    <td>${(item.unitPrice * item.quantity).toFixed(2)}</td>
-                    <td>
-                      <button className="trash-button" onClick={() => handleRemoveItem(item.id)}>
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>
-                      {selectedEventId ? 'No items available for this event.' : 'Select an event to load items.'}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            <div style={{ marginTop: '15px', textAlign: 'right' }}>
-              <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
-                Total: ₹{totalPrice}
-              </div>
-              <button onClick={handleBuyItems} disabled={isBuying} className="buy-button">
-                <span style={{ marginRight: '8px' }}>🛒</span> {isBuying ? 'Processing...' : 'Buy Items'}
-              </button>
+      {selectedPooja && (
+        <div className="pooja-details-card">
+          <div className="pooja-header-section">
+            <div className="pooja-title-description">
+              <h2 className="pooja-name">{selectedPooja.name}</h2>
+              <p className="pooja-description">{selectedPooja.description}</p>
             </div>
           </div>
-        </div>
 
-        {selectedEvent && (
-          <div style={{ flex: 2, minWidth: '35%' }}>
-            <div className="card" style={{
-  position: 'relative',
-  backgroundColor: 'white',           // 👈 sets background color to white
-  borderRadius: '10px',
-  padding: '20px',
-  boxShadow: '0 0 10px rgba(0,0,0,0.1)' // Optional for a subtle shadow
-}}>
+          <div className="pooja-category-section">
+            <span className="category-label">Category</span>
+            <span className="category-value">{selectedPooja.category || 'Wealth & Prosperity'}</span>
+          </div>
 
-              <h3>Items list for {selectedEvent.name}:</h3>
-
-              {/* Print Text + Icon */}
-              <div
-                onClick={handlePrintItems}
-                style={{
-                  position: 'absolute',
-                  top: '10px',
-                  right: '10px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  color: 'black',
-                  fontWeight: '500'
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="18"
-                  width="18"
-                  viewBox="0 0 24 24"
-                  fill="black"
-                >
-                  <path d="M19 8H5c-1.1 0-2 .9-2 2v6h4v4h10v-4h4v-6c0-1.1-.9-2-2-2zm-3 10H8v-4h8v4zm3-6c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zM18 3H6v4h12V3z" />
+          <div className="items-required-section">
+            <div className="section-header">
+              <span className="section-icon">
+                {/* Items Required Icon (Checklist/List) - Remains the same good one */}
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
                 </svg>
-                <span>Print</span>
-              </div>
+              </span>
+              <h3 className="section-title">Items Required</h3>
+            </div>
+            <ul className="items-list">
+              {items.length > 0 ? items.map(item => (
+                <li key={item.id}>
+                  <span className="item-icon">
+                    {/* Basic dot or placeholder for individual item */}
+                    <svg xmlns="http://www.w3.org/2000/svg" height="10" width="10" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="5"/>
+                    </svg>
+                  </span>
+                  {item.itemName}
+                </li>
+              )) : (
+                <li className="no-items-message">No items listed for this Pooja.</li>
+              )}
+            </ul>
+          </div>
 
-              <ul>
-                {originalItems.map(item => (
-                  <li key={item.id}>{item.itemName} - {item.quantity}</li>
-                ))}
-              </ul>
+          <div className="pooja-footer-details">
+            <div className="detail-item">
+              <span className="detail-icon">
+                {/* Duration Icon - Remains the same */}
+                <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                </svg>
+              </span>
+              <span className="detail-label">Duration</span>
+              <span className="detail-value">{selectedPooja.duration || '1.5 - 2 hours'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-icon">
+                {/* UPDATED Estimated Price Icon (Dollar Sign) */}
+                <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" viewBox="0 0 24 24" fill="currentColor">
+  <path d="M2 6v12h20V6H2zm2 2h2a2 2 0 0 1 4 0h4a2 2 0 0 1 4 0h2v8h-2a2 2 0 0 1-4 0h-4a2 2 0 0 1-4 0H4V8zm8 1a3 3 0 1 1 0 6 3 3 0 0 1 0-6
+z" />
+                </svg>
+
+
+              </span>
+              <span className="detail-label">Estimated Price</span>
+              <span className="detail-value">{selectedPooja.estimatedPrice || '$71 - $151'}</span>
             </div>
           </div>
-        )}
-      </div>
 
-      {toast && <div className={`toast ${toast.type}`}>{toast.message}</div>}
+          <button onClick={handlePrintItems} className="print-list-btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="20"
+              width="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M19 8H5c-1.1 0-2 .9-2 2v6h4v4h10v-4h4v-6c0-1.1-.9-2-2-2zm-3 10H8v-4h8v4zm3-6c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zM18 3H6v4h12V3z" />
+            </svg>
+            <span>Print List</span>
+          </button>
+        </div>
+      )}
+
+      {!selectedPooja && (
+        <div className="no-selection-message">
+          <p>Please select a Pooja from the dropdown above to view its details and required items.</p>
+        </div>
+      )}
+
+      {toastMessage && (
+        <div className={`pooja-toast ${toastMessage.type}`}>
+          {toastMessage.message}
+        </div>
+      )}
     </div>
   );
 };

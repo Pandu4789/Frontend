@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from  'react';
 import axios from 'axios';
 import format from 'date-fns/format';
 import CountUp from 'react-countup';
-import './Dashboard.css';
+import './Dashboard.css'; // All CSS for this page in one file
 import AppointmentModal from './AppointmentModal';
 
 const Dashboard = () => {
@@ -159,23 +159,27 @@ const Dashboard = () => {
 
   const getCardColor = (count, type) => {
     if (type === 'Today') {
-      if (count < 2) return '#81C784';
-      if (count < 4) return '#FFB74D';
-      return '#E57373';
+      if (count < 2) return 'var(--stat-green)'; // Use CSS variables
+      if (count < 4) return 'var(--stat-orange)';
+      return 'var(--stat-red)';
     }
     if (type === 'Upcoming') {
-      if (count <= 10) return '#81C784';
-      if (count <= 20) return '#FFB74D';
-      return '#E57373';
+      if (count <= 10) return 'var(--stat-green)';
+      if (count <= 20) return 'var(--stat-orange)';
+      return 'var(--stat-red)';
     }
     if (type === 'All') {
-      return '#64B5F6';
+      return 'var(--stat-blue)';
     }
+    return 'grey'; // Fallback color
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="stat-cards-row">
+    <div className="db-dashboard-container"> {/* Prefixed class */}
+      <h1 className="db-main-title">Priestify Hub</h1> {/* Prefixed class */}
+      <p className="db-main-description">Welcome to your dashboard overview.</p> {/* Prefixed class */}
+
+      <div className="db-stat-cards-row"> {/* Prefixed class */}
         {['Today', 'Upcoming', 'All'].map((view) => (
           <StatCard
             key={view}
@@ -190,16 +194,16 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div style={{ margin: '15px 0' }}>
+      <div className="db-add-button-wrapper"> {/* Wrapper for the button */}
         <button
           onClick={openAdd}
-          style={{ padding: '8px 16px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: 4 }}
+          className="db-add-appointment-btn" // Prefixed class and moved inline style
         >
           + Add Appointment
         </button>
       </div>
 
-      <div className="booking-section">
+      <div className="db-booking-section"> {/* Prefixed class */}
         <h2>{selectedView} Bookings</h2>
 
         <BookingGrid type={selectedView} bookings={bookings} events={events} />
@@ -226,25 +230,26 @@ const Dashboard = () => {
   );
 };
 
+// StatCard component (updated with db- prefixes)
 const StatCard = ({ title, count, onClick, color }) => (
   <div
-    className="stat-card"
+    className="db-stat-card"
     onClick={onClick}
     style={{ backgroundColor: color, cursor: 'pointer' }}
   >
-    <div className="stat-title">{title}</div>
-    <div className="stat-count">
+    <div className="db-stat-title">{title}</div>
+    <div className="db-stat-count">
       <CountUp end={count} duration={1.5} preserveValue={true} />
     </div>
   </div>
 );
 
+// BookingGrid component (updated with db- prefixes)
 const BookingGrid = ({ type, bookings, events }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEventId, setSelectedEventId] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
-  // Use the same normalizeDate helper here too
   const normalizeDate = (date) => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
@@ -289,13 +294,13 @@ const BookingGrid = ({ type, bookings, events }) => {
   };
 
   return (
-    <div className="booking-grid">
+    <div className="db-booking-grid-wrapper"> {/* Added wrapper for better scoping if needed */}
       {(type === 'Upcoming' || type === 'All') && (
-        <div className="filter-row">
+        <div className="db-filter-row"> {/* Prefixed class */}
           <select
             value={selectedEventId}
             onChange={(e) => setSelectedEventId(e.target.value)}
-            className="filter-input"
+            className="db-filter-input" 
           >
             <option value="">All Events</option>
             {events.map((event) => (
@@ -309,52 +314,42 @@ const BookingGrid = ({ type, bookings, events }) => {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="filter-input"
+            className="db-filter-input" 
           />
           <input
             type="text"
             placeholder="Search by name or phone"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="filter-input"
+            className="db-filter-input" 
           />
 
-          <button className="filter-button" onClick={resetFilters}>
+          <button className="db-filter-button" onClick={resetFilters}> {/* Prefixed class */}
             Reset
           </button>
         </div>
       )}
 
-      <div className="grid-container">
+      <div className="db-grid-container"> {/* Prefixed class */}
         {visible.length ? (
           visible.map((b) => (
-            <div key={b.id} className="booking-card">
-              <div className="booking-title" style={{ textAlign: 'center' }}>
+            <div key={b.id} className="db-booking-card"> {/* Prefixed class */}
+              <div className="db-booking-title"> {/* Prefixed class */}
                 {b.eventTitle}
               </div>
 
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Name:</strong> {b.name}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Phone:</strong> {b.phone}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Date:</strong> {b.bookingDate}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Time:</strong> {b.startTime} - {b.endTime}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Address:</strong> {b.address}
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <strong>Notes:</strong> {b.note || 'N/A'}
+              <div className="db-booking-details"> {/* Prefixed class */}
+                <div><strong>Name:</strong> {b.name}</div>
+                <div><strong>Phone:</strong> {b.phone}</div>
+                <div><strong>Date:</strong> {b.bookingDate}</div>
+                <div><strong>Time:</strong> {b.startTime} - {b.endTime}</div>
+                <div className="db-booking-address"><strong>Address:</strong> {b.address}</div> {/* Prefixed class */}
+                <div><strong>Notes:</strong> {b.note || 'N/A'}</div>
               </div>
             </div>
           ))
         ) : (
-          <div className="no-bookings">No bookings found.</div>
+          <div className="db-no-bookings">No bookings found.</div> 
         )}
       </div>
     </div>

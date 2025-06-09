@@ -56,11 +56,11 @@ const PriestList = () => {
       if (filters.phone) {
         data = data.filter(p => p.phone && p.phone.includes(filters.phone));
       }
-      if (filters.poojaType) {
-        data = data.filter(p =>
-          p.poojas && p.poojas.some(pooja => pooja.name === filters.poojaType)
-        );
-      }
+     if (filters.poojaType) {
+  data = data.filter(p =>
+    p.servicesOffered && p.servicesOffered.includes(filters.poojaType)
+  );
+}
 
       setPriests(data);
     } catch (err) {
@@ -113,16 +113,17 @@ const PriestList = () => {
             onChange={e => handleFilterChange('phone', e.target.value)}
           />
 
-          <select
-            value={filters.poojaType}
-            onChange={e => handleFilterChange('poojaType', e.target.value)}
-            className={filters.poojaType === '' ? 'placeholder-selected' : ''}
-          >
-            <option value="" disabled>Filter by pooja type</option>
-            {availablePoojas.map(pooja => (
-              <option key={pooja.id} value={pooja.name}>{pooja.name}</option>
-            ))}
-          </select>
+        <select
+  value={filters.poojaType}
+  onChange={e => handleFilterChange('poojaType', e.target.value)}
+  className={filters.poojaType === '' ? 'placeholder-selected' : ''}
+>
+  <option value="" disabled>Filter by pooja type</option>
+  {availablePoojas.map(pooja => (
+    <option key={pooja.id} value={pooja.name}>{pooja.name}</option>  
+  ))}
+</select>
+
 
           <button onClick={resetFilters} className="reset-btn">
             Reset Filters
@@ -147,7 +148,7 @@ const PriestList = () => {
               </div>
 
               <h2>{priest.firstName} {priest.lastName}</h2>
-              <p className="bio">{priest.description || 'No bio available.'}</p>
+              <p className="bio">{priest.bio || 'No bio available.'}</p>
 
               <button
                 className="view-profile"
