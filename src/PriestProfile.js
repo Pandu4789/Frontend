@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Make sure React is imported
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
@@ -17,7 +17,8 @@ const PriestProfile = () => {
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showMuhurtamModal, setShowMuhurtamModal] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-    const [customer, setCustomer] = useState(null);
+    // Initialize customer as an object, even if empty, so BookingModal can render inputs
+    const [customer, setCustomer] = useState({ name: '', phone: '', address: '', note: '' });
     const [nakshatramList, setNakshatramList] = useState([]);
 
     const { id: Id } = useParams();
@@ -109,23 +110,22 @@ const PriestProfile = () => {
 
         // Fetch customer if logged in
         try {
-            const email = localStorage.getItem('email');
+            const email = localStorage.getItem('userEmail');
             if (email) {
                 const customerRes = await axios.get(`http://localhost:8080/api/profile?email=${email}`);
                 const data = customerRes.data;
-                setCustomer({
-                    name: `${data.firstName} ${data.lastName}`,
-                    email: data.email,
-                    phone: data.phone,
-                    address: data.address,
+                setCustomer({ // Update existing customer object
+                    name: `${data.firstName || ''} ${data.lastName || ''}`,
+                    email: data.email || '',
+                    phone: data.phone || '',
+                    address: data.address || '',
                     note: '',
                 });
-            } else {
-                setCustomer(null);
             }
+            // NO ELSE HERE. If not logged in, customer remains as the initialized empty object.
         } catch (err) {
-            console.warn('Customer not logged in or profile fetch failed (OK for guest):', err);
-            setCustomer(null);
+            console.warn('Customer not logged in or profile fetch failed (OK for guest to proceed):', err);
+            // No need to set customer to null here. It remains as the empty object for guest input.
         } finally {
             setLoading(false);
         }
@@ -188,7 +188,7 @@ const PriestProfile = () => {
 
                     <div className="pp-profile-actions">
                         <button className="pp-muhurtam-btn" onClick={() => {
-                            if (!customer) {
+                            if (!customer || !customer.name) { // Check customer.name to determine if profile is loaded
                                 setShowLoginPrompt(true);
                             } else {
                                 setShowMuhurtamModal(true);
@@ -197,7 +197,7 @@ const PriestProfile = () => {
                             Ask for Muhurtam
                         </button>
                         <button className="pp-book-btn" onClick={() => {
-                            if (!customer) {
+                            if (!customer || !customer.name) { // Check customer.name to determine if profile is loaded
                                 setShowLoginPrompt(true);
                             } else {
                                 setShowBookingModal(true);

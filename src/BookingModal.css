@@ -1,0 +1,342 @@
+/* --- Booking Modal Styles (BookingModal.css) --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: fadeInScale 0.3s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
+    font-size: 1.8em;
+    color: #8C472A;
+    text-align: center;
+    margin: 0 0 25px 0; /* Adjusted margin */
+    font-weight: 700;
+    border-bottom: 2px solid #f0e6da;
+    padding-bottom: 15px; /* Added padding */
+}
+
+/* General style for all section headings */
+.modal-content h3 {
+    font-size: 1.3em;
+    color: #B74F2F; /* This is the single source of truth for the heading color now */
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    color: #555;
+    font-weight: 500;
+}
+
+/* A single rule for all inputs for consistency */
+.modal-content input[type="text"],
+.modal-content input[type="tel"],
+.modal-content input[type="email"],
+.modal-content select,
+.modal-content textarea,
+.react-datepicker-input { /* Added datepicker input here */
+    width: 100%; /* Changed to 100% and using box-sizing */
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #e0c8b2;
+    border-radius: 8px;
+    font-size: 1em;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* This is key for consistent sizing */
+}
+
+.modal-content input:focus,
+.modal-content select:focus,
+.modal-content textarea:focus {
+    border-color: #B74F2F;
+    box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2);
+    outline: none;
+}
+
+.modal-content textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Form Sections */
+.form-section {
+    background-color: #fdfaf7;
+    border: 1px solid #f0e6da;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* --- FIX APPLIED HERE --- */
+/* This rule no longer contains a conflicting color property */
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    /* The color is now inherited from .modal-content h3 */
+}
+
+/* Address Grid */
+.address-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.address-grid label:nth-child(1),
+.address-grid label:nth-child(2) {
+    grid-column: 1 / -1;
+}
+
+.address-grid label {
+    display: flex;
+    flex-direction: column;
+}
+
+/* React-Datepicker Overrides */
+.react-datepicker {
+    border: 1px solid #e0c8b2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.9em;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+    background-color: #f7ede0;
+    border-bottom: 1px solid #e0c8b2;
+    padding-top: 10px;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header {
+    font-weight: 600;
+    color: #8C472A;
+}
+
+.react-datepicker__day-name {
+    color: #B74F2F;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: #B74F2F !important;
+    color: white !important;
+    border-radius: 50%;
+}
+
+.react-datepicker__day--disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Time Slot Grid */
+.time-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.time-slot-button {
+    background-color: #f0e6da;
+    color: #8C472A;
+    border: 1px solid #e0c8b2;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.time-slot-button:hover {
+    background-color: #e0c8b2;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.time-slot-button.selected {
+    background-color: #B74F2F;
+    color: #fff;
+    border-color: #8C472A;
+    box-shadow: 0 2px 8px rgba(183, 79, 47, 0.3);
+}
+
+.no-slots-message {
+    font-style: italic;
+    color: #777;
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+}
+
+/* Modal Actions (Buttons) */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.modal-actions button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 120px;
+}
+
+/* Book Now Button */
+.modal-actions button:first-child {
+    background-color: #B74F2F;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(183, 79, 47, 0.3);
+}
+
+.modal-actions button:first-child:hover {
+    background-color: #8C472A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(183, 79, 47, 0.4);
+}
+
+/* Cancel Button */
+.modal-actions .cancel-button {
+    background-color: #ccc;
+    color: #555;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions .cancel-button:hover {
+    background-color: #bbb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Confirmation Box Styles */
+.confirmation-box {
+    text-align: center;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    border: 1px solid #e0c8b2;
+}
+
+.confirmation-box h3 {
+    color: #8C472A;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.confirmation-box p {
+    font-size: 1em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.confirmation-box strong {
+    color: #B74F2F;
+}
+
+.pooja-link {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.pooja-link:hover {
+    color: #0056b3;
+}
+
+.confirmation-box .ok-button {
+    background-color: #B74F2F;
+    color: #fff;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.confirmation-box .ok-button:hover {
+    background-color: #8C472A;
+    transform: translateY(-2px);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .modal-content h2 {
+        font-size: 1.5em;
+    }
+
+    .modal-content h3 {
+        font-size: 1.1em;
+    }
+
+    .address-grid {
+        grid-template-columns: 1fr; /* Stack to a single column */
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-actions button {
+        width: 100%;
+    }
+}

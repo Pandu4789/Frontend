@@ -170,7 +170,7 @@ function MainApp({
         </div>
 
         {/* Footer */}
-        {shouldShowLayout && <Footer />}
+        {/* {shouldShowLayout && <Footer />} */}
       </div>
     </SessionTimeout>
   );

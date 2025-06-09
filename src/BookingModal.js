@@ -2,17 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import './PriestProfile.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import './BookingModal.css';
 
 const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [eventId, setEventId] = useState('');
   const [selectedEventName, setSelectedEventName] = useState('');
   const [events, setEvents] = useState([]);
   const [appointmentDate, setAppointmentDate] = useState(null);
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [selectedStartTime, setSelectedStartTime] = useState('');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
+
+  // Current date is June 9, 2025. Available dates are in the future.
+  const dummyPriestAvailability = {
+    '2025-06-10': ['10:00', '11:00', '16:00'],
+    '2025-06-11': ['09:00', '12:00', '13:00', '17:00'],
+    '2025-06-14': ['10:00', '11:00'],
+    '2025-06-15': ['12:00', '13:00', '14:00'],
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -27,24 +49,33 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    if (appointmentDate) {
+      const dateString = appointmentDate.toISOString().split('T')[0];
+      const slots = dummyPriestAvailability[dateString] || [];
+      setAvailableTimeSlots(slots);
+      setSelectedStartTime('');
+    } else {
+      setAvailableTimeSlots([]);
+      setSelectedStartTime('');
+    }
+  }, [appointmentDate]);
+
   const handleBookNow = async () => {
-    if (!customer || !customer.name || !customer.phone || !customer.address) {
-      toast.error('Please fill in all customer details.');
+    if (!customer.name || !customer.phone || !customer.addressLine1 || !customer.city || !customer.state || !customer.zip) {
+      toast.error('Please fill in your Name, Phone, and complete Address details.');
       return;
     }
-
-    if (!appointmentDate || !startTime || !endTime) {
-      toast.error('Please provide a valid appointment date and time.');
-      return;
-    }
-
-    if (!priest || !priest.id) {
-      toast.error('Priest information is missing.');
-      return;
-    }
-
     if (!eventId) {
       toast.error('Please select an event.');
+      return;
+    }
+    if (!appointmentDate || !selectedStartTime) {
+      toast.error('Please select a valid appointment date and time slot.');
+      return;
+    }
+    if (!priest || !priest.id) {
+      toast.error('Priest information is missing.');
       return;
     }
 
@@ -53,153 +84,193 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
         eventId: eventId,
         name: customer.name,
         phone: customer.phone,
-        address: customer.address,
+        email: customer.email,
         note: customer.note || '',
+        addressLine1: customer.addressLine1,
+        addressLine2: customer.addressLine2 || '',
+        city: customer.city,
+        state: customer.state,
+        zip: customer.zip,
         date: appointmentDate.toISOString().split('T')[0],
-        start: startTime,
-        end: endTime,
+        start: selectedStartTime,
+        end: "TBD",
         priestId: priest.id
       };
       console.log('Booking payload:', payload);
       await axios.post('http://localhost:8080/api/booking', payload);
       toast.success('Booking request sent successfully!');
       setShowConfirmation(true);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Failed to send booking request:', error);
       toast.error('Failed to send booking request.');
     }
   };
 
+  const isDateAvailable = (date) => {
+    const dateString = date.toISOString().split('T')[0];
+    return dummyPriestAvailability[dateString] && dummyPriestAvailability[dateString].length > 0;
+  };
+
   return (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      {showConfirmation ? (
-        // ✅ Confirmation Message
-        <div className="confirmation-box">
-          <h3>
-            Thank you for booking <strong>{priest?.firstName} {priest?.lastName || 'the priest'} </strong>for the event{' '}
-            <strong>{selectedEventName || 'this event'}</strong>.
-          </h3>
-          <p>
-            You will be notified once <strong>{priest?.firstName || 'the priest'}</strong> accepts your
-            request.
-          </p>
-          <p>
-            Meanwhile, you can check the list of required{' '}
-            <span
-              className="pooja-link"
-              onClick={() => {
-                navigate(`/pooja-items`);
-                onClose(); // close modal after navigation
-              }}
-              style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              pooja items for {selectedEventName}
-            </span>.
-          </p>
-          <button onClick={onClose} className="ok-button">OK</button>
-        </div>
-      ) : (
-        // ✅ Booking Form
-        <>
-          <h2>Book Appointment with {priest?.username || 'Priest'}</h2>
-
-          <label>
-            Event Name:
-            <select
-              value={eventId}
-              onChange={e => {
-                const selectedId = e.target.value;
-                setEventId(selectedId);
-                const selectedEvent = events.find(event => event.id === parseInt(selectedId));
-                setSelectedEventName(selectedEvent ? selectedEvent.name : '');
-              }}
-            >
-              <option value="">-- Select Event --</option>
-              {events.map(event => (
-                <option key={event.id} value={event.id}>
-                  {event.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Name:
-            <input
-              type="text"
-              placeholder="Your Name"
-              value={customer.name || ''}
-              onChange={e => setCustomer(prev => ({ ...prev, name: e.target.value }))}
-            />
-          </label>
-
-          <label>
-            Phone:
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              value={customer.phone || ''}
-              onChange={e => setCustomer(prev => ({ ...prev, phone: e.target.value }))}
-            />
-          </label>
-
-          <label>
-            Address:
-            <input
-              type="text"
-              placeholder="Address"
-              value={customer.address || ''}
-              onChange={e => setCustomer(prev => ({ ...prev, address: e.target.value }))}
-            />
-          </label>
-
-          <label>
-            Appointment Date:
-            <input
-              type="date"
-              value={appointmentDate ? appointmentDate.toISOString().split('T')[0] : ''}
-              onChange={e => setAppointmentDate(e.target.value ? new Date(e.target.value) : null)}
-            />
-          </label>
-
-          <label>
-            Start Time:
-            <input
-              type="time"
-              value={startTime}
-              onChange={e => setStartTime(e.target.value)}
-            />
-          </label>
-
-          <label>
-            End Time:
-            <input
-              type="time"
-              value={endTime}
-              onChange={e => setEndTime(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Note:
-            <input
-              type="text"
-              placeholder="Optional Note"
-              value={customer.note || ''}
-              onChange={e => setCustomer(prev => ({ ...prev, note: e.target.value }))}
-            />
-          </label>
-
-          <div className="modal-actions">
-            <button onClick={handleBookNow}>Book Now</button>
-            <button onClick={onClose} className="cancel-button">Cancel</button>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        {showConfirmation ? (
+          <div className="confirmation-box">
+            <h3>
+              Thank you for booking <strong>{priest?.firstName} {priest?.lastName || 'the priest'}</strong> for the event{' '}
+              <strong>{selectedEventName || 'this event'}</strong>.
+            </h3>
+            <p>
+              You will be notified once <strong>{priest?.firstName || 'the priest'}</strong> accepts your request.
+            </p>
+            <p>
+              A confirmation will be sent to your address at {' '}
+              <strong>{customer.addressLine1}, {customer.city}, {customer.state} {customer.zip}</strong>.
+            </p>
+            <button onClick={onClose} className="ok-button">OK</button>
           </div>
-        </>
-      )}
+        ) : (
+          <>
+            <h2>Book Appointment with {priest?.firstName || 'Priest'}</h2>
+
+            {/* Step 1: Event Selection */}
+            <div className="form-section">
+              <h3>Select Event</h3>
+              <label>
+                Event Name:
+                <select
+                  value={eventId}
+                  onChange={e => {
+                    const selectedId = e.target.value;
+                    setEventId(selectedId);
+                    const selectedEvent = events.find(event => event.id === parseInt(selectedId));
+                    setSelectedEventName(selectedEvent ? selectedEvent.name : '');
+                  }}
+                >
+                  <option value="">-- Select Event --</option>
+                  {events.map(event => (
+                    <option key={event.id} value={event.id}>
+                      {event.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {/* Step 2: Date and Time Selection */}
+            <div className="form-section">
+                <h3>Select Date & Time</h3>
+                <label>
+                    <span onClick={(e) => e.preventDefault()}>
+                        Appointment Date:
+                    </span>
+                    <DatePicker
+                        selected={appointmentDate}
+                        onChange={date => setAppointmentDate(date)}
+                        filterDate={isDateAvailable}
+                        dateFormat="yyyy/MM/dd"
+                        placeholderText="Select an available date"
+                        minDate={new Date()}
+                        className="react-datepicker-input"
+                    />
+                </label>
+                {appointmentDate && availableTimeSlots.length > 0 && (
+                    <div className="time-slot-selection">
+                        <label>Available Time Slots:</label>
+                        <div className="time-slot-grid">
+                            {availableTimeSlots.map(slot => (
+                                <button
+                                    key={slot}
+                                    className={`time-slot-button ${selectedStartTime === slot ? 'selected' : ''}`}
+                                    onClick={() => setSelectedStartTime(slot)}
+                                >
+                                    {slot}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {appointmentDate && availableTimeSlots.length === 0 && (
+                    <p className="no-slots-message">No available slots for the selected date.</p>
+                )}
+            </div>
+            
+            {/* Step 3: Address Information Block (Moved Here) */}
+            <div className="form-section">
+                <h3>Your Address</h3>
+                <div className="address-grid">
+                    <label>
+                        Address Line 1:
+                        <input
+                            type="text"
+                            placeholder="Street Address"
+                            value={customer.addressLine1 || ''}
+                            onChange={e => setCustomer(prev => ({ ...prev, addressLine1: e.target.value }))}
+                        />
+                    </label>
+                    <label>
+                        Address Line 2 (Optional):
+                        <input
+                            type="text"
+                            placeholder="Apartment, suite, etc."
+                            value={customer.addressLine2 || ''}
+                            onChange={e => setCustomer(prev => ({ ...prev, addressLine2: e.target.value }))}
+                        />
+                    </label>
+                    <label>
+                        City:
+                        <input
+                            type="text"
+                            placeholder="e.g., Irving"
+                            value={customer.city || ''}
+                            onChange={e => setCustomer(prev => ({ ...prev, city: e.target.value }))}
+                        />
+                    </label>
+                    <label>
+                        State:
+                        <input
+                            type="text"
+                            placeholder="e.g., Texas"
+                            value={customer.state || ''}
+                            onChange={e => setCustomer(prev => ({ ...prev, state: e.target.value }))}
+                        />
+                    </label>
+                    <label>
+                        Zip Code:
+                        <input
+                            type="text"
+                            placeholder="e.g., 75038"
+                            value={customer.zip || ''}
+                            onChange={e => setCustomer(prev => ({ ...prev, zip: e.target.value }))}
+                        />
+                    </label>
+                </div>
+            </div>
+
+            {/* Step 4: Note Field */}
+            <div className="form-section">
+              <h3>Additional Information</h3>
+              <label>
+                Note:
+                <textarea
+                  placeholder="Optional note for the priest"
+                  value={customer.note || ''}
+                  onChange={e => setCustomer(prev => ({ ...prev, note: e.target.value }))}
+                  rows="3"
+                />
+              </label>
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={handleBookNow}>Book Now</button>
+              <button onClick={onClose} className="cancel-button">Cancel</button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  </div>
-);
-}
+  );
+};
 
 export default BookingModal;
