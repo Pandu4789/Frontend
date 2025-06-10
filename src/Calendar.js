@@ -1,200 +1,139 @@
-import React, { useState, useEffect } from 'react';
+// Filename: TeluguCalendar.js - REBUILT with the Correct Final Layout
+import React, { useState, useEffect, useMemo } from 'react';
 import Calendar from 'react-calendar';
+import { isSameDay, format } from 'date-fns';
+import { panchangamData } from './panchang';
 import 'react-calendar/dist/Calendar.css';
 import './Calendar.css';
-import { isSameDay, format } from 'date-fns';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
-const formatTime = (timeStr, selectedDate) => {
-  if (!timeStr) return '—';
-  try {
-    const dateStr = selectedDate.toISOString().split('T')[0]; // "2025-06-02"
-    const fullDateTime = new Date(`${dateStr}T${timeStr}`);
-    return format(fullDateTime, 'hh:mm a');
-  } catch {
-    return timeStr;
-  }
-};
 
-
-const moonPhases = [
-  { date: '2025-01-29', type: 'Pournami' },
-  { date: '2025-02-13', type: 'Amavasya' },
-  { date: '2025-02-27', type: 'Pournami' },
-  { date: '2025-03-14', type: 'Amavasya' },
-  { date: '2025-03-29', type: 'Pournami' },
-  { date: '2025-04-12', type: 'Amavasya' },
-  { date: '2025-04-27', type: 'Pournami' },
-  { date: '2025-05-11', type: 'Amavasya' },
-  { date: '2025-05-26', type: 'Pournami' },
-  { date: '2025-06-10', type: 'Amavasya' },
-  { date: '2025-06-24', type: 'Pournami' },
-  { date: '2025-07-10', type: 'Amavasya' },
-  { date: '2025-07-24', type: 'Pournami' },
-  { date: '2025-08-08', type: 'Amavasya' },
-  { date: '2025-08-22', type: 'Pournami' },
-  { date: '2025-09-06', type: 'Amavasya' },
-  { date: '2025-09-20', type: 'Pournami' },
-  { date: '2025-10-05', type: 'Amavasya' },
-  { date: '2025-10-19', type: 'Pournami' },
-  { date: '2025-11-03', type: 'Amavasya' },
-  { date: '2025-11-17', type: 'Pournami' },
-  { date: '2025-12-02', type: 'Amavasya' },
-  { date: '2025-12-16', type: 'Pournami' },
-];
-
+// --- Main Calendar Page Component ---
 export default function TeluguCalendar() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeStartDate, setActiveStartDate] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
-  const [festivals, setFestivals] = useState([]);
-  const [dailyTimes, setDailyTimes] = useState([]);
+
+  const appointmentsByDate = useMemo(() => {
+    const map = new Map();
+    if (Array.isArray(appointments)) {
+      appointments.forEach(app => {
+        if (app.date) {
+          const dateStr = format(new Date(app.date), 'yyyy-MM-dd');
+          if (!map.has(dateStr)) map.set(dateStr, []);
+          map.get(dateStr).push(app);
+        }
+      });
+    }
+    return map;
+  }, [appointments]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/appointments/priest/${localStorage.getItem('userId')}`)
-      .then(res => res.json())
-      .then(setAppointments)
-      .catch(console.error);
-
-    fetch(`${API_BASE}/api/festivals`)
-      .then(res => res.json())
-      .then(setFestivals)
-      .catch(console.error);
+    const priestId = localStorage.getItem('userId');
+    if (priestId) {
+        fetch(`${API_BASE}/api/booking/priest/${priestId}`)
+          .then(res => res.json())
+          .then(data => Array.isArray(data) ? setAppointments(data) : setAppointments([]))
+          .catch(() => setAppointments([]));
+    }
   }, []);
 
-  useEffect(() => {
-    if (!selectedDate) return setDailyTimes([]);
-    const dateStr = selectedDate.toISOString().slice(0, 10);
-    fetch(`${API_BASE}/api/daily-times/by-date/${dateStr}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(data => setDailyTimes(data ? [data] : []))
-      .catch(() => setDailyTimes([]));
-  }, [selectedDate]);
+  const monthlyFestivals = useMemo(() => {
+    const festivals = [];
+    Object.entries(panchangamData).forEach(([dateStr, data]) => {
+      const date = new Date(dateStr + 'T00:00:00');
+      if (data.festivals.length > 0 && date.getMonth() === activeStartDate.getMonth() && date.getFullYear() === activeStartDate.getFullYear()) {
+        data.festivals.forEach(f => {
+          festivals.push({ date: date, name: f });
+        });
+      }
+    });
+    return festivals.sort((a, b) => a.date - b.date);
+  }, [activeStartDate]);
 
-  const getMoonPhaseSymbol = (date) => {
-    const entry = moonPhases.find(mp => isSameDay(new Date(mp.date), date));
-    return entry?.type === 'Amavasya' ? '🌑' : entry?.type === 'Pournami' ? '🌕' : '';
-  };
-
-  const getAppointments = (date) => appointments.filter(a => isSameDay(new Date(a.start), date));
-
-  // Filter festivals by activeStartDate's month & year (visible calendar month)
-  const filteredFestivals = festivals.filter(festival => {
-    const festDate = new Date(festival.date);
-    return (
-      festDate.getMonth() === activeStartDate.getMonth() &&
-      festDate.getFullYear() === activeStartDate.getFullYear()
-    );
-  });
-
+  // --- Tile Content & ClassName (Unchanged) ---
   const tileContent = ({ date, view }) => {
     if (view !== 'month') return null;
-    const moon = getMoonPhaseSymbol(date);
-
-    return (
-      <div className="tile-content">
-        <div className="date-number">{date.getDate()}</div>
-        <div className="moon-symbol">{moon}</div>
-      </div>
-    );
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayPanchangam = panchangamData[dateStr];
+    const hasAppointment = appointmentsByDate.has(dateStr);
+    let moonSymbol = null;
+    if (dayPanchangam?.tithi === 'Pournami') moonSymbol = '🌕';
+    else if (dayPanchangam?.tithi === 'Amavasya') moonSymbol = '🌑';
+    return ( <> <span className="date-number">{date.getDate()}</span> {moonSymbol && <span className="moon-symbol">{moonSymbol}</span>} {hasAppointment && <div className="appointment-dot"></div>} </> );
+  };
+  const tileClassName = ({ date, view }) => {
+    if (view !== 'month') return '';
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayPanchangam = panchangamData[dateStr];
+    const classes = [];
+    if (dayPanchangam?.festivals?.length > 0) classes.push('festival-day');
+    if (isSameDay(date, new Date())) classes.push('today');
+    if (date.getMonth() !== activeStartDate.getMonth()) classes.push('other-month');
+    return classes.join(' ');
   };
 
-  // Highlight today and selected date with custom classes
- const tileClassName = ({ date, view }) => {
-  if (view !== 'month') return '';
-
-  const classes = [];
-  const today = new Date();
-
-  const isFestival = festivals.some(f => isSameDay(new Date(f.date), date));
-  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-  if (isFestival || isWeekend) classes.push('holiday-date');
-  if (isSameDay(date, selectedDate)) classes.push('selected-date');
-  if (isSameDay(date, today)) classes.push('today-date');
-
-  if (date.getMonth() !== activeStartDate.getMonth()) {
-    classes.push('neighboring-month');
-  }
-
-  return classes.join(' ');
-};
-
-
-
   return (
-    <div className="telugu-calendar">
-      <h2 className="calendar-title">Calendar</h2>
-      <div className="calendar-layout">
+    <div className="telugu-calendar-page">
+      <h1 className="telugu-calendar-title">Panchangam Calendar</h1>
+      <div className="page-layout-container">
 
-        {/* LEFT: Festivals */}
-        <div className="festival-list">
-          <h3>Festivals</h3>
-          {filteredFestivals.length === 0 ? (
-            <p>No Festivals</p>
-          ) : (
-            <ul>
-              {filteredFestivals
-                .sort((a, b) => new Date(a.date) - new Date(b.date))
-                .map(f => (
-                  <li key={f.id}>
-                    <b>{format(new Date(f.date), 'd')}</b> - {f.name}
-                  </li>
-                ))}
-            </ul>
-          )}
+        {/* --- Left Sidebar --- */}
+        <div className="left-sidebar">
+            <div className="info-box">
+                <h3>Festivals in {format(activeStartDate, 'MMMM')}</h3>
+                <div className="info-box-content">
+                    {monthlyFestivals.length > 0 ? (
+                        <ul> {monthlyFestivals.map(f => ( <li key={f.name + f.date}> <strong>{format(f.date, 'd')}:</strong> {f.name} </li> ))} </ul>
+                    ) : <p>No festivals this month.</p>}
+                </div>
+            </div>
+            <div className="info-box">
+                <h3>Appointments for {format(selectedDate, 'MMM d')}</h3>
+                 <div className="info-box-content">
+                    {(appointmentsByDate.get(format(selectedDate, 'yyyy-MM-dd')) || []).length > 0 ? (
+                        <ul> {(appointmentsByDate.get(format(selectedDate, 'yyyy-MM-dd'))).map(app => ( <li key={app.id}><strong>{app.poojaType}</strong> for {app.customerName}</li> ))} </ul>
+                    ) : <p>No appointments scheduled.</p>}
+                </div>
+            </div>
         </div>
 
-        {/* CENTER: Calendar */}
-        <Calendar
-          onClickDay={setSelectedDate}
-          value={selectedDate}
-          tileContent={tileContent}
-          tileClassName={tileClassName}
-          calendarType="gregory"
-          locale="en-US"
-          onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
-        />
-
-        {/* RIGHT: Appointments + Daily Times */}
-        <div className="right-panel">
-          <div className="appointment-box">
-            <h3>Appointments</h3>
-            {selectedDate ? (
-              getAppointments(selectedDate).length > 0 ? (
-                <ul>
-                  {getAppointments(selectedDate).map(a => (
-                    <li key={a.id} style={{ marginBottom: '12px' }}>
-                      <strong>{a.event}</strong><br />
-                      <b>Name:</b> {a.name}<br />
-                      <b>Phone:</b> {a.phone}<br />
-                      <b>Time:</b> {format(new Date(a.start), 'hh:mm a')} - {format(new Date(a.end), 'hh:mm a')}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No Appointments</p> // ✅ Outside <ul> logic but same style
-              )
-            ) : (
-              <ul><li>Select Date</li></ul> // ✅ Consistent structure
-            )}
-          </div>
-          <div className="daily-times-box">
-            <h3>Daily Times</h3>
-            {selectedDate && dailyTimes.length > 0 ? (
-              dailyTimes.map((dt, idx) => (
-                <ul key={idx}>
-                  <li><b>Yamagandam:</b> {formatTime(dt.yamagandamStart, selectedDate)} - {formatTime(dt.yamagandamEnd, selectedDate)}</li>
-                  <li><b>Rahukalam:</b> {formatTime(dt.rahukalamStart, selectedDate)} - {formatTime(dt.rahukalamEnd, selectedDate)}</li>
-                  <li><b>Varjam:</b> {formatTime(dt.varjamStart, selectedDate)} - {formatTime(dt.varjamEnd, selectedDate)}</li>
-                  <li><b>Durmohurtam:</b> {formatTime(dt.durmohurtamStart, selectedDate)} - {formatTime(dt.durmohurtamEnd, selectedDate)}</li>
-
-                </ul>
-              ))
-            ) : (
-              <p>{selectedDate ? 'No Data' : 'Select Date'}</p>
-            )}
-          </div>
+        {/* --- Main Content Area --- */}
+        <div className="main-content-area">
+            <div className="calendar-wrapper">
+                <Calendar
+                    value={selectedDate}
+                    onClickDay={setSelectedDate}
+                    onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
+                    tileContent={tileContent}
+                    tileClassName={tileClassName}
+                    calendarType="gregory"
+                    locale="en-US"
+                />
+            </div>
+            <div className="bottom-details-panel">
+                <h2 className="panel-title">Details for {format(selectedDate, 'MMMM d, yyyy')}</h2>
+                <div className="details-grid">
+                    {(panchangamData[format(selectedDate, 'yyyy-MM-dd')]) ? (
+                        <>
+                            <div className="details-column">
+                                <h4>Panchangam</h4>
+                                <p><strong>Tithi:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].tithi}</p>
+                                <p><strong>Nakshatram:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].nakshatram}</p>
+                                <p><strong>Masam:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].masam}</p>
+                                <p><strong>Paksham:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].paksham}</p>
+                            </div>
+                            <div className="details-column">
+                                <h4>Timings</h4>
+                                <p><strong>Sunrise:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].sunrise}</p>
+                                <p><strong>Sunset:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].sunset}</p>
+                                <p><strong>Rahukalam:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].rahukalam}</p>
+                                <p><strong>Yamagandam:</strong> {panchangamData[format(selectedDate, 'yyyy-MM-dd')].yamagandam}</p>
+                            </div>
+                        </>
+                    ) : <p className="no-data-message">No Panchangam data for this day.</p>}
+                </div>
+            </div>
         </div>
       </div>
     </div>
