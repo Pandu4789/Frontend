@@ -1,0 +1,358 @@
+/* Filename: AvailabilityManager.css - FINAL VERSION with Grid and Color Fixes */
+
+.availability-page-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+}
+.availability-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    text-align: center;
+    margin-bottom: 10px;
+}
+.availability-page-description {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+.availability-manager-component {
+    display: flex;
+    gap: 24px;
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+.am-calendar-view {
+    flex-basis: 60%;
+    min-width: 400px;
+}
+.am-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.am-calendar-header span {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--theme-heading);
+}
+.am-calendar-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+}
+.am-calendar-header button:hover {
+    background-color: var(--hover-bg);
+}
+.am-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+.am-day-name {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.9rem;
+    padding-bottom: 8px;
+}
+.am-day-cell {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.am-day-cell span { font-weight: 500; }
+.am-day-cell:hover { background-color: var(--hover-bg); }
+.am-day-cell.other-month { color: var(--text-light); opacity: 0.5; }
+.am-day-cell.today { border-color: var(--theme-accent); }
+.am-day-cell.selected {
+    background-color: var(--theme-heading);
+    color: white;
+    font-weight: 700;
+}
+.am-day-cell.past-day {
+    color: #ccc;
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+.am-day-cell.past-day:hover {
+    background-color: #f9f9f9;
+}
+.am-past-day-notice {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+.am-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 24px 0;
+}
+
+/* --- Time Slot Panel --- */
+.am-timeslot-panel {
+    flex-basis: 40%;
+    background-color: var(--hover-bg);
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-width: 320px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+.am-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+.am-panel-header div { flex: 1; }
+.am-panel-subtitle {
+    margin-top: 0;
+    font-size: 1rem;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.am-panel-title { margin: 0; font-size: 1.8rem; color: var(--theme-primary); }
+.am-edit-template-btn {
+    background-color: var(--theme-heading);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+.am-edit-template-btn:hover { background-color: var(--theme-primary); }
+.am-bulk-actions button:disabled, .am-slot-btn:disabled {
+    background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+    color: #adb5bd !important;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+.am-timeslot-panel.disabled { background-color: #f8f9fa; }
+.am-timeslot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+}
+.am-slot-btn {
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    font-size: 0.9rem;
+}
+.am-slot-btn.status-available { background-color: #e9f7ef; border-color: #28a745; color: #28a745; }
+.am-slot-btn.status-available:hover { background-color: #d4f0e0; }
+.am-slot-btn.status-unavailable { background-color: #f8f9fa; border-color: #ced4da; color: var(--text-light); text-decoration: line-through; }
+.am-slot-btn.status-unavailable:hover { background-color: #e9ecef; }
+.am-slot-btn.status-booked { background-color: blue; color: white; cursor: not-allowed; opacity: 0.8; }
+/* Filename: AvailabilityManager.css - ADD THESE STYLES TO THE BOTTOM */
+
+/* --- Styles for Page Header and Back Button --- */
+.availability-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.availability-page-title {
+    margin: 0;
+    text-align: left; /* Align title to the left */
+}
+
+.am-back-to-dashboard-btn {
+    background-color: transparent;
+    color: var(--theme-heading);
+    border: 2px solid var(--theme-heading);
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.am-back-to-dashboard-btn:hover {
+    background-color: var(--theme-heading);
+    color: white;
+}
+/* --- Save/Cancel Action Bar --- */
+.am-save-actions {
+    background-color: var(--theme-accent);
+    color: var(--theme-primary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.am-save-actions p { margin: 0; }
+.am-save-actions div { display: flex; gap: 10px; }
+.am-save-actions button { padding: 8px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s ease; }
+.am-cancel-btn { background-color: transparent; color: var(--text-dark); }
+.am-cancel-btn:hover { background-color: rgba(0,0,0,0.05); }
+.am-save-btn { background-color: var(--theme-heading); color: white; }
+.am-save-btn:hover { background-color: var(--theme-primary); }
+
+/* --- Integrated Settings & Apply Views --- */
+.template-settings, .apply-prompt {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.template-settings h4, .apply-prompt h4 { margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; color: var(--theme-primary); display: flex; align-items: center; gap: 10px; }
+.time-select-group { margin-bottom: 15px; }
+.time-select-group label, .break-settings label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+.time-select-group select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ced4da; font-size: 1rem; }
+.break-settings { margin-top: 20px; }
+.break-slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+.break-slot-btn { padding: 8px; font-size: 0.85rem; font-weight: 500; border-radius: 6px; cursor: pointer; border: 1px solid #ced4da; background-color: #f8f9fa; transition: all 0.2s ease; }
+.break-slot-btn:hover { border-color: var(--theme-heading); }
+.break-slot-btn.is-break { background-color: var(--theme-heading); color: white; border-color: var(--theme-heading); font-weight: 600; }
+.apply-prompt p { font-size: 1rem; line-height: 1.5; color: var(--text-dark); margin: 0 0 20px 0; }
+.am-apply-template-btn { background-color: var(--theme-primary); color: white; border: none; padding: 10px 20px; font-size: 1rem; font-weight: 600; border-radius: 6px; cursor: pointer; display: block; width: 100%; margin-top: 20px; }
+
+/* --- CORRECTED Day Select Grid --- */
+.day-select-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 8px;
+    background-color: var(--hover-bg);
+    padding: 10px;
+    border-radius: 8px;
+}
+.day-select-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+    background-color: var(--card-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+/* --- CORRECTED Selected Button Color --- */
+.day-select-btn.selected {
+    background-color: var(--theme-heading); /* Using terracotta color */
+    color: white;
+    border-color: var(--theme-heading);
+}
+
+.am-modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+.am-modal-btn-primary { background-color: var(--theme-heading); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; }
+.am-modal-btn-secondary { background-color: #f8f9fa; color: var(--text-dark); border: 1px solid #ced4da; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; }
+/* Filename: AvailabilityManager.css - ADD THESE STYLES TO THE BOTTOM */
+
+/* --- Styles for Confirmation Modal --- */
+.am-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.am-modal-content {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 500px;
+}
+.am-modal-content.small {
+    max-width: 450px;
+}
+.am-modal-title {
+    margin: 0 0 10px 0;
+    color: var(--theme-primary);
+    font-size: 1.5rem;
+}
+.am-modal-message {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin: 0 0 20px 0;
+}
+.am-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+.am-modal-btn-primary {
+    background-color: var(--theme-heading);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.am-modal-btn-secondary {
+    background-color: #f8f9fa;
+    color: var(--text-dark);
+    border: 1px solid #ced4da;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+/* Responsive */
+@media (max-width: 992px) {
+    .availability-manager-component { flex-direction: column; }
+    .am-timeslot-panel { max-height: none; }
+}
+@media (max-width: 500px) {
+    /* For smaller mobile screens, make the day selector grid wrap */
+    .day-select-grid {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+    }
+}

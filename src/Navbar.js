@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
-import { FaPray, FaClipboardList } from 'react-icons/fa';
+import { FaPray, FaClipboardList,  FaCalendarCheck } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 
 const colors = {
@@ -179,8 +179,7 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
           <FaClipboardList style={styles.menuIcon} />
           <span>Requests</span>
         </div>
-      </div>
-
+        </div>
       {/* Profile Dropdown */}
       {profileOpen && (
         <div ref={profileDropdownRef} style={styles.dropdown}>
@@ -211,7 +210,7 @@ const styles = {
   navbar: {
     background: colors.navbarBg,
     color: colors.navbarTextLight,
-    padding: '10px 20px',
+    padding: '1px 20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',

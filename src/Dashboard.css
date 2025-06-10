@@ -1,466 +1,474 @@
-/* Dashboard.css */
+/* Filename: Dashboard.css */
+/* FINAL VERSION 2.0 - With all layout and color corrections */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* Define Color Variables */
+/* --- Thematic Color Palette --- */
 :root {
-  /* Existing colors from your app's global theme */
-  --primaryDark: #4A2000;
-  --profileHeadingColor: #B74F2F;
-  --mainContentBg: #FDF5E6; /* Light beige/yellowish color for general page background */
-  --cardBgLight: #FEF3E4; /* Lighter beige for internal cards/sections */
-  --cardBorderLight: #DDD;
-  --cardShadowSubtle: rgba(0, 0, 0, 0.05); /* Softer base shadow */
-  --cardShadowMedium: rgba(0, 0, 0, 0.12); /* For card lift/hover */
-
-  /* Dashboard Specific Color Variables (renamed and refined) */
-  --db-primary-text: var(--primaryDark); /* Main text color for dashboard */
-  --db-secondary-text: #666; /* Medium grey for descriptions/details */
-  --db-highlight-color: var(--profileHeadingColor); /* Accent color, e.g., for bold text */
-  --db-border-color: var(--cardBorderLight);
-  --db-shadow-light: var(--cardShadowSubtle);
-  --db-shadow-medium: var(--cardShadowMedium);
-
-  /* Stat Card Colors (from JS, but defined as vars for consistency) */
-  --stat-green: #81C784;
-  --stat-orange: #FFB74D;
-  --stat-red: #E57373;
-  --stat-blue: #64B5F6;
-
-  /* Filter colors (renamed/refined) */
-  --db-filter-button-bg: #673ab7;
-  --db-filter-button-hover: #512da8;
-  --db-filter-chip-bg: #f3e5f5;
-  --db-filter-chip-color: #512da8;
-  --db-active-chip-bg: #512da8;
-  --db-active-chip-color: white;
-
-  /* Add Appointment Button Color */
-  --db-add-btn-bg: #28a745;
-  --db-add-btn-hover: #218838;
+    --theme-primary: #4A2000;
+    --theme-heading: #B74F2F;
+    --theme-accent: #FFD700;
+    --theme-bg: #FDF5E6;
+    --card-bg: #ffffff;
+    --hover-bg: #FEF3E4;
+    --border-color: #EEE0CB;
+    --text-dark: #3D2B1F;
+    --text-light: #7a7a7a;
+    --cta-gradient: linear-gradient(145deg, #B74F2F, #D46C4A);
+    --danger-color: #c0392b;
+    --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
-.db-dashboard-container {
-  padding: 24px;
-  font-family: 'Roboto', sans-serif;
-  max-width: 1200px;
-  margin: auto;
-  background-color: var(--mainContentBg); /* This fills the dashboard container with light beige */
-  border-radius: 8px;
-  box-shadow: 0 4px 15px var(--db-shadow-light); /* Subtle shadow for the whole container */
-  color: var(--db-primary-text); /* Default text color for the container */
+body {
+    background-color: var(--theme-bg);
 }
 
-/* --- Main Page Header (No longer inside a white box) --- */
-.db-main-title {
-  font-weight: 700;
-  font-size: 2.8rem;
-  color: var(--db-primary-text); /* Use primary text color */
-  text-align: center;
-  margin-bottom: 10px;
-  letter-spacing: -0.03em;
+.priest-dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
 }
 
-.db-main-description {
-  font-size: 1.15rem;
-  color: var(--db-secondary-text); /* Use secondary text color */
-  text-align: center;
-  margin-bottom: 40px; /* More space before the stat cards */
+.pd-dashboard-section {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
-.db-stat-cards-row {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
+/* --- Greeting & Summary Styles --- */
+.user-summary-section .user-greeting {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    color: var(--theme-primary);
+    text-align: center;
 }
 
-.db-stat-card {
-  color: white; /* Text color is white */
-  border-radius: 40px;
-  width: fit-content;
-  max-width: 100%;
-  height: 90px;
-  padding: 20px 30px;
-  box-shadow: 0 3px 5px var(--db-shadow-light);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.3s ease;
+.stat-card-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
-.db-stat-card:hover {
-  filter: brightness(110%);
-  box-shadow: 0 6px 15px var(--db-shadow-medium);
-  transform: translateY(-3px);
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--theme-heading);
 }
 
-.db-stat-title {
-  font-weight: 600;
-  font-size: 1.1rem;
-  white-space: nowrap;
-  margin-right: 16px;
-  color: white; /* Explicitly white */
+.stat-item .stat-icon {
+    font-size: 1.5rem;
+    color: var(--theme-primary);
 }
 
-.db-stat-count {
-  background: white;
-  color: var(--db-primary-text); /* Dark text on white background */
-  min-width: 50px;
-  min-height: 50px;
-  border-radius: 30px;
-  font-weight: 700;
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  box-sizing: border-box;
+.stat-icon.green { color: #28a745; }
+.stat-icon.blue { color: #007bff; }
+.stat-icon.orange { color: #fd7e14; }
+
+/* --- CTA Button Styles --- */
+.cta-section {
+    text-align: center;
+    background-color: var(--hover-bg);
 }
 
-/* --- Add Appointment Button Styling --- */
-.db-add-button-wrapper { /* Wrapper for styling margin/alignment */
-  text-align: center;
-  margin: 15px 0 30px 0; /* Adjust vertical margin */
+.pd-section-title {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: var(--theme-heading);
 }
 
-.db-add-appointment-btn {
-  padding: 12px 20px;
-  background-color: var(--db-add-btn-bg);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  display: inline-block;
+.cta-section p {
+    margin: 0 auto 24px auto;
+    color: var(--text-dark);
+    max-width: 600px;
+    font-size: 1.1rem;
 }
 
-.db-add-appointment-btn:hover {
-  background-color: var(--db-add-btn-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-/* --- Booking Section (Background changed from white) --- */
-.db-booking-section {
-  background: var(--cardBgLight); /* Changed from white to a lighter theme color */
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px var(--db-shadow-light);
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
 
-.db-booking-section h2 {
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: var(--db-primary-text);
-  font-size: 1.8rem;
+.cta-button.primary {
+    background: var(--cta-gradient);
+    color: white;
 }
 
-.db-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-  align-items: center;
+.cta-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
-.db-filter-input {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--db-border-color);
-  font-size: 0.95rem;
-  min-width: 150px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+.cta-button.secondary {
+    background: var(--card-bg);
+    color: var(--theme-heading);
+    border: 2px solid var(--theme-heading);
 }
 
-.db-filter-input:focus {
-  outline: none;
-  border-color: var(--db-highlight-color);
-  box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2);
+.cta-button.secondary:hover {
+    background-color: var(--hover-bg) !important;
 }
 
-.db-filter-button {
-  background-color: var(--db-filter-button-bg);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 40px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.cta-button-icon {
+    transition: transform 0.2s;
 }
 
-.db-filter-button:hover {
-  background-color: var(--db-filter-button-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.cta-button:hover .cta-button-icon {
+    transform: translateX(4px);
 }
 
-.db-filter-chip {
-  background-color: var(--db-filter-chip-bg);
-  color: var(--db-filter-chip-color);
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+/* --- Quick Actions Section Styles --- */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
 }
 
-.db-filter-chip:hover {
-  background-color: var(--db-filter-chip-bg);
+.quick-action-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
 }
 
-.db-active-chip {
-  background-color: var(--db-active-chip-bg);
-  color: var(--db-active-chip-color);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.quick-action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px var(--shadow-color);
+    border-color: var(--theme-heading);
+    background-color: var(--hover-bg);
 }
 
-.db-grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+.quick-action-icon {
+    font-size: 2.5rem;
+    color: var(--theme-heading);
+    margin-bottom: 12px;
 }
 
-.db-booking-card {
-  background: white; /* Booking cards remain white for contrast */
-  border-radius: 12px;
-  padding: 20px 22px;
-  box-shadow: 0 4px 10px var(--db-shadow-light);
-  transition: all 0.3s ease;
-  cursor: default;
-  display: flex;
-  flex-direction: column;
+.quick-action-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: var(--theme-primary);
 }
 
-.db-booking-card.clickable {
-  cursor: pointer;
+.quick-action-description {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.5;
+    margin: 0;
 }
 
-.db-booking-card.clickable:hover {
-  box-shadow: 0 8px 18px var(--db-shadow-medium);
-  transform: translateY(-3px);
+/* --- Dynamic Content Area --- */
+.dynamic-content-section .pd-section-title {
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+    border-bottom: 2px solid var(--theme-accent);
 }
 
-.db-booking-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-  font-size: 1.2rem;
-  color: var(--db-primary-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pd-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
 }
 
-.db-booking-details {
-  margin-top: 12px;
-  font-size: 0.95rem;
-  color: var(--db-secondary-text);
-  line-height: 1.6;
+.pd-card-body { flex-grow: 1; }
+
+/* --- 3-Column Grid for Bookings --- */
+.pd-list-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
-.db-booking-details strong {
-  color: var(--db-highlight-color);
-  font-weight: 600;
+.booking-card {
+    padding: 20px;
+    background-color: var(--hover-bg);
 }
 
-.db-booking-details div {
-  margin-bottom: 8px;
-}
-.db-booking-details div:last-child {
-  margin-bottom: 0;
-}
-
-.db-booking-address {
-  word-break: break-word;
+.booking-card .pd-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.db-no-bookings {
-  grid-column: 1 / -1;
-  text-align: center;
-  font-size: 1.1rem;
-  color: var(--db-secondary-text);
-  padding: 30px;
+.booking-card .pd-card-body {
+    padding: 15px 0 0 0;
 }
 
+.pd-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--theme-heading);
+}
+
+.pd-card-body p {
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+}
+
+.pd-card-body strong {
+    font-weight: 600;
+    color: var(--text-dark);
+    display: inline-block;
+    min-width: 80px;
+}
+
+.pd-status-badge {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+}
+.status-upcoming { 
+    background-color: #007bff; /* A clear blue for upcoming */
+}
+.status-inprogress { 
+    background-color: var(--theme-accent); /* Thematic terracotta/orange-brown */
+}
+
+/* --- Action Button Styles --- */
+.pd-card-actions {
+    padding: 15px 0 0 0;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pd-action-btn {
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    font-weight: 600;
+    padding: 8px 14px;
+    transition: opacity 0.2s;
+}
+
+.pd-action-btn:hover { opacity: 0.85; }
+.pd-action-btn.primary { background-color: var(--theme-heading); color: white; }
+.pd-action-btn.danger { background-color: var(--danger-color); color: white; }
+.pd-action-btn.secondary.small {
+    font-size: 12px;
+    background: white;
+    color: var(--text-dark);
+    border: 1px solid var(--text-dark);
+    font-weight: 500;
+    padding: 7px 13px;
+}
+
+/* --- Manage Temple Events --- */
+.event-manage-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.event-manage-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--hover-bg);
+    padding: 20px;
+}
+
+.event-date-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--theme-primary);
+    color: var(--theme-accent);
+    border-radius: 8px;
+    padding: 10px;
+    width: 70px;
+    height: 70px;
+    margin-bottom: 15px;
+}
+
+.event-date-box .event-month {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.event-date-box .event-day {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.event-details { flex: 1; }
+
+.event-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.event-details-header .pd-card-title { color: var(--theme-primary); }
+
+.event-location {
+    font-style: italic;
+    color: var(--theme-heading);
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.event-description {
+    font-size: 1rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+}
+
+.add-event-form {
+    padding: 20px;
+    background-color: var(--hover-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.add-event-form input,
+.add-event-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.add-event-form textarea { grid-column: 1 / -1; }
+
+.add-event-form button {
+    grid-column: 1 / -1;
+    justify-self: start;
+    padding: 10px 20px;
+    font-weight: 600;
+    background-color: var(--theme-heading);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* --- General Utility & Stats --- */
+.pd-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.pd-stats-section {
+    background-color: var(--hover-bg);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.pd-subsection-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--theme-primary);
+}
+
+.pd-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pd-stat-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pd-stat-item:last-child { border-bottom: none; }
+.pd-stat-item span:last-child { font-weight: 600; }
+
+.value-green { color: #28a745; }
+.value-orange { color: #fd7e14; }
+
+.pd-notes-textarea {
+    min-height: 150px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    background-color: var(--card-bg);
+}
+
+.pd-no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+    background-color: var(--hover-bg);
+    border-radius: 8px;
+}
 
 /* --- Responsive Adjustments --- */
-@media (max-width: 992px) {
-  .db-dashboard-container {
-    padding: 20px;
-  }
-  .db-main-title {
-    font-size: 2.2rem;
-  }
-  .db-main-description {
-    font-size: 1.05rem;
-  }
-
-  .db-stat-cards-row {
-    gap: 20px;
-  }
-  .db-stat-card {
-    height: 80px;
-    padding: 18px 25px;
-  }
-  .db-stat-title {
-    font-size: 1rem;
-    margin-right: 12px;
-  }
-  .db-stat-count {
-    min-width: 45px;
-    min-height: 45px;
-    font-size: 1.3rem;
-  }
-
-  .db-booking-section {
-    padding: 20px;
-  }
-  .db-booking-section h2 {
-    font-size: 1.6rem;
-  }
-  .db-add-appointment-btn {
-    padding: 10px 18px;
-    font-size: 0.95rem;
-    margin-bottom: 25px;
-  }
-  .db-filter-input {
-    padding: 9px 10px;
-    font-size: 0.9rem;
-  }
-  .db-filter-button {
-    padding: 8px 15px;
-    font-size: 0.95rem;
-  }
-  .db-filter-chip {
-    padding: 7px 14px;
-    font-size: 0.85rem;
-  }
-  .db-grid-container {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px;
-  }
-  .db-booking-card {
-    padding: 15px 18px;
-  }
-  .db-booking-title {
-    font-size: 1.1rem;
-  }
-  .db-booking-details {
-    font-size: 0.85rem;
-  }
+@media (max-width: 1024px) {
+    .pd-list-container,
+    .event-manage-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
-  .db-dashboard-container {
-    padding: 15px;
-  }
-  .db-main-title {
-    font-size: 2.2rem;
-  }
-  .db-main-description {
-    font-size: 1rem;
-  }
-  .db-stat-cards-row {
-    gap: 15px;
-  }
-  .db-stat-card {
-    height: 75px;
-    padding: 15px 20px;
-  }
-  .db-stat-title {
-    font-size: 0.95rem;
-  }
-  .db-stat-count {
-    min-width: 40px;
-    min-height: 40px;
-    font-size: 1.2rem;
-  }
-
-  .db-booking-section {
-    padding: 15px;
-  }
-  .db-booking-section h2 {
-    font-size: 1.5rem;
-  }
-  .db-add-appointment-btn {
-    width: 100%;
-    text-align: center;
-  }
-  .db-filter-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .db-filter-input,
-  .db-filter-button,
-  .db-filter-chip {
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .db-grid-container {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-  .db-booking-card {
-    padding: 15px;
-  }
-  .db-booking-title {
-    font-size: 1.05rem;
-  }
-  .db-booking-details {
-    font-size: 0.8rem;
-  }
-  .db-no-bookings {
-    padding: 20px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .db-dashboard-container {
-    padding: 10px;
-  }
-  .db-main-title {
-    font-size: 1.8rem;
-    margin-bottom: 5px;
-  }
-  .db-main-description {
-    font-size: 0.85rem;
-    margin-bottom: 25px;
-  }
-  .db-stat-cards-row {
-    gap: 10px;
-  }
-  .db-stat-card {
-    height: 70px;
-    padding: 12px 15px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  .stat-title {
-    margin-right: 0;
-    margin-bottom: 5px;
-  }
-  .stat-count {
-    min-width: 35px;
-    min-height: 35px;
-    font-size: 1.1rem;
-  }
-  .booking-section h2 {
-    font-size: 1.3rem;
-    margin-bottom: 12px;
-  }
-  .db-add-appointment-btn {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    margin-bottom: 15px;
-  }
-  .db-booking-card {
-    padding: 12px;
-  }
+    .priest-dashboard-container { padding: 16px; }
+    .stat-card-grid { gap: 15px; }
+    .cta-buttons { flex-direction: column; align-items: center; }
+    .add-event-form { grid-template-columns: 1fr; }
+    .pd-list-container,
+    .event-manage-list {
+        grid-template-columns: 1fr;
+    }
 }

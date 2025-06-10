@@ -29,6 +29,7 @@ import SessionTimeout from './SessionTimeout';
 import AdminPage from './AdminPage';
 import Footer from './Footer';
 import ProtectedRoute from './ProtectedRoute';
+import AvailabilityManager from './AvailabilityManager';
 
 function MainApp({
   isAuthenticated,
@@ -114,6 +115,15 @@ function MainApp({
                 </ProtectedRoute>
               }
             />
+
+            <Route
+  path="/availability-manager"
+  element={
+    <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+      <AvailabilityManager/>
+    </ProtectedRoute>
+  }
+/>
 
             {/* Admin Routes */}
             <Route
