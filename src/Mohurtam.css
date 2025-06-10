@@ -1,195 +1,202 @@
-/* Full Background */
-body {
-background-color: #f0f0f0; 
-  margin: 0;
-   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  color:#333; /* A rich brown tone for text */
+/* Filename: Mohurtam.css - UPDATED with Thematic UI */
+
+.mohurtam-page-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
 }
 
-/* Main Container */
-.mohurtam-container {
-  width: fit-content; /* Adjust width to fit content */
-  margin-left: 40px; /* Space from left */
-  margin-top: 40px;
-  padding: 40px 30px;
-  background: #fff8e0; /* Light cream background */
-  border-radius: 18px;
-  box-shadow: 0px 6px 30px rgba(0, 0, 0, 0.1);
-  font-family: 'Georgia', serif;
-  display: inline-block; /* Keep size based on content */
+.mohurtam-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    text-align: center;
+    margin-bottom: 10px;
 }
 
-/* Dropdown Group */
+.mohurtam-page-description {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* --- Input Section --- */
+.mohurtam-input-section {
+  padding: 30px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.input-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--theme-heading);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 .dropdown-group {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  gap: 10px;
 }
 
-/* Dropdown (Select) */
-.dropdown {
+.nakshatram-dropdown {
   flex: 1;
-  padding: 12px 18px;
-  font-size: 18px;
-  border: 1px solid #d4a373; /* Soft gold border */
-  border-radius: 10px;
-  background-color: #f9f4e6; /* Light beige background */
-  color: #6a4e3f; /* Earthy brown text */
-  transition: border 0.3s, box-shadow 0.3s;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--hover-bg);
+  color: var(--text-dark);
+  transition: border 0.2s, box-shadow 0.2s;
 }
 
-.dropdown:focus {
-  border-color: #f9b34c; /* Golden color on focus */
-  box-shadow: 0 0 10px rgba(249, 179, 76, 0.5);
+.nakshatram-dropdown:focus {
+  border-color: var(--theme-heading);
+  box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.15);
   outline: none;
 }
 
-/* Plus and Minus Actions */
-.dropdown-actions {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-}
-
 .action-btn {
-  background-color: #f9b34c; /* Golden button color */
-  color: #fff;
+  background-color: var(--theme-heading);
+  color: white;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  font-size: 22px;
+  border-radius: 8px;
+  font-size: 1.5rem;
   font-weight: bold;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 10px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  user-select: none;
+  transition: background-color 0.2s, transform 0.2s;
+}
+.action-btn.remove {
+    background-color: transparent;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+}
+.add-action-container {
+    text-align: center;
+    margin-top: 10px;
+}
+.action-btn.add {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .action-btn:hover {
-  background-color: #f0a35c; /* Slightly darker gold */
-  transform: scale(1.1);
-}
-
-/* Find Button */
-.find-btn {
-  margin-top: 20px;
-  width: 100%;
-  padding: 15px 0;
-  background: linear-gradient(90deg, #f9b34c, #f9d98d); /* Subtle gold gradient */
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.4s, transform 0.2s;
-}
-
-.find-btn:hover {
-  background: linear-gradient(90deg, #f0a35c, #f9b34c);
+  opacity: 0.85;
   transform: scale(1.05);
 }
 
+.find-btn {
+  margin-top: 25px;
+  width: 100%;
+  padding: 15px 0;
+  background: var(--cta-gradient);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.find-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
 .find-btn:disabled {
-  background: #e5e5e5;
+  background: #ccc;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* No Match Message */
-.no-match {
-  margin-top: 20px;
-  color: #c44d57; /* A rich red for error messages */
-  text-align: center;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-/* Results Section */
+/* --- Results Section --- */
 .results-section {
   margin-top: 40px;
-  padding: 30px;
-  background-color: #fff7e1; /* Light golden background */
-  border-radius: 18px;
-  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Results Title */
-.results-section h3 {
+.results-section-title {
   text-align: center;
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
   margin-bottom: 30px;
-  color: #6a4e3f; /* Earthy brown */
-  font-family: 'Georgia', serif;
+  color: var(--theme-primary);
 }
 
-/* Results Grid - Display cards side by side */
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
 }
 
-/* Each Result Card */
 .result-card {
-  background-color: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s, transform 0.3s;
 }
 
 .result-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Result Card Title */
 .result-card h4 {
-  margin-bottom: 12px;
-  color: #f9b34c; /* Golden text for titles */
-  font-size: 22px;
-  font-weight: 600;
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--theme-accent);
+  color: var(--theme-heading);
+  font-size: 1.5rem;
 }
 
-/* Schedule Info */
-.schedule-info p {
-  margin: 8px 0;
-  font-size: 16px;
-  color: #6a4e3f;
-  line-height: 1.6;
-}
-
-/* No Schedule Available */
-.no-schedule {
-  color: #f78f37;
-  font-size: 16px;
-  font-style: italic;
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* Styling for the error message */
-.error {
-  color: #c44d57; /* Red for errors */
-  font-size: 18px;
-  text-align: center;
-  margin-top: 30px;
-  font-weight: bold;
-}
-
-/* Full Width Layout Adjustment for Small Screens */
-@media (max-width: 768px) {
-  .mohurtam-container {
-    max-width: 100%;
+.mock-data-notice {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    font-style: italic;
+    text-align: center;
     padding: 20px;
-  }
+    background-color: var(--hover-bg);
+    border-radius: 8px;
+}
 
-  .results-section {
-    padding: 20px;
-  }
+.no-match-message {
+  margin-top: 25px;
+  color: var(--danger-color);
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 20px;
+  background-color: var(--hover-bg);
+  border-radius: 8px;
+}
+.loading-message, .error-message {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 40px;
+    color: var(--text-dark);
+}
+.error-message {
+    color: var(--danger-color);
 }

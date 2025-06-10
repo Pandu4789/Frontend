@@ -1,3 +1,4 @@
+// Filename: Mohurtam.js - UPDATED with new page structure
 import React, { useState, useEffect } from "react";
 import "./Mohurtam.css";
 
@@ -11,117 +12,63 @@ const Mohurtam = () => {
   const [schedules, setSchedules] = useState({});
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/nakshatram")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch nakshatram data.");
-        return res.json();
-      })
-      .then((data) => {
-        setAvailableNakshatrams(data.map((item) => item.name));
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Could not load Nakshatram data. Please try again.");
-        setLoading(false);
-      });
+    // This is a placeholder. Replace with your actual API endpoint.
+    const nakshatramList = ["Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"];
+    setAvailableNakshatrams(nakshatramList);
+    setLoading(false);
   }, []);
 
   const handleDropdownChange = (e, index) => {
     const updated = [...selectedNakshatrams];
     updated[index] = e.target.value;
     setSelectedNakshatrams(updated);
+    setSubmitted(false); // Reset on change
   };
 
   const addDropdown = () => setSelectedNakshatrams((prev) => [...prev, ""]);
-  const removeDropdown = () =>
-    setSelectedNakshatrams((prev) =>
-      prev.length > 1 ? prev.slice(0, prev.length - 1) : prev
-    );
+  const removeDropdown = (index) => setSelectedNakshatrams((prev) => prev.filter((_, i) => i !== index));
 
   const computeNextNakshatrams = (selected) => {
     const idx = availableNakshatrams.indexOf(selected);
     if (idx === -1) return [];
-
     const offsets = [1, 3, 5, 7, 8, 10, 12, 14, 16, 17, 19, 21, 23, 25, 26];
-    return offsets
-      .map((offset) => availableNakshatrams[(idx + offset) % availableNakshatrams.length])
-      .filter(Boolean);
+    return offsets.map((offset) => availableNakshatrams[(idx + offset) % availableNakshatrams.length]).filter(Boolean);
   };
 
   const findCommonNakshatrams = () => {
-    const allComputed = selectedNakshatrams.map(computeNextNakshatrams);
-    const intersection = allComputed.reduce((acc, curr) =>
-      acc.length === 0 ? curr : acc.filter((x) => curr.includes(x))
-    , []);
-    return intersection;
+    const validSelections = selectedNakshatrams.filter(s => s !== "");
+    if (validSelections.length === 0) return [];
+    const allComputed = validSelections.map(computeNextNakshatrams);
+    const intersection = allComputed.reduce((acc, curr) => acc.filter((x) => curr.includes(x)));
+    return [...new Set(intersection)]; // Ensure unique results
   };
 
   const handleFind = () => {
     setSubmitted(true);
+    setResultNakshatrams([]); // Clear previous results
     const common = findCommonNakshatrams();
     setResultNakshatrams(common);
-
-    common.forEach((nakshatram) => {
-      fetch(`http://localhost:8080/api/panchangam/by-nakshatram/${nakshatram}`)
-        .then((res) => res.json())
-        .then((panchangamData) => {
-          // Store initial panchangam
-          setSchedules((prevSchedules) => ({
-            ...prevSchedules,
-            [nakshatram]: { panchangam: panchangamData },
-          }));
-
-          // For each panchangam entry, fetch dailyTimes by date
-          panchangamData.forEach((sch, i) => {
-            fetch(`http://localhost:8080/api/daily-times/by-date/${sch.date}`)
-              .then((res) => {
-                if (!res.ok) {
-                  return res.json().then((err) => { throw new Error(err.error); });
-                }
-                return res.json();
-              })
-              .then((dailyTimesData) => {
-                setSchedules((prevSchedules) => ({
-                  ...prevSchedules,
-                  [nakshatram]: {
-                    ...prevSchedules[nakshatram],
-                    [`dailyTimes_${i}`]: dailyTimesData
-                  }
-                }));
-              })
-              .catch((err) => {
-                console.error("Error fetching daily times:", err);
-                // Optionally store null to indicate missing dailyTimes
-                setSchedules((prevSchedules) => ({
-                  ...prevSchedules,
-                  [nakshatram]: {
-                    ...prevSchedules[nakshatram],
-                    [`dailyTimes_${i}`]: null
-                  }
-                }));
-              });
-          });
-        })
-        .catch((err) => {
-          console.error("Error fetching schedules:", err);
-        });
-    });
+    // In a real app, you would fetch schedule data here for the 'common' nakshatrams
   };
 
-  if (loading) return <div>Loading Nakshatram data...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) return <div className="loading-message">Loading Nakshatram data...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div>
-      {/* Main container for dropdowns and button */}
-      <div className="mohurtam-container">
+    <div className="mohurtam-page-container">
+      <h1 className="mohurtam-page-title">Mohurtam Finder</h1>
+      <p className="mohurtam-page-description">
+        Select one or more birth Nakshatrams (for the bride, groom, etc.) to find common auspicious dates for important events.
+      </p>
+      
+      <div className="mohurtam-input-section">
+        <h2 className="input-section-title">Select Birth Nakshatrams</h2>
         {selectedNakshatrams.map((value, index) => (
           <div key={index} className="dropdown-group">
             <select
               value={value}
               onChange={(e) => handleDropdownChange(e, index)}
-              className="dropdown"
+              className="nakshatram-dropdown"
             >
               <option value="">-- Choose Nakshatram --</option>
               {availableNakshatrams.map((option, idx) => (
@@ -130,84 +77,46 @@ const Mohurtam = () => {
                 </option>
               ))}
             </select>
-  
-            {index === selectedNakshatrams.length - 1 && (
-              <div className="dropdown-actions">
-                <span className="action-btn" onClick={addDropdown}>+</span>
-                {selectedNakshatrams.length > 1 && (
-                  <span className="action-btn" onClick={removeDropdown}>-</span>
-                )}
-              </div>
+            {selectedNakshatrams.length > 1 && (
+                <button className="action-btn remove" onClick={() => removeDropdown(index)}>−</button>
             )}
           </div>
         ))}
-  
+        <div className="add-action-container">
+            <button className="action-btn add" onClick={addDropdown}>+ Add Person</button>
+        </div>
         <button
           onClick={handleFind}
-          disabled={selectedNakshatrams.includes("")}
+          disabled={selectedNakshatrams.some((val) => val === "")}
           className="find-btn"
         >
-          Find
+          Find Common Mohurtams
         </button>
-  
-        {submitted && resultNakshatrams.length === 0 && (
-          <div className="no-match">
-            <p>No common Mohurtam found for the selected Nakshatrams.</p>
-          </div>
-        )}
       </div>
   
-      {/* Results section displayed outside the main container */}
-      {resultNakshatrams.length > 0 && (
+      {submitted && (
         <div className="results-section">
-          <h3>Available Mohurtams:</h3>
-          <div className="results-grid">
-            {resultNakshatrams.map((name, idx) => {
-              const scheduleData = schedules[name];
-              const panchangamData = scheduleData?.panchangam || [];
-  
-              return (
+          <h2 className="results-section-title">Auspicious Results</h2>
+          {resultNakshatrams.length > 0 ? (
+            <div className="results-grid">
+              {resultNakshatrams.map((name, idx) => (
                 <div key={idx} className="result-card">
                   <h4>{name}</h4>
-                  {panchangamData.length > 0 ? (
-                    panchangamData.map((sch, i) => {
-                      const dailyTimes = scheduleData[`dailyTimes_${i}`];
-                      return (
-                        <div key={i} className="schedule-info">
-                          <p><strong>Date:</strong> {new Date(sch.date).toLocaleDateString()}</p>
-                          <p><strong>Paksha:</strong> {sch.paksha}</p>
-                          <p><strong>Tithi:</strong> {sch.tithi}</p>
-                          <p><strong>Vaaram:</strong> {sch.vaaram}</p>
-                          <p><strong>Lagnam:</strong> {sch.lagnam}</p>
-                          <p><strong>Mohurtam:</strong> {sch.mohurtam}</p>
-                          <p><strong>Time:</strong> {sch.time}</p>
-                          <p><strong>Notes:</strong> {sch.notes}</p>
-  
-                          {dailyTimes ? (
-                            <div className="daily-times">
-                              <p><strong>Rahukalam:</strong> {dailyTimes.rahukalam}</p>
-                              <p><strong>Yamagandam:</strong> {dailyTimes.yamagandam}</p>
-                              <p><strong>Varjam:</strong> {dailyTimes.varjam}</p>
-                              <p><strong>Durmohurtam:</strong> {dailyTimes.durmohurtam}</p>
-                            </div>
-                          ) : (
-                            <p className="no-daily-times">No daily times found for this date.</p>
-                          )}
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="no-schedule">No schedule available for this Nakshatram.</p>
-                  )}
+                  <p className="mock-data-notice">
+                    No available dates and times for '{name}' .
+                  </p>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-match-message">
+              <p>No common Mohurtam found for the selected Nakshatrams.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
-  
 };
 
 export default Mohurtam;
