@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
-import { FaPray, FaClipboardList,  FaCalendarCheck } from 'react-icons/fa';
+import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 
 const colors = {
@@ -112,8 +112,8 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
             id="menu-toggle"
           />
           <h3 style={styles.logo} onClick={() => goToPage('/Dashboard')}>
-            PRIESTify
-          </h3>
+  <FaOm style={styles.omIcon} /> PRIESTify
+</h3>
         </div>
 
         <div

@@ -108,7 +108,7 @@ const AvailabilityManager = () => {
                 <hr className="am-divider"/>
                 <h3 className="am-panel-subtitle">Availability for <span className="am-panel-title-date">{format(selectedDate, 'EEEE, MMMM d')}</span></h3>
                 {isPast && <div className="am-past-day-notice">You cannot edit availability for past dates.</div>}
-                {draftSlots && ( <div className="am-save-actions"> <p>You have unsaved changes.</p> <div> <button className="am-cancel-btn" onClick={handleCancelChanges}>Cancel</button> <button className="am-save-btn" onClick={handleSaveChanges}>Save Changes</button> </div> </div> )}
+                {draftSlots && ( <div className="am-save-actions"> <p>You have unsaved changes.</p> <div> <button className="am-cancel-btn" onClick={handleCancelChanges}>Cancel</button> <button className="am-save-btn" onClick={handleSaveChanges}>Save</button> </div> </div> )}
                 <div className="am-timeslot-grid"> {Object.entries(slotsToDisplay).map(([time, status]) => ( <button key={time} className={`am-slot-btn status-${status.toLowerCase()}`} onClick={() => handleSlotClick(time, status)} disabled={isPast} > {format(parse(time, 'HH:mm', new Date()), 'h:mm a')} </button> ))} </div>
             </div>
         );

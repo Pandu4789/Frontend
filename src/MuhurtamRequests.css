@@ -1,106 +1,181 @@
-.muhurtam-requests-container {
-    padding: 20px;
+/* Filename: MuhurtamRequests.css - FINAL POLISHED VERSION */
+
+.requests-page-container {
     max-width: 900px;
-    margin: auto;
+    margin: 20px auto;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
 }
 
-.notification-bar {
+.requests-page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* --- Tabs --- */
+.requests-tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 24px;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    background-color: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-btn.active {
+    color: var(--theme-heading);
+    border-bottom-color: var(--theme-heading);
+}
+
+.notification-badge {
+    background-color: var(--danger-color);
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* --- Content Area --- */
+.filter-container {
     margin-bottom: 20px;
 }
-
-.notification-badge {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.requests-table {
+.filter-input {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     width: 100%;
-    border-collapse: collapse;
+    max-width: 400px;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
-.requests-table th,
-.requests-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
+.requests-list {
+    display: grid;
+    gap: 20px;
 }
 
-.requests-table th {
-    background-color: #f2f2f2;
+/* --- Card Styles --- */
+.request-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--theme-heading); /* Highlight for new requests */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
 }
 
-.viewed-row {
-    background-color: #e0ffe0;
+.request-card.viewed {
+    border-left-color: #ccc;
+    background-color: #f9f9f9;
+}
+.request-card.viewed .card-header h3 {
+    color: var(--text-light);
 }
 
-.muhurtam-requests-container {
+.card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.card-header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--theme-primary);
+}
+
+.card-body {
     padding: 20px;
+    line-height: 1.7;
+    font-size: 1rem;
+    flex-grow: 1; /* Allows footer to stick to bottom */
+}
+.card-body p {
+    margin: 0 0 10px 0;
+}
+.card-body p:last-child {
+    margin-bottom: 0;
+}
+.card-body strong {
+    font-weight: 600;
+    color: var(--text-dark);
+    min-width: 110px; /* Increased width for better alignment */
+    display: inline-block;
 }
 
-.notification-bar {
-    margin-bottom: 15px;
+/* --- CORRECTED Card Actions Footer --- */
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 15px 20px;
+    background-color: transparent; /* Removed the background color */
+    border-top: 1px solid var(--border-color); /* Use a line separator */
+}
+.action-btn {
+    padding: 10px 24px; /* Increased padding for more space */
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.action-btn.view {
+    background-color: transparent;
+    color: var(--theme-primary);
+    border: 1px solid var(--theme-primary);
+}
+.action-btn.accept {
+    background-color: var(--theme-heading);
+    color: white;
+}
+.action-btn.reject {
+    background-color: var(--danger-color);
+    color: white;
+}
+.action-btn:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
 }
 
-.notification-badge {
-    background-color: #ffcc00;
-    padding: 8px 12px;
-    border-radius: 12px;
-    font-weight: bold;
+.status-text {
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 10px 24px;
 }
+.status-text.viewed { color: var(--text-light); }
+.status-text.accepted { color: #28a745; }
+.status-text.rejected { color: var(--danger-color); }
 
-.requests-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.requests-table th,
-.requests-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+.no-requests-message {
     text-align: center;
+    padding: 40px;
+    font-size: 1.1rem;
+    color: var(--text-light);
 }
 
-.requests-table th {
-    background-color: #f4f4f4;
+.loading-message, .error-message {
+    text-align: center;
+    font-size: 1.2rem;
+    padding: 40px;
+    color: var(--text-dark);
 }
-
-.viewed-row {
-    background-color: #f0f0f0;
-    color: #888;
-}
-
 .error-message {
-    color: red;
-    font-weight: bold;
-}
-.filter-input {
-  margin-bottom: 10px;
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  width: 250px;
-  font-size: 14px;
-}
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.notification-badge {
-  background-color: #f0ad4e;
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: white;
-  font-weight: bold;
-}
-
-.filter-input {
-  margin-bottom: 10px;
-  padding: 6px 12px;
-  width: 300px;
+    color: var(--danger-color);
 }

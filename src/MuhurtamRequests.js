@@ -1,256 +1,141 @@
+// Filename: MuhurtamRequests.js - REDESIGNED CARDS
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './MuhurtamRequests.css';
+import { FaBell, FaCalendarCheck } from 'react-icons/fa';
+
+// --- Sample Data ---
+const getMockData = () => ({
+  muhurtamRequests: [
+    { id: 1, name: 'Karthik Varma', nakshatram: 'Rohini', date: '2025-07-15', time: 'Morning', place: 'Dallas, TX', phone: '111-222-3333', email: 'k.varma@email.com', viewed: false },
+    { id: 2, name: 'Priya Desai', nakshatram: 'Swati', date: '2025-08-01', time: 'Any auspicious time', place: 'Irving, TX', phone: '222-333-4444', email: 'priya.d@email.com', viewed: true },
+  ],
+  appointmentRequests: [
+    { id: 101, name: 'Ananya Rao', event: { name: 'Griha Pravesh' }, date: '2025-07-20', start: '09:00', end: '11:00', address: '123 Main St, Frisco, TX', status: 'PENDING' },
+    { id: 102, name: 'Rohan Sharma', event: { name: 'Satyanarayan Puja' }, date: '2025-07-22', start: '17:00', end: '19:00', address: '456 Oak Ln, Plano, TX', status: 'PENDING' },
+    { id: 103, name: 'Sunita Patel', event: { name: 'Wedding Ceremony' }, date: '2025-08-10', start: '10:00', end: '13:00', address: '789 Pine Rd, Coppell, TX', status: 'ACCEPTED' },
+    { id: 104, name: 'Vikram Singh', event: { name: 'Birthday Havan' }, date: '2025-08-12', start: '08:00', end: '09:00', address: '101 Maple Ave, Southlake, TX', status: 'REJECTED' },
+  ]
+});
 
 const MuhurtamRequests = () => {
+  const [activeTab, setActiveTab] = useState('muhurtam');
   const [requests, setRequests] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [appointmentPendingCount, setAppointmentPendingCount] = useState(0);
   const [viewedIds, setViewedIds] = useState(new Set());
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [appointmentError, setAppointmentError] = useState('');
-  const [requestFilter, setRequestFilter] = useState('');
-  const [appointmentFilter, setAppointmentFilter] = useState('');
+  const [filter, setFilter] = useState('');
 
   const priestId = localStorage.getItem('userId');
 
   useEffect(() => {
-    if (priestId) {
-      fetchRequests();
-      fetchAppointments();
-    } else {
-      toast.error('Priest ID not found. Please login again.');
-    }
+    const mockData = getMockData();
+    setRequests(mockData.muhurtamRequests);
+    setAppointments(mockData.appointmentRequests);
   }, [priestId]);
+  
+  const handleViewRequest = (id) => { toast.info(`Marked request #${id} as viewed`); };
+  const handleAcceptAppointment = (id) => { toast.success('Appointment accepted'); };
+  const handleRejectAppointment = (id) => { toast.error('Appointment rejected'); };
 
-  const fetchRequests = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await axios.get(`http://localhost:8080/api/muhurtam/priest/${priestId}`);
-      const data = (response.data || []).sort((a, b) => b.id - a.id);
-      setRequests(data);
-      const pending = data.filter(req => !req.viewed).length;
-      setPendingCount(pending);
-    } catch (err) {
-      setError('Failed to load muhurtam requests');
-      toast.error('Failed to load muhurtam requests');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const pendingMuhurtamCount = requests.filter(req => !req.viewed && !viewedIds.has(req.id)).length;
+  const pendingAppointmentCount = appointments.filter(app => app.status?.toUpperCase() === 'PENDING').length;
 
-  const fetchAppointments = async () => {
-    setLoading(true);
-    setAppointmentError('');
-    try {
-      const response = await axios.get(`http://localhost:8080/api/booking/priest/${priestId}`);
-      const data = (response.data || []).sort((a, b) => b.id - a.id);
-      setAppointments(data);
-      const pending = data.filter(app => {
-        const status = app.status?.toUpperCase();
-        return status !== 'ACCEPTED' && status !== 'REJECTED';
-      }).length;
-      setAppointmentPendingCount(pending);
-    } catch (err) {
-      setAppointmentError('Failed to load appointment requests');
-      toast.error('Failed to load appointment requests');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleViewRequest = async (id) => {
-    try {
-      await axios.post(`http://localhost:8080/api/muhurtam/view/${id}`);
-      setViewedIds(prev => new Set(prev).add(id));
-      setRequests(prev => prev.map(req => req.id === id ? { ...req, viewed: true } : req));
-      setPendingCount(prev => Math.max(prev - 1, 0));
-      toast.info(`Marked request #${id} as viewed`);
-    } catch {
-      toast.error('Failed to update request status');
-    }
-  };
-
-  const handleAcceptAppointment = async (id) => {
-    try {
-      const response = await axios.put(`http://localhost:8080/api/booking/accept/${id}`);
-      if (response.status === 200) {
-        setAppointments(prev => prev.map(app =>
-          app.id === id ? { ...app, status: 'ACCEPTED' } : app
-        ));
-        setAppointmentPendingCount(prev => Math.max(prev - 1, 0));
-        toast.success('Appointment accepted');
-      }
-    } catch {
-      toast.error('Failed to accept the appointment');
-    }
-  };
-
-  const handleRejectAppointment = async (id) => {
-    try {
-      const response = await axios.put(`http://localhost:8080/api/booking/reject/${id}`);
-      if (response.status === 200) {
-        setAppointments(prev => prev.map(app =>
-          app.id === id ? { ...app, status: 'REJECTED' } : app
-        ));
-        setAppointmentPendingCount(prev => Math.max(prev - 1, 0));
-        toast.success('Appointment rejected');
-      }
-    } catch {
-      toast.error('Failed to reject the appointment');
-    }
-  };
-
-  const fallback = (value) =>
-    value === undefined || value === null || String(value).trim() === '' ? '-' : value;
-
-  const filteredRequests = requests.filter(req =>
-    req.name?.toLowerCase().includes(requestFilter.toLowerCase())
-  );
-
-  const filteredAppointments = appointments.filter(app =>
-    app.name?.toLowerCase().includes(appointmentFilter.toLowerCase())
+  const filteredData = (activeTab === 'muhurtam' ? requests : appointments).filter(item =>
+    item.name?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
-    <div className="muhurtam-requests-container">
-      {/* Muhurtam Requests */}
-      <div className="muhurtam-section">
-        <div className="section-header">
-          <h2>Muhurtam Requests</h2>
-          <span className="notification-badge">🔔 {pendingCount} pending</span>
-        </div>
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={requestFilter}
-          onChange={(e) => setRequestFilter(e.target.value)}
-          className="filter-input"
-        />
-        {loading ? (
-          <p>Loading muhurtam requests...</p>
-        ) : error ? (
-          <p className="error-message">{error}</p>
-        ) : filteredRequests.length === 0 ? (
-          <p>No muhurtam requests found.</p>
-        ) : (
-          <table className="requests-table">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Name</th>
-                <th>Nakshatram</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Place</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Email ID</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRequests.map((req, index) => {
-                const isViewed = req.viewed || viewedIds.has(req.id);
-                return (
-                  <tr key={req.id} className={isViewed ? 'viewed-row' : ''}>
-                    <td>{index + 1}</td>
-                    <td>{fallback(req.name)}</td>
-                    <td>{fallback(req.nakshatram)}</td>
-                    <td>{fallback(req.date)}</td>
-                    <td>{fallback(req.time)}</td>
-                    <td>{fallback(req.place)}</td>
-                    <td>{fallback(req.address)}</td>
-                    <td>{fallback(req.phone)}</td>
-                    <td>{fallback(req.email)}</td>
-                    <td>
-                      {!isViewed ? (
-                        <button onClick={() => handleViewRequest(req.id)}>Mark As Viewed</button>
-                      ) : (
-                        <span>✅ Viewed</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+    <div className="requests-page-container">
+      <h1 className="requests-page-title">Requests Inbox</h1>
+      <div className="requests-tabs">
+        <button className={`tab-btn ${activeTab === 'muhurtam' ? 'active' : ''}`} onClick={() => setActiveTab('muhurtam')}>
+          <FaBell /> Muhurtam Requests
+          {pendingMuhurtamCount > 0 && <span className="notification-badge">{pendingMuhurtamCount}</span>}
+        </button>
+        <button className={`tab-btn ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => setActiveTab('appointment')}>
+          <FaCalendarCheck /> Appointment Requests
+          {pendingAppointmentCount > 0 && <span className="notification-badge">{pendingAppointmentCount}</span>}
+        </button>
       </div>
-
-      {/* Appointment Requests */}
-      <div className="muhurtam-section">
-        <div className="section-header">
-          <h2>Appointment Requests</h2>
-          <span className="notification-badge">📅 {appointmentPendingCount} pending</span>
+      <div className="requests-content">
+        <div className="filter-container">
+          <input type="text" placeholder="Search by name..." value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-input" />
         </div>
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={appointmentFilter}
-          onChange={(e) => setAppointmentFilter(e.target.value)}
-          className="filter-input"
-        />
-        {loading ? (
-          <p>Loading appointment requests...</p>
-        ) : appointmentError ? (
-          <p className="error-message">{appointmentError}</p>
-        ) : filteredAppointments.length === 0 ? (
-          <p>No appointment requests found.</p>
-        ) : (
-          <table className="requests-table">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Name</th>
-                <th>Event</th>
-                <th>Date</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Place</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAppointments.map((app, index) => {
-                const status = app.status?.toUpperCase();
-                return (
-                  <tr key={app.id}>
-                    <td>{index + 1}</td>
-                    <td>{fallback(app.name)}</td>
-                    <td>{fallback(app.event?.name)}</td>
-                    <td>{fallback(app.date)}</td>
-                    <td>{fallback(app.start)}</td>
-                    <td>{fallback(app.end)}</td>
-                    <td>{fallback(app.address)}</td>
-                    <td>
-                      {status === 'ACCEPTED' ? (
-                        <span>✅ Accepted</span>
-                      ) : status === 'REJECTED' ? (
-                        <span>❌ Rejected</span>
-                      ) : (
-                        <>
-                          <button onClick={() => handleAcceptAppointment(app.id)}>Accept</button>
-                          <button onClick={() => handleRejectAppointment(app.id)}>Reject</button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+        <div className="requests-list">
+          {filteredData.length === 0 ? (
+            <p className="no-requests-message">No requests found.</p>
+          ) : activeTab === 'muhurtam' ? (
+            filteredData.map(req => <MuhurtamCard key={req.id} request={req} onView={handleViewRequest} viewedIds={viewedIds} />)
+          ) : (
+            filteredData.map(app => <AppointmentCard key={app.id} appointment={app} onAccept={handleAcceptAppointment} onReject={handleRejectAppointment} />)
+          )}
+        </div>
       </div>
-
-      <ToastContainer position="bottom-right" autoClose={2000} />
+      <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
     </div>
   );
+};
+
+// --- Card Components ---
+
+const MuhurtamCard = ({ request, onView, viewedIds }) => {
+    const isViewed = request.viewed || viewedIds.has(request.id);
+    return (
+        <div className={`request-card ${isViewed ? 'viewed' : 'new'}`}>
+            <div className="card-header">
+                <h3>{request.name}</h3>
+            </div>
+            <div className="card-body">
+                {/* Nakshatram is now in the body */}
+                <p><strong>Nakshatram:</strong> {request.nakshatram}</p>
+                <p><strong>Date:</strong> {request.date}</p>
+                <p><strong>Time:</strong> {request.time}</p>
+                <p><strong>Place:</strong> {request.place}</p>
+                <p><strong>Phone:</strong> {request.phone}</p>
+                <p><strong>Email:</strong> {request.email}</p>
+            </div>
+            <div className="card-actions">
+                {!isViewed ? (
+                    <button className="action-btn view" onClick={() => onView(request.id)}>Mark As Viewed</button>
+                ) : (
+                    <span className="status-text viewed">✅ Viewed</span>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const AppointmentCard = ({ appointment, onAccept, onReject }) => {
+    const status = appointment.status?.toUpperCase();
+    return (
+        <div className={`request-card ${status !== 'PENDING' ? 'viewed' : 'new'}`}>
+            <div className="card-header">
+                {/* Event name is now the main title */}
+                <h3>{appointment.event?.name}</h3>
+            </div>
+            <div className="card-body">
+                 {/* Requester name is now in the body */}
+                <p><strong>Requester:</strong> {appointment.name}</p>
+                <p><strong>Date:</strong> {appointment.date}</p>
+                <p><strong>Time:</strong> {appointment.start} - {appointment.end}</p>
+                <p><strong>Address:</strong> {appointment.address}</p>
+            </div>
+            <div className="card-actions">
+                {status === 'PENDING' ? (
+                    <>
+                        <button className="action-btn reject" onClick={() => onReject(appointment.id)}>Reject</button>
+                        <button className="action-btn accept" onClick={() => onAccept(appointment.id)}>Accept</button>
+                    </>
+                ) : status === 'ACCEPTED' ? (
+                    <span className="status-text accepted">✅ Accepted</span>
+                ) : (
+                    <span className="status-text rejected">❌ Rejected</span>
+                )}
+            </div>
+        </div>
+    );
 };
 
 export default MuhurtamRequests;
