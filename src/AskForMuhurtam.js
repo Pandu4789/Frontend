@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import './AskForMuhurtam.css';
 
-const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventList = [], onClose, navigate }) => {
+const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose, navigate }) => {
     const [eventId, setEventId] = useState('');
     const [selectedEventName, setSelectedEventName] = useState('');
     const [nakshatram, setNakshatram] = useState('');
@@ -12,7 +12,20 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventLi
     const [birthPlace, setBirthPlace] = useState('');
     const [showBirthDetailsPopup, setShowBirthDetailsPopup] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
-
+    const [events, setEvents] = useState([]); // State to hold events
+    // --- EFFECT TO FETCH EVENTS ---
+useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get('http://localhost:8080/api/events');
+        setEvents(res.data);
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+        toast.error('Failed to load events list.');
+      }
+    };
+    fetchEvents();
+  }, []);
     // --- EFFECT TO HANDLE ESCAPE KEY ---
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -59,10 +72,6 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventLi
             return;
         }
 
-        if (!customer || !customer.name?.trim() || !customer.email?.trim() || !customer.phone?.trim() || !customer.addressLine1?.trim()) {
-            toast.error('Please fill in all your personal and address details.');
-            return;
-        }
 
         const isNakshatramValid = nakshatram.trim() !== '';
         const isBirthDetailsValid = birthDate && birthTime && birthPlace.trim();
@@ -73,15 +82,10 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventLi
         }
 
         const payload = {
-            eventId: eventId,
+            event: eventId,
             name: customer.name,
             email: customer.email,
             phone: customer.phone,
-            addressLine1: customer.addressLine1,
-            addressLine2: customer.addressLine2 || '',
-            city: customer.city,
-            state: customer.state,
-            zip: customer.zip,
             note: customer.note || '',
             nakshatram: isNakshatramValid ? nakshatram : null,
             date: isBirthDetailsValid ? birthDate : null,
@@ -113,11 +117,11 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventLi
                         Event Type:
                         <select value={eventId} onChange={e => {
                             setEventId(e.target.value);
-                            const name = eventList.find(event => event.id === parseInt(e.target.value))?.name;
+                            const name = events.find(event => event.id === parseInt(e.target.value))?.name;
                             setSelectedEventName(name || '');
                         }}>
                             <option value="">-- Select Event --</option>
-                            {eventList.map(event => (
+                            {events.map(event => (
                                 <option key={event.id} value={event.id}>{event.name}</option>
                             ))}
                         </select>
@@ -141,19 +145,10 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, eventLi
                     </div>
                 </div>
 
-                {/* --- Block 3: Address --- */}
+               
                 {customer ? (
                     <>
-                        <div className="form-section">
-                            <h3>Your Address</h3>
-                            <div className="address-grid">
-                               <label className="full-width">Address Line 1: <input type="text" placeholder="Street Address" value={customer.addressLine1 || ''} onChange={e => handleInputChange('addressLine1', e.target.value)}/></label>
-                               <label className="full-width">Address Line 2 (Optional): <input type="text" placeholder="Apt, Suite, etc." value={customer.addressLine2 || ''} onChange={e => handleInputChange('addressLine2', e.target.value)}/></label>
-                               <label>City: <input type="text" placeholder="City" value={customer.city || ''} onChange={e => handleInputChange('city', e.target.value)}/></label>
-                               <label>State: <input type="text" placeholder="State" value={customer.state || ''} onChange={e => handleInputChange('state', e.target.value)}/></label>
-                               <label>Zip Code: <input type="text" placeholder="Zip Code" value={customer.zip || ''} onChange={e => handleInputChange('zip', e.target.value)}/></label>
-                            </div>
-                        </div>
+                       
 
                         {/* --- Block 4: Note --- */}
                         <div className="form-section">

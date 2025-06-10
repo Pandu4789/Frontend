@@ -152,7 +152,6 @@ const PriestProfile = () => {
                     <div className="pp-profile-section">
                         <h2>Services</h2>
                         <div className="pp-services-grid">
-                            {console.log('Poojas:', priest.poojas)}
                             {priest.poojas && priest.poojas.length > 0 ? (
   priest.poojas.map((pooja, index) => (
     <span key={index} className="pp-service-tag">{pooja}</span>

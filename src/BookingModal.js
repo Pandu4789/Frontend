@@ -15,6 +15,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
+   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   // Current date is June 9, 2025. Available dates are in the future.
   const dummyPriestAvailability = {
@@ -80,17 +81,24 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     }
 
     try {
+      const addressParts = [
+        customer.addressLine1,
+        customer.addressLine2, 
+        customer.city,
+        customer.state,
+        customer.zip,
+      ];
+
+      // This filters out any empty/null parts (like addressLine2) and joins the rest with ", "
+      const combinedAddress = addressParts.filter(part => part).join(', ');
+
       const payload = {
         eventId: eventId,
         name: customer.name,
         phone: customer.phone,
         email: customer.email,
         note: customer.note || '',
-        addressLine1: customer.addressLine1,
-        addressLine2: customer.addressLine2 || '',
-        city: customer.city,
-        state: customer.state,
-        zip: customer.zip,
+        address: combinedAddress,
         date: appointmentDate.toISOString().split('T')[0],
         start: selectedStartTime,
         end: "TBD",
@@ -117,19 +125,24 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
       <div className="modal-content">
         {showConfirmation ? (
           <div className="confirmation-box">
-            <h3>
-              Thank you for booking <strong>{priest?.firstName} {priest?.lastName || 'the priest'}</strong> for the event{' '}
-              <strong>{selectedEventName || 'this event'}</strong>.
-            </h3>
-            <p>
-              You will be notified once <strong>{priest?.firstName || 'the priest'}</strong> accepts your request.
-            </p>
-            <p>
-              A confirmation will be sent to your address at {' '}
-              <strong>{customer.addressLine1}, {customer.city}, {customer.state} {customer.zip}</strong>.
-            </p>
-            <button onClick={onClose} className="ok-button">OK</button>
-          </div>
+  <h3>
+    Thank you for booking <strong>{priest?.firstName} {priest?.lastName || 'the priest'}</strong> for the event{' '}
+    <strong>{selectedEventName || 'this event'}</strong>.
+  </h3>
+  <p>
+    You will be notified once <strong>{priest?.firstName || 'the priest'}</strong> accepts your request.
+  </p>
+  <p>
+    A confirmation will be sent to your Email at{' '}
+    <strong>{customer.email}</strong>.
+  </p>
+  <p>
+    Meanwhile, you can know all about your pooja from the{' '}
+    <a href="/pooja-items" className="pooja-link">Pooja Items</a> page.
+  </p>
+  <button onClick={onClose} className="ok-button">OK</button>
+</div>
+
         ) : (
           <>
             <h2>Book Appointment with {priest?.firstName || 'Priest'}</h2>
@@ -160,21 +173,31 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
 
             {/* Step 2: Date and Time Selection */}
             <div className="form-section">
-                <h3>Select Date & Time</h3>
-                <label>
-                    <span onClick={(e) => e.preventDefault()}>
-                        Appointment Date:
-                    </span>
-                    <DatePicker
-                        selected={appointmentDate}
-                        onChange={date => setAppointmentDate(date)}
-                        filterDate={isDateAvailable}
-                        dateFormat="yyyy/MM/dd"
-                        placeholderText="Select an available date"
-                        minDate={new Date()}
-                        className="react-datepicker-input"
-                    />
-                </label>
+    <h3>Select Date & Time</h3>
+    <label>
+        <span>
+            Appointment Date:
+        </span>
+        <DatePicker
+            selected={appointmentDate}
+            // MODIFIED: onChange now calls a new function
+            onChange={(date) => {
+                setAppointmentDate(date);
+                setIsDatePickerOpen(false); // This manually closes the calendar
+            }}
+            filterDate={isDateAvailable}
+            dateFormat="yyyy/MM/dd"
+            placeholderText="Select an available date"
+            minDate={new Date()}
+            className="react-datepicker-input"
+            // --- NEW PROPS FOR MANUAL CONTROL ---
+            open={isDatePickerOpen}
+            onSelect={() => setIsDatePickerOpen(false)} 
+            onFocus={() => setIsDatePickerOpen(true)}
+            onClick={() => setIsDatePickerOpen(true)}
+            onClickOutside={() => setIsDatePickerOpen(false)}
+        />
+    </label>
                 {appointmentDate && availableTimeSlots.length > 0 && (
                     <div className="time-slot-selection">
                         <label>Available Time Slots:</label>
