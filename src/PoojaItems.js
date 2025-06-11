@@ -116,7 +116,7 @@ const PoojaItems = () => {
             <p>${selectedPooja.description || 'Dedicated to Goddess Lakshmi, the bestower of wealth, prosperity, and good fortune. Often performed on Fridays or during Diwali.'}</p>
             <p><span class="category">Category:</span> ${selectedPooja.category || 'Wealth & Prosperity'}</p>
             <p><span class="duration">Duration:</span> ${selectedPooja.duration || '1.5 - 2 hours'}</p>
-            <p><span class="price">Estimated Price:</span> ${selectedPooja.estimatedPrice || '$71 - $151'}</p>
+            <p><span class="price">Estimated Price:</span> ${selectedPooja.estimatedPrice || '$150 - $300'}</p>
           </div>
 
           <div class="section-title-print">
@@ -228,7 +228,7 @@ z" />
 
               </span>
               <span className="detail-label">Estimated Price</span>
-              <span className="detail-value">{selectedPooja.estimatedPrice || '$71 - $151'}</span>
+              <span className="detail-value">{selectedPooja.estimatedPrice || '$150 - $300'}</span>
             </div>
           </div>
 

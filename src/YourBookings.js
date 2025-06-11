@@ -126,7 +126,7 @@ const YourBookings = () => {
         <div className="your-bookings-page">
             <div className="your-bookings-header">
                 <h1 className="your-bookings-title">My Bookings & Requests</h1>
-                <button className="back-to-dashboard-btn" onClick={() => navigate('/dashboard')}>
+                <button className="back-to-dashboard-btn" onClick={() => navigate('/events')}>
                     <FaArrowLeft />
                     Back to Dashboard
                 </button>

@@ -34,14 +34,14 @@ const Dashboard = () => {
     },
     {
       id: 'pooja-items',
-      name: 'Pooja Items',
+      name: 'Pooja Guide',
       icon: <FaPrayingHands />,
-      description: 'Order essential items for your poojas.',
+      description: 'Explore pooja items and its significance.',
       path: '/pooja-items',
     },
     {
       id: 'prasadam',
-      name: 'Prasadams',
+      name: 'Food',
       icon: <FaUtensils />,
       description: 'Get blessed food delivered to your home.',
       path: '/prasadam',

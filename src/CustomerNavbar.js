@@ -84,8 +84,8 @@ const CustomerNavbar = ({ onLogout }) => {
   const links = [
     { path: 'events', name: 'Dashboard', icon: <FaHome /> },
     { path: 'book-priest', name: 'Book Priest', icon: <FaUserTie /> },
-    { path: 'pooja-items', name: 'Pooja Items', icon: <FaPrayingHands /> },
-    { path: 'prasadam', name: 'Prasadhams', icon: <FaUtensils /> },
+    { path: 'pooja-items', name: 'Pooja Guide', icon: <FaPrayingHands /> },
+    { path: 'prasadam', name: 'Food', icon: <FaUtensils /> },
   ];
 
   // Helper to check if a link is active based on current location.pathname
