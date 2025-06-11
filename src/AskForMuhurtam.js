@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
+import React, { useState, useEffect, use } from 'react'; // Import useEffect
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './AskForMuhurtam.css';
@@ -80,6 +80,11 @@ useEffect(() => {
             toast.error('Please either select your Nakshatram or enter your birth details.');
             return;
         }
+        const customerId = localStorage.getItem('userId');
+        if (!customerId) {
+            toast.error("Could not find customer ID. Please log in again.");
+            return;
+        }
 
         const payload = {
             event: eventId,
@@ -92,6 +97,7 @@ useEffect(() => {
             time: isBirthDetailsValid ? birthTime : null,
             place: isBirthDetailsValid ? birthPlace : null,
             priestId: priest?.id || null,
+            userId: customerId, // Use the customer ID from localStorage
         };
 
        try {
