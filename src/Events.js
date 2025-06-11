@@ -46,6 +46,13 @@ const Dashboard = () => {
       description: 'Get blessed food delivered to your home.',
       path: '/prasadam',
     },
+    {
+      id: 'your-bookings',
+      name: 'Your Bookings',
+      icon: <FaHandsHelping />,
+      description: 'View all your active bookings and requests.',
+      path: '/your-bookings',
+    }
   ];
 
   const handleQuickLinkClick = (path) => {

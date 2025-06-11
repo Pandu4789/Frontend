@@ -79,6 +79,11 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
       toast.error('Priest information is missing.');
       return;
     }
+     const customerId = localStorage.getItem('userId');
+            if (!customerId) {
+                toast.error("Could not find customer ID. Please log in again.");
+                return;
+            }
 
     try {
       const addressParts = [
@@ -102,7 +107,8 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
         date: appointmentDate.toISOString().split('T')[0],
         start: selectedStartTime,
         end: "TBD",
-        priestId: priest.id
+        priestId: priest.id,
+        userId: customerId|| null // Assuming customer has an id field
       };
       console.log('Booking payload:', payload);
       await axios.post('http://localhost:8080/api/booking', payload);

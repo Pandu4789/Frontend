@@ -30,6 +30,7 @@ import AdminPage from './AdminPage';
 import Footer from './Footer';
 import ProtectedRoute from './ProtectedRoute';
 import AvailabilityManager from './AvailabilityManager';
+import YourBookings from './YourBookings'; // Import the new page component
 
 function MainApp({
   isAuthenticated,
@@ -176,6 +177,14 @@ function MainApp({
                 </ProtectedRoute>
               }
             />
+            <Route
+  path="/your-bookings" // The URL for the new page
+  element={
+    <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+      <YourBookings />
+    </ProtectedRoute>
+  }
+/>
           </Routes>
         </div>
 

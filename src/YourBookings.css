@@ -1,0 +1,192 @@
+/* Filename: src/YourBookings.css - FINAL REDESIGNED VERSION */
+.your-bookings-page {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 16px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* NEW: Header for title and back button */
+.your-bookings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.your-bookings-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    margin: 0;
+}
+
+.back-to-dashboard-btn {
+    background-color: transparent;
+    color: var(--theme-heading);
+    border: 2px solid var(--theme-heading);
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.back-to-dashboard-btn:hover {
+    background-color: var(--theme-heading);
+    color: white;
+}
+
+
+/* --- Tabs --- */
+.bookings-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 24px;
+}
+.tab-btn {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    background-color: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tab-btn.active {
+    color: var(--theme-heading);
+    border-bottom-color: var(--theme-heading);
+}
+.notification-badge {
+    background-color: var(--danger-color);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 5px;
+}
+
+/* --- List Container --- */
+.bookings-list {
+    display: grid;
+    gap: 20px;
+}
+
+/* --- Standard Booking Card --- */
+.booking-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--hover-bg);
+}
+.booking-card-body {
+    padding: 24px;
+    display: grid;
+    gap: 15px;
+}
+.booking-type {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--theme-heading);
+    margin: 0;
+}
+.booking-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.booking-status-badge.confirmed,
+.booking-status-badge.accepted {
+    background-color: #e9f7ef;
+    color: #28a745;
+}
+.booking-status-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.booking-status-badge.viewed-by-priest {
+    background-color: #e7f3ff;
+    color: #007bff;
+}
+.status-icon.confirmed, .status-icon.viewed { color: #28a745; }
+.status-icon.pending { color: #fd7e14; }
+.status-icon.rejected { color: var(--danger-color); }
+.status-icon.default { color: #6c757d; }
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.detail-icon {
+    color: var(--theme-heading);
+    font-size: 1.2rem;
+}
+
+/* --- NEW: Compact Card for Muhurtam Requests --- */
+.request-card-simple {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+.request-card-simple:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+.request-card-simple .request-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.request-card-simple .booking-type {
+    font-size: 1.2rem; /* Slightly smaller title */
+}
+.request-card-simple .booking-priest {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.no-bookings-card, .loading-text {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.1rem;
+    color: var(--text-light);
+    background-color: var(--card-bg);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+}
