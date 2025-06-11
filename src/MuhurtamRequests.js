@@ -1,4 +1,4 @@
-// Filename: MuhurtamRequests.js - REDESIGNED CARDS
+// Filename: MuhurtamRequests.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -6,40 +6,112 @@ import 'react-toastify/dist/ReactToastify.css';
 import './MuhurtamRequests.css';
 import { FaBell, FaCalendarCheck } from 'react-icons/fa';
 
-// --- Sample Data ---
-const getMockData = () => ({
-  muhurtamRequests: [
-    { id: 1, name: 'Karthik Varma', nakshatram: 'Rohini', date: '2025-07-15', time: 'Morning', place: 'Dallas, TX', phone: '111-222-3333', email: 'k.varma@email.com', viewed: false },
-    { id: 2, name: 'Priya Desai', nakshatram: 'Swati', date: '2025-08-01', time: 'Any auspicious time', place: 'Irving, TX', phone: '222-333-4444', email: 'priya.d@email.com', viewed: true },
-  ],
-  appointmentRequests: [
-    { id: 101, name: 'Ananya Rao', event: { name: 'Griha Pravesh' }, date: '2025-07-20', start: '09:00', end: '11:00', address: '123 Main St, Frisco, TX', status: 'PENDING' },
-    { id: 102, name: 'Rohan Sharma', event: { name: 'Satyanarayan Puja' }, date: '2025-07-22', start: '17:00', end: '19:00', address: '456 Oak Ln, Plano, TX', status: 'PENDING' },
-    { id: 103, name: 'Sunita Patel', event: { name: 'Wedding Ceremony' }, date: '2025-08-10', start: '10:00', end: '13:00', address: '789 Pine Rd, Coppell, TX', status: 'ACCEPTED' },
-    { id: 104, name: 'Vikram Singh', event: { name: 'Birthday Havan' }, date: '2025-08-12', start: '08:00', end: '09:00', address: '101 Maple Ave, Southlake, TX', status: 'REJECTED' },
-  ]
-});
+const API_BASE = "http://localhost:8080";
 
 const MuhurtamRequests = () => {
   const [activeTab, setActiveTab] = useState('muhurtam');
   const [requests, setRequests] = useState([]);
   const [appointments, setAppointments] = useState([]);
-  const [viewedIds, setViewedIds] = useState(new Set());
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
 
   const priestId = localStorage.getItem('userId');
 
-  useEffect(() => {
-    const mockData = getMockData();
-    setRequests(mockData.muhurtamRequests);
-    setAppointments(mockData.appointmentRequests);
-  }, [priestId]);
-  
-  const handleViewRequest = (id) => { toast.info(`Marked request #${id} as viewed`); };
-  const handleAcceptAppointment = (id) => { toast.success('Appointment accepted'); };
-  const handleRejectAppointment = (id) => { toast.error('Appointment rejected'); };
+  const fetchData = async () => {
+    if (!priestId) {
+      toast.error('Priest ID not found. Please log in again.');
+      setIsLoading(false);
+      return;
+    }
 
-  const pendingMuhurtamCount = requests.filter(req => !req.viewed && !viewedIds.has(req.id)).length;
+    setIsLoading(true);
+    setError('');
+    try {
+      const [muhurtamRes, appointmentRes, eventsRes] = await Promise.all([
+        axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`),
+        axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
+        axios.get(`${API_BASE}/api/events`)
+      ]);
+
+      setRequests((muhurtamRes.data || []).sort((a, b) => a.viewed - b.viewed));
+      setAppointments((appointmentRes.data || []).sort((a, b) => {
+        const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
+        return order[a.status] - order[b.status];
+      }));
+      setEvents(eventsRes.data || []);
+
+    } catch (err) {
+      setError('Failed to load requests. Please try again later.');
+      toast.error('Failed to load requests.');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [priestId]);
+
+  const getEventNameById = (id) => {
+    const match = events.find(e => e.id === id);
+    return match ? match.name : 'Unknown Event';
+  };
+
+  const handleViewRequest = async (id) => {
+    try {
+      await axios.put(`${API_BASE}/api/muhurtam/${id}/viewed`, { viewed: true });
+      setRequests(prev => {
+        const updated = prev.map(req =>
+          req.id === id ? { ...req, viewed: true } : req
+        );
+        return updated.sort((a, b) => a.viewed - b.viewed);
+      });
+      toast.info(`Request #${id} marked as viewed.`);
+    } catch {
+      toast.error('Failed to update request status.');
+    }
+  };
+
+  const handleAcceptAppointment = async (id) => {
+    try {
+      await axios.put(`${API_BASE}/api/booking/accept/${id}`);
+      setAppointments(prev => {
+        const updated = prev.map(app =>
+          app.id === id ? { ...app, status: 'ACCEPTED' } : app
+        );
+        return updated.sort((a, b) => {
+          const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
+          return order[a.status] - order[b.status];
+        });
+      });
+      toast.success('Appointment accepted!');
+    } catch {
+      toast.error('Failed to accept the appointment.');
+    }
+  };
+
+  const handleRejectAppointment = async (id) => {
+    try {
+      await axios.put(`${API_BASE}/api/booking/reject/${id}`);
+      setAppointments(prev => {
+        const updated = prev.map(app =>
+          app.id === id ? { ...app, status: 'REJECTED' } : app
+        );
+        return updated.sort((a, b) => {
+          const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
+          return order[a.status] - order[b.status];
+        });
+      });
+      toast.warn('Appointment rejected.');
+    } catch {
+      toast.error('Failed to reject the appointment.');
+    }
+  };
+
+  const pendingMuhurtamCount = requests.filter(req => !req.viewed).length;
   const pendingAppointmentCount = appointments.filter(app => app.status?.toUpperCase() === 'PENDING').length;
 
   const filteredData = (activeTab === 'muhurtam' ? requests : appointments).filter(item =>
@@ -64,12 +136,20 @@ const MuhurtamRequests = () => {
           <input type="text" placeholder="Search by name..." value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-input" />
         </div>
         <div className="requests-list">
-          {filteredData.length === 0 ? (
-            <p className="no-requests-message">No requests found.</p>
+          {isLoading ? (
+            <p className="loading-text">Loading requests...</p>
+          ) : error ? (
+            <p className="error-message">{error}</p>
+          ) : filteredData.length === 0 ? (
+            <p className="no-requests-message">No requests found in this category.</p>
           ) : activeTab === 'muhurtam' ? (
-            filteredData.map(req => <MuhurtamCard key={req.id} request={req} onView={handleViewRequest} viewedIds={viewedIds} />)
+            filteredData.map(req => (
+              <MuhurtamCard key={req.id} request={req} onView={handleViewRequest} getEventName={getEventNameById} />
+            ))
           ) : (
-            filteredData.map(app => <AppointmentCard key={app.id} appointment={app} onAccept={handleAcceptAppointment} onReject={handleRejectAppointment} />)
+            filteredData.map(app => (
+              <AppointmentCard key={app.id} appointment={app} onAccept={handleAcceptAppointment} onReject={handleRejectAppointment} />
+            ))
           )}
         </div>
       </div>
@@ -79,63 +159,56 @@ const MuhurtamRequests = () => {
 };
 
 // --- Card Components ---
-
-const MuhurtamCard = ({ request, onView, viewedIds }) => {
-    const isViewed = request.viewed || viewedIds.has(request.id);
-    return (
-        <div className={`request-card ${isViewed ? 'viewed' : 'new'}`}>
-            <div className="card-header">
-                <h3>{request.name}</h3>
-            </div>
-            <div className="card-body">
-                {/* Nakshatram is now in the body */}
-                <p><strong>Nakshatram:</strong> {request.nakshatram}</p>
-                <p><strong>Date:</strong> {request.date}</p>
-                <p><strong>Time:</strong> {request.time}</p>
-                <p><strong>Place:</strong> {request.place}</p>
-                <p><strong>Phone:</strong> {request.phone}</p>
-                <p><strong>Email:</strong> {request.email}</p>
-            </div>
-            <div className="card-actions">
-                {!isViewed ? (
-                    <button className="action-btn view" onClick={() => onView(request.id)}>Mark As Viewed</button>
-                ) : (
-                    <span className="status-text viewed">✅ Viewed</span>
-                )}
-            </div>
-        </div>
-    );
+const MuhurtamCard = ({ request, onView, getEventName }) => {
+  return (
+    <div className={`request-card ${request.viewed ? 'viewed' : 'new'}`}>
+      <div className="card-header"> <h3>{request.name}</h3> </div>
+      <div className="card-body">
+        {request.eventName && <p><strong>Event:</strong> {request.eventName}</p>}
+        {request.nakshatram && <p><strong>Nakshatram:</strong> {request.nakshatram}</p>}
+        {request.date && <p><strong>Birth Date:</strong> {request.date}</p>}
+        {request.time && <p><strong>Birth Time:</strong> {request.time}</p>}
+        {request.place && <p><strong>Birth Place:</strong> {request.place}</p>}
+        {request.phone && <p><strong>Phone:</strong> {request.phone}</p>}
+        {request.email && <p><strong>Email:</strong> {request.email}</p>}
+      </div>
+      <div className="card-actions">
+        {!request.viewed ? (
+          <button className="action-btn view" onClick={() => onView(request.id)}>Mark As Viewed</button>
+        ) : (
+          <span className="status-text viewed">✅ Viewed</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
+
 const AppointmentCard = ({ appointment, onAccept, onReject }) => {
-    const status = appointment.status?.toUpperCase();
-    return (
-        <div className={`request-card ${status !== 'PENDING' ? 'viewed' : 'new'}`}>
-            <div className="card-header">
-                {/* Event name is now the main title */}
-                <h3>{appointment.event?.name}</h3>
-            </div>
-            <div className="card-body">
-                 {/* Requester name is now in the body */}
-                <p><strong>Requester:</strong> {appointment.name}</p>
-                <p><strong>Date:</strong> {appointment.date}</p>
-                <p><strong>Time:</strong> {appointment.start} - {appointment.end}</p>
-                <p><strong>Address:</strong> {appointment.address}</p>
-            </div>
-            <div className="card-actions">
-                {status === 'PENDING' ? (
-                    <>
-                        <button className="action-btn reject" onClick={() => onReject(appointment.id)}>Reject</button>
-                        <button className="action-btn accept" onClick={() => onAccept(appointment.id)}>Accept</button>
-                    </>
-                ) : status === 'ACCEPTED' ? (
-                    <span className="status-text accepted">✅ Accepted</span>
-                ) : (
-                    <span className="status-text rejected">❌ Rejected</span>
-                )}
-            </div>
-        </div>
-    );
+  const status = appointment.status?.toUpperCase();
+  return (
+    <div className={`request-card ${status !== 'PENDING' ? 'viewed' : 'new'}`}>
+      <div className="card-header"> <h3>{appointment.eventName || 'Event Booking'}</h3> </div>
+      <div className="card-body">
+        <p><strong>Requester:</strong> {appointment.name}</p>
+        <p><strong>Date:</strong> {appointment.date}</p>
+        <p><strong>Time:</strong> {appointment.start} - {appointment.end}</p>
+        <p><strong>Address:</strong> {appointment.address}</p>
+      </div>
+      <div className="card-actions">
+        {status === 'PENDING' ? (
+          <>
+            <button className="action-btn reject" onClick={() => onReject(appointment.id)}>Reject</button>
+            <button className="action-btn accept" onClick={() => onAccept(appointment.id)}>Accept</button>
+          </>
+        ) : status === 'ACCEPTED' ? (
+          <span className="status-text accepted">✅ Accepted</span>
+        ) : (
+          <span className="status-text rejected">❌ Rejected</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default MuhurtamRequests;

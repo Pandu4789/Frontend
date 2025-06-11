@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios';
 import { format } from 'date-fns';
-import { FaCheckCircle, FaExclamationCircle, FaQuestionCircle, FaUser, FaCalendarAlt, FaClock, FaArrowLeft } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle, FaQuestionCircle, FaUser, FaCalendarAlt, FaClock, FaArrowLeft, FaTimesCircle} from 'react-icons/fa';
 import './YourBookings.css';
 
 const API_BASE = "http://localhost:8080";
@@ -15,7 +15,7 @@ const BookingCard = ({ booking }) => {
         if (statusLower.includes('accepted') || statusLower.includes('confirmed')) return <FaCheckCircle className="status-icon confirmed" />;
         if (statusLower.includes('pending')) return <FaExclamationCircle className="status-icon pending" />;
         if (statusLower.includes('viewed')) return <FaCheckCircle className="status-icon viewed" />;
-        if (statusLower.includes('rejected') || statusLower.includes('cancelled')) return <FaExclamationCircle className="status-icon rejected" />;
+        if (statusLower.includes('rejected') || statusLower.includes('cancelled')) return <FaTimesCircle className="status-icon rejected" />;
         return <FaQuestionCircle className="status-icon default" />;
     };
 

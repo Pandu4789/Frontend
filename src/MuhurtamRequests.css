@@ -128,21 +128,28 @@
     border-top: 1px solid var(--border-color); /* Use a line separator */
 }
 .action-btn {
-    padding: 10px 24px; /* Increased padding for more space */
-    font-size: 0.95rem;
+    padding: 10px 39px;       /* More space inside the button */
+    font-size: 1.05rem;       /* Larger text */
     font-weight: 600;
-    border-radius: 6px;
+    border-radius: 8px;       /* Slightly rounder */
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
 }
+
 .action-btn.view {
-    background-color: transparent;
+    background-color: lightskyblue;
     color: var(--theme-primary);
     border: 1px solid var(--theme-primary);
+    padding: 8px 16px;         /* Adjust padding to fit content */
+    width: fit-content;        /* Makes the button fit the text */
+    white-space: nowrap;       /* Prevents text from wrapping */
+    font-weight: 600;
+    font-size: 0.95rem;
 }
+
 .action-btn.accept {
-    background-color: var(--theme-heading);
+    background-color: green;
     color: white;
 }
 .action-btn.reject {
