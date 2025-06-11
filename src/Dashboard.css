@@ -343,11 +343,26 @@ body {
     font-weight: 700;
     color: white;
 }
+.status-confirmed { 
+    background-color: #28a745; /* A clear green for confirmed */
+}
 .status-upcoming { 
     background-color: #007bff; /* A clear blue for upcoming */
 }
 .status-inprogress { 
     background-color: var(--theme-accent); /* Thematic terracotta/orange-brown */
+}
+.status-rejected { 
+    background-color: var(--danger-color); /* A clear red for rejected */
+}
+.status-accepted {
+    background-color: #28a745; /* Teal for accepted */
+}
+.pd-status-badge.viewed {
+    background-color: #6c757d; /* Grey for viewed */
+}
+.pd-status-badge.pending {
+    background-color: #fd7e14; /* Orange for pending */
 }
 
 /* --- Action Button Styles --- */
@@ -543,7 +558,13 @@ body {
     background-color: var(--hover-bg);
     border-radius: 8px;
 }
+/* Filename: Dashboard.css - ADD THESE STYLES TO THE BOTTOM */
 
+.no-data-icon {
+   font: 2em sans-serif;
+    color: #28a745; /* A pleasant green color */
+
+} 
 /* --- Responsive Adjustments --- */
 @media (max-width: 1024px) {
     .pd-list-container,
