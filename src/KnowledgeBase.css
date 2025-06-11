@@ -1,0 +1,24 @@
+.kb-view-container { width: 100%; }
+.kb-view-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--theme-accent); padding-bottom: 12px; margin-bottom: 20px; }
+.kb-view-header .pd-section-title { border: none; padding: 0; margin: 0; text-align: left; }
+.kb-view-actions { display: flex; gap: 10px; }
+.kb-btn { padding: 8px 20px; font-size: 1rem; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
+.kb-btn.primary { background-color: var(--theme-heading); color: white; }
+.kb-btn.secondary { background-color: #f1f1f1; color: var(--text-dark); border: 1px solid #ccc; }
+
+/* --- Toolbar / Menu Bar --- */
+.kb-menu-bar { display: flex; flex-wrap: wrap; gap: 10px; background-color: var(--hover-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+.menu-group { display: flex; align-items: center; gap: 2px; padding-right: 10px; border-right: 1px solid var(--border-color); }
+.menu-group:last-child { border-right: none; }
+.kb-menu-bar button { background: transparent; border: none; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 4px; }
+.kb-menu-bar button:hover { background-color: #e9e9e9; }
+.kb-menu-bar button.is-active { background-color: var(--theme-heading); color: white; }
+.kb-menu-bar input[type="color"] { width: 28px; height: 28px; border: none; background: none; padding: 0; cursor: pointer; }
+
+/* --- Editor Content Area --- */
+.editor-content-wrapper { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px 20px; transition: all 0.2s ease; }
+.editor-content-wrapper.is-editing { border-color: var(--theme-heading); box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.15); }
+.ProseMirror { min-height: 300px; outline: none; line-height: 1.6; }
+.ProseMirror p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; color: #adb5bd; pointer-events: none; height: 0; }
+.ProseMirror h1, .ProseMirror h2, .ProseMirror h3 { color: var(--theme-primary); }
+.ProseMirror blockquote { border-left: 3px solid var(--border-color); margin-left: 1rem; padding-left: 1rem; color: var(--text-light); font-style: italic; }
