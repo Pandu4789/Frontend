@@ -6,7 +6,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
     FaCalendarCheck, FaCalendarAlt, FaBell, FaDownload, FaPlus, FaStickyNote,
-    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, FaCalendarDay, FaBullhorn
+    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, FaCalendarDay, FaBullhorn,FaUser, FaPhone , FaCalendarDay as FaEventIcon
 } from 'react-icons/fa';
 
 import './Dashboard.css';
@@ -34,39 +34,79 @@ const parsePrice = (priceString) => {
     }
     return 0;
 };
+ const PendingRequestCard = ({ item, onNavigate }) => {
+    return (
+        <div className="pd-card booking-card request-card-link" onClick={onNavigate}>
+            <div className="pd-card-header">
+                <h4 className="pd-card-title">{item.requestType}</h4>
+            </div>
+            <div className="pd-card-body">
+                <p><strong>Event:</strong> {item.poojaType}</p>
+                <p><strong>Customer:</strong> {item.customerName}</p>
+                <p><strong>Contact:</strong> {item.contact}</p>
+            </div>
+            <div className="pd-card-actions">
+                <span className="view-details-prompt">
+                    View Details <FaChevronRight />
+                </span>
+            </div>
+        </div>
+    );
+};
 
-// --- A local sub-component, as it's used for multiple views ---
-const BookingsListView = ({ title, items, type, emptyMessage }) => {
+const PendingRequestsView = ({ items, onNavigate, emptyMessage }) => {
     if (!items || items.length === 0) {
-        if (emptyMessage) {
-            return ( <div className="pd-no-data"> <FaCalendarCheck className="no-data-icon" /> <p>{emptyMessage}</p> </div> );
-        }
-        return <div className="pd-no-data"><p>No {type} found for this view.</p></div>;
+        return (
+            <div className="pd-no-data">
+                <FaCalendarCheck className="no-data-icon" />
+                <p>{emptyMessage}</p>
+            </div>
+        );
+    }
+    return (
+        <div>
+            <h3 className="pd-section-title">Pending Requests</h3>
+            <div className="pd-list-container">
+                {items.map(item => (
+                    <PendingRequestCard key={item.id} item={item} onNavigate={onNavigate} />
+                ))}
+            </div>
+        </div>
+    );
+};
+// --- A local sub-component, as it's used for multiple views ---
+const BookingsListView = ({ title, items, type, emptyMessage, onCardClick }) => {
+    if (!items || items.length === 0) {
+        if (emptyMessage) { return ( <div className="pd-no-data"> <FaCalendarCheck className="no-data-icon" /> <p>{emptyMessage}</p> </div> ); }
+        return <div className="pd-no-data"><p>No {type}s for this view.</p></div>;
     }
     return (
         <div>
             <h3 className="pd-section-title">{title}</h3>
             <div className="pd-list-container">
-                {items.map(item => (
-                    <div key={item.id} className="pd-card booking-card">
-                        <div className="pd-card-header">
-                            <h4 className="pd-card-title">{item.poojaType}</h4>
-                            {item.status && <span className={`pd-status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>}
-                        </div>
-                        <div className="pd-card-body">
-                            <p><strong>Customer:</strong> {item.customerName}</p>
-                            <p><strong>Contact:</strong> {item.contact}</p>
-                            <p><strong>Date:</strong> {item.date ? format(parseISO(item.date), 'EEE, MMM d, yyyy') : 'N/A'}</p>
-                            {item.startTime && <p><strong>Time:</strong> {item.startTime}</p>}
-                        </div>
-                        {type === 'request' && (
-                            <div className="pd-card-actions">
-                                <button className="pd-action-btn primary">Accept</button>
-                                <button className="pd-action-btn danger">Decline</button>
+                {items.map(item => {
+                    const cardContent = (
+                        <div key={item.id} className={`pd-card booking-card ${type === 'request' ? 'request-card-link' : ''}`}>
+                            <div className="pd-card-header">
+                                <h4 className="pd-card-title">{item.poojaType}</h4>
+                                {item.status && <span className={`pd-status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>}
                             </div>
-                        )}
-                    </div>
-                ))}
+                            <div className="pd-card-body">
+                                <p><strong>Customer:</strong> {item.customerName}</p>
+                                <p><strong>Contact:</strong> {item.contact}</p>
+                                <p><strong>Date:</strong> {item.date ? format(parseISO(item.date), 'EEE, MMM d, yyyy') : 'N/A'}</p>
+                                {item.startTime && <p><strong>Time:</strong> {item.startTime}</p>}
+                            </div>
+                            {/* REMOVED: Action buttons are no longer displayed here */}
+                        </div>
+                    );
+
+                    // If it's a request, wrap the card in a clickable div for navigation
+                    if (type === 'request') {
+                        return <div key={item.id} onClick={onCardClick}>{cardContent}</div>
+                    }
+                    return cardContent;
+                })}
             </div>
         </div>
     );
@@ -146,8 +186,19 @@ const PriestDashboard = () => {
     
     const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(startOfDay(parseISO(b.date)), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
-    const pendingRequests = useMemo(() => muhurtamRequests.filter(r => !r.viewed), [muhurtamRequests]);
     
+    const pendingRequests = useMemo(() => {
+        const pendingBookings = allAppointments
+            .filter(b => b.status?.toUpperCase() === 'PENDING')
+            .map(b => ({ ...b, id: `booking-${b.id}`, requestType: 'Appointment Request' }));
+
+        const pendingMuhurtams = muhurtamRequests
+            .filter(r => !r.viewed)
+            .map(r => ({ ...r, id: `muhurtam-${r.id}`, poojaType: r.eventName || 'Muhurtam Inquiry', customerName: r.name, contact: r.phone, startTime: r.time, status: 'Pending', requestType: 'Muhurtam Request' }));
+
+        return [...pendingBookings, ...pendingMuhurtams];
+    }, [allAppointments, muhurtamRequests]);
+
     const handleSaveAppointment = () => { /* Logic to refresh data would go here */ };
     const handleActionClick = (viewId) => { setActiveView(viewId); setTimeout(() => { contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100); };
     const handleDownloadReport = () => { /* ... CSV download logic ... */ };
@@ -165,7 +216,7 @@ const PriestDashboard = () => {
         switch (activeView) {
             case 'today': return <BookingsListView title="Today's Appointments" items={todayBookings} type="booking"/>;
             case 'upcoming': return <BookingsListView title="Upcoming Appointments" items={upcomingBookings} type="booking"/>;
-            case 'pending': return <BookingsListView title="Pending Muhurtam Requests" items={pendingRequests.map(r => ({id: `muhurtam-${r.id}`, poojaType: r.eventName || 'Muhurtam Inquiry', customerName: r.name, contact: r.phone, date: r.date, startTime: r.time, status: 'Pending'}))} type="request" emptyMessage="Hooray! You've viewed all requests." />;
+            case 'pending': return <PendingRequestsView items={pendingRequests} onNavigate={() => navigate('/requests')} emptyMessage="Hooray! You've viewed all requests." />;
             case 'stats': return <PoojaStatsPage stats={stats} onExport={handleDownloadReport} />;
             case 'events': return <ManageEventsPage events={templeEvents} onAddEvent={(newEvent) => setTempleEvents(prev => [{...newEvent, id: Date.now(), date: new Date(newEvent.date).toISOString()}, ...prev])}/>;
             case 'knowledge': return <KnowledgeBase content={knowledgeBaseContent} onSave={setKnowledgeBaseContent} />;

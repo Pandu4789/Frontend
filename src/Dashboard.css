@@ -564,7 +564,52 @@ body {
    font: 2em sans-serif;
     color: #28a745; /* A pleasant green color */
 
-} 
+}
+
+.request-card-link {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.request-card-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-color: var(--theme-heading);
+}
+
+/* Add this to Dashboard.css */
+
+.request-card-link {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.request-card-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-color: var(--theme-heading);
+}
+
+.pd-card-body .detail-icon {
+    color: var(--theme-heading);
+    margin-right: 10px;
+    font-size: 1rem;
+}
+
+.pd-card-actions {
+    text-align: right;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.view-details-prompt {
+    font-weight: 600;
+    color: var(--theme-heading);
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
 /* --- Responsive Adjustments --- */
 @media (max-width: 1024px) {
     .pd-list-container,
