@@ -16,14 +16,11 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const navigate = useNavigate();
    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+   const [availableDates, setAvailableDates] = useState(new Set());
+
 
   // Current date is June 9, 2025. Available dates are in the future.
-  const dummyPriestAvailability = {
-    '2025-06-10': ['10:00', '11:00', '16:00'],
-    '2025-06-11': ['09:00', '12:00', '13:00', '17:00'],
-    '2025-06-14': ['10:00', '11:00'],
-    '2025-06-15': ['12:00', '13:00', '14:00'],
-  };
+
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -49,18 +46,72 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     };
     fetchEvents();
   }, []);
+useEffect(() => {
+  console.log("Priest object:", priest);
+  if (priest?.id) {
+    console.log("Priest ID:", priest.id);
+  } else {
+    console.warn("No priest ID found.");
+  }
+}, [priest]);
+useEffect(() => {
+  if (appointmentDate) {
+    fetchAvailability(appointmentDate);
+  }
+}, [appointmentDate]);
 
-  useEffect(() => {
-    if (appointmentDate) {
-      const dateString = appointmentDate.toISOString().split('T')[0];
-      const slots = dummyPriestAvailability[dateString] || [];
-      setAvailableTimeSlots(slots);
-      setSelectedStartTime('');
-    } else {
-      setAvailableTimeSlots([]);
-      setSelectedStartTime('');
+const fetchAvailability = async (date) => {
+  if (!priest || !priest.id) return;
+
+  const formattedDate = date.toISOString().split('T')[0];
+  try {
+const response = await axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${formattedDate}`, {
+      params: {
+        priestId: priest.id,
+        date: formattedDate,
+      }
+    });
+    // Assume backend returns: ["10:00", "11:00", "13:00"]
+    setAvailableTimeSlots(response.data || []);
+  } catch (error) {
+    console.error('Failed to fetch availability:', error);
+    toast.error('Could not load available time slots.');
+    setAvailableTimeSlots([]);
+            fetchAvailability(date); // ← This triggers availability check for selected date
+
+  }
+};
+useEffect(() => {
+  if (!priest || !priest.id) return;
+
+  const preloadAvailableDates = async () => {
+    try {
+      const today = new Date();
+      const daysToCheck = 30; // or however many days you want to check
+      const datesSet = new Set();
+
+      for (let i = 0; i < daysToCheck; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        const dateString = date.toISOString().split('T')[0];
+
+        const res = await axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${dateString}`);
+        if ((res.data || []).length > 0) {
+          datesSet.add(dateString);
+        }
+      }
+
+      setAvailableDates(datesSet);
+    } catch (error) {
+      console.error("Error preloading availability:", error);
     }
-  }, [appointmentDate]);
+  };
+
+  preloadAvailableDates();
+  // eslint-disable-next-line
+}, [priest]);
+
+
 
   const handleBookNow = async () => {
     if (!customer.name || !customer.phone || !customer.addressLine1 || !customer.city || !customer.state || !customer.zip) {
@@ -121,10 +172,11 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     }
   };
 
-  const isDateAvailable = (date) => {
-    const dateString = date.toISOString().split('T')[0];
-    return dummyPriestAvailability[dateString] && dummyPriestAvailability[dateString].length > 0;
-  };
+ const isDateAvailable = (date) => {
+  const dateString = date.toISOString().split('T')[0];
+  return availableDates.has(dateString);
+};
+
 
   return (
     <div className="modal-overlay">
