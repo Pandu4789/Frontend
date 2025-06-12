@@ -364,7 +364,62 @@ body {
 .pd-status-badge.pending {
     background-color: #fd7e14; /* Orange for pending */
 }
+/* Filename: Dashboard.css - ADD THESE STYLES TO THE BOTTOM */
 
+/* --- Styles for Public Profile Link Section --- */
+.public-profile-section p {
+    margin-top: -5px;
+    margin-bottom: 20px;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+.profile-link-container {
+    display: flex;
+    gap: 10px;
+}
+
+.profile-url-input {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--hover-bg);
+    color: var(--text-dark);
+    font-family: monospace;
+}
+
+.copy-link-btn, .view-profile-btn {
+    padding: 0 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none; /* For the <a> tag */
+    transition: all 0.2s ease;
+}
+
+.copy-link-btn {
+    background-color: var(--theme-heading);
+    color: white;
+}
+.copy-link-btn:hover {
+    opacity: 0.9;
+}
+
+.view-profile-btn {
+    background-color: #f1f1f1;
+    color: var(--text-dark);
+    border: 1px solid #ccc;
+}
+.view-profile-btn:hover {
+    background-color: #e1e1e1;
+}
 /* --- Action Button Styles --- */
 .pd-card-actions {
     padding: 15px 0 0 0;

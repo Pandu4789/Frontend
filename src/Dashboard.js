@@ -6,7 +6,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
     FaCalendarCheck, FaCalendarAlt, FaBell, FaDownload, FaPlus, FaStickyNote,
-    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, FaCalendarDay, FaBullhorn,FaUser, FaPhone , FaCalendarDay as FaEventIcon
+    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, FaCalendarDay, FaBullhorn,FaCopy,FaEye, FaPhone , FaCalendarDay as FaEventIcon
 } from 'react-icons/fa';
 
 import './Dashboard.css';
@@ -122,6 +122,7 @@ const PriestDashboard = () => {
     const [userName, setUserName] = useState("Priest");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [copySuccess, setCopySuccess] = useState('');
 
     // Data State
     const [allAppointments, setAllAppointments] = useState([]);
@@ -129,6 +130,8 @@ const PriestDashboard = () => {
     const [stats, setStats] = useState({ week: 0, month: 0, year: 0, topPoojas: [], weekEarnings: 0, monthEarnings: 0, yearEarnings: 0 });
     const [templeEvents, setTempleEvents] = useState([]);
     const [knowledgeBaseContent, setKnowledgeBaseContent] = useState(`<h2>My Personal Notes</h2><p>Start writing here...</p>`);
+const priestId = localStorage.getItem('userId');
+     const profileUrl = `http://localhost:3000/priests/${priestId}`;
 
     useEffect(() => {
         const priestId = localStorage.getItem('userId');
@@ -211,7 +214,15 @@ const PriestDashboard = () => {
         { id: 'events', name: 'Temple Events', icon: <FaBullhorn />, description: 'Announce or manage temple events.'},
         { id: 'knowledge', name: 'Knowledge Base', icon: <FaStickyNote />, description: 'Access your personal notes & mantras.' },
     ];
-    
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(profileUrl).then(() => {
+            setCopySuccess('Copied!');
+            setTimeout(() => setCopySuccess(''), 2000); // Reset after 2 seconds
+        }, () => {
+            setCopySuccess('Failed to copy');
+        });
+    };
+
     const renderActiveView = () => {
         switch (activeView) {
             case 'today': return <BookingsListView title="Today's Appointments" items={todayBookings} type="booking"/>;
@@ -239,7 +250,19 @@ const PriestDashboard = () => {
                     <div className="stat-item"><FaBell className="stat-icon orange" /><span><CountUp end={pendingRequests.length} /> Pending Requests</span></div>
                 </div>
             </section>
-            
+            <section className="pd-dashboard-section public-profile-section">
+                <h2 className="pd-section-title">Your Public Profile Link</h2>
+                <p>Share this link with customers so they can view your profile and book your services directly.</p>
+                <div className="profile-link-container">
+                    <input type="text" value={profileUrl} readOnly className="profile-url-input" />
+                    <button onClick={handleCopyLink} className="copy-link-btn">
+                        <FaCopy /> {copySuccess || 'Copy Link'}
+                    </button>
+                    <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="view-profile-btn">
+                        <FaEye /> View Profile
+                    </a>
+                </div>
+            </section>
             <section className="pd-dashboard-section cta-section">
                 <h2 className="pd-section-title">Manage Your Schedule</h2>
                 <p>Control your availability to receive new bookings or add appointments manually.</p>
