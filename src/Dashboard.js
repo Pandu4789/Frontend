@@ -240,7 +240,7 @@ const priestId = localStorage.getItem('userId');
     return (
         <div className="priest-dashboard-container">
             <ToastContainer position="bottom-right" autoClose={3000} theme="colored"/>
-            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={handleSaveAppointment} priest={{ firstName: userName }} />}
+            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={handleSaveAppointment} priest={{ id: localStorage.getItem('userId'), firstName: userName }} />}
             
             <section className="pd-dashboard-section user-summary-section">
                 <h2 className="user-greeting">Namaste, {userName}!</h2>
