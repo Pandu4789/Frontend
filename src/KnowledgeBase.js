@@ -15,7 +15,39 @@ import './KnowledgeBase.css';
 const API_BASE = "http://localhost:8080";
 
 // --- The Toolbar Component (no changes needed) ---
-const MenuBar = ({ editor }) => { /* ... existing JSX ... */ };
+// --- The Toolbar Component ---
+const MenuBar = ({ editor }) => {
+  if (!editor) return null;
+  return (
+    <div className="kb-menu-bar">
+        <div className="menu-group">
+            <button onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'is-active' : ''} title="Bold"><FaBold /></button>
+            <button onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'is-active' : ''} title="Italic"><FaItalic /></button>
+            <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive('underline') ? 'is-active' : ''} title="Underline"><FaUnderline /></button>
+            <button onClick={() => editor.chain().focus().toggleStrike().run()} className={editor.isActive('strike') ? 'is-active' : ''} title="Strikethrough"><FaStrikethrough /></button>
+            <input type="color" onInput={event => editor.chain().focus().setColor(event.target.value).run()} value={editor.getAttributes('textStyle').color || '#000000'} title="Text Color" />
+        </div>
+        <div className="menu-group">
+            <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''} title="Heading"><FaHeading /> H2</button>
+            <button onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''} title="Heading"><FaHeading /> H3</button>
+        </div>
+        <div className="menu-group">
+            <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive('bulletList') ? 'is-active' : ''} title="Bullet List"><FaListUl /></button>
+            <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive('orderedList') ? 'is-active' : ''} title="Numbered List"><FaListOl /></button>
+            <button onClick={() => editor.chain().focus().toggleBlockquote().run()} className={editor.isActive('blockquote') ? 'is-active' : ''} title="Blockquote"><FaQuoteLeft /></button>
+        </div>
+        <div className="menu-group">
+            <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={editor.isActive({ textAlign: 'left' }) ? 'is-active' : ''} title="Align Left"><FaAlignLeft /></button>
+            <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={editor.isActive({ textAlign: 'center' }) ? 'is-active' : ''} title="Align Center"><FaAlignCenter /></button>
+            <button onClick={() => editor.chain().focus().setTextAlign('right').run()} className={editor.isActive({ textAlign: 'right' }) ? 'is-active' : ''} title="Align Right"><FaAlignRight /></button>
+        </div>
+        <div className="menu-group">
+            <button onClick={() => editor.chain().focus().undo().run()} title="Undo"><FaUndo /></button>
+            <button onClick={() => editor.chain().focus().redo().run()} title="Redo"><FaRedo /></button>
+        </div>
+    </div>
+  );
+};
 
 // --- Main View Component ---
 const KnowledgeBase = ({ content, onSave, priestId }) => { // The onSave prop from dashboard is still used for instant UI update
