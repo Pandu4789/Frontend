@@ -1,0 +1,125 @@
+/* Filename: Events.css - REDESIGNED */
+
+/* --- Masonry Layout --- */
+.masonry-layout {
+    column-count: 3;
+    column-gap: 20px;
+    padding: 10px;
+}
+
+.event-card {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.event-image {
+    width: 100%;
+    height: 200px; /* Give images a consistent height */
+    object-fit: cover; /* Ensure images cover the area without distortion */
+    display: block;
+}
+
+.event-card-content {
+    padding: 20px;
+}
+
+.event-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    margin: 0 0 15px 0;
+}
+
+.event-details {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.event-details p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.event-details svg {
+    color: var(--theme-heading);
+}
+
+.event-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.no-events-message {
+    text-align: center;
+    grid-column: 1 / -1; /* Make it span all columns if grid is used */
+    font-size: 1.1rem;
+    color: var(--text-light);
+}
+
+/* --- Skeleton Loader Styles --- */
+.skeleton-card {
+    background-color: #fff;
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.skeleton-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 2000px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-content {
+    padding: 20px;
+}
+
+.skeleton-line {
+    height: 16px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 2000px 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line.short { width: 40%; }
+.skeleton-line.medium { width: 80%; }
+.skeleton-line.long { width: 100%; }
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .masonry-layout {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .masonry-layout {
+        column-count: 1;
+    }
+}

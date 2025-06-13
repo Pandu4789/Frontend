@@ -1,99 +1,90 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "./Events.css";
+// Filename: DashboardEventsDisplay.js (or Events.js) - REDESIGNED
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { format, parseISO } from 'date-fns';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
+import './DashboardEventsDisplay.css'; // The new stylesheet
 
-// Skeleton loader component for events
+const API_BASE = "http://localhost:8080";
+
+// --- Skeleton Loader Component ---
 const EventCardSkeleton = () => (
-  <div className="event-card skeleton-card">
-    <div className="skeleton-image"></div>
-    <div className="skeleton-content">
-      <div className="skeleton-line short"></div>
-      <div className="skeleton-line long"></div>
-      <div className="skeleton-line medium"></div>
+    <div className="event-card skeleton-card">
+        <div className="skeleton-image"></div>
+        <div className="event-card-content">
+            <div className="skeleton-line short"></div>
+            <div className="skeleton-line long"></div>
+            <div className="skeleton-line medium"></div>
+        </div>
     </div>
-  </div>
 );
 
-const DashboardEventsDisplay = ({ isLoading }) => { // Accept isLoading prop
-  const [events, setEvents] = useState([]);
+// --- Main Display Component ---
+const DashboardEventsDisplay = () => {
+    const [events, setEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  const cardColor = "#FDEBC1";
+    useEffect(() => {
+        // Fetch events when the component mounts
+        const fetchEvents = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${API_BASE}/api/dashboard/events`);
+                // Sort events by date, most recent first
+                const sortedEvents = (response.data || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+                setEvents(sortedEvents);
+            } catch (err) {
+                console.error("Failed to fetch events", err);
+            } finally {
+                // Add a small delay to show the skeleton loader, improving perceived performance
+                setTimeout(() => setIsLoading(false), 500);
+            }
+        };
 
-  const getRandomHeight = () => {
-    const heights = [250, 280, 300, 350];
-    return heights[Math.floor(Math.random() * heights.length)];
-  };
+        fetchEvents();
+    }, []);
 
-  const fetchEvents = () => {
-    // Only fetch if not already loading, or if explicitly requested to load
-    if (!isLoading) return; // If parent says it's not loading, don't fetch (though parent sets it to true initially)
-    
-    // Simulate API call delay for loading state
-    setTimeout(() => {
-      axios
-        .get("http://localhost:8080/api/dashboard/events")
-        .then((res) => {
-          const data = res.data.map((event) => ({
-            ...event,
-            backgroundColor: cardColor,
-            height: getRandomHeight(),
-          }));
-          setEvents(data);
-          // Assuming the parent Dashboard component will handle setting isLoading to false
-          // if this component is just for display, the parent will control loading.
-          // If this component solely manages its own loading, uncomment setIsEventsLoading(false) here.
-        })
-        .catch((err) => console.error("Failed to fetch events", err));
-    }, 1000); // Simulate network delay
-  };
-
-  useEffect(() => {
-    // Only fetch if isLoading is true (controlled by parent)
+    // Show 6 skeleton cards while loading
     if (isLoading) {
-      fetchEvents();
-    }
-  }, [isLoading]); // Re-run when isLoading changes
-
-  // Determine how many skeleton cards to show (e.g., 6)
-  const skeletonCount = 6;
-
-  return (
-    <div className="masonry">
-      {isLoading ? (
-        // Show skeletons when loading
-        Array.from({ length: skeletonCount }).map((_, index) => (
-          <EventCardSkeleton key={index} />
-        ))
-      ) : events.length > 0 ? (
-        // Show actual events when loaded and available
-        events.map((event) => (
-          <div
-            key={event.id}
-            className="event-card"
-            style={{
-              backgroundColor: event.backgroundColor,
-              height: event.height,
-            }}
-          >
-            {event.photoUrl && (
-              <img
-                src={event.photoUrl}
-                alt={event.title}
-                className="event-image"
-              />
-            )}
-            <div className="event-content">
-              <h3 className="event-title">{event.title}</h3>
-              <p className="event-description">{event.description}</p>
+        return (
+            <div className="masonry-layout">
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <EventCardSkeleton key={index} />
+                ))}
             </div>
-          </div>
-        ))
-      ) : (
-        // Handle no events found after loading
-        <p className="no-events-message">No events found today.</p>
-      )}
-    </div>
-  );
+        );
+    }
+    
+    return (
+        <div className="masonry-layout">
+            {events.length > 0 ? (
+                events.map((event) => (
+                    <div key={event.id} className="event-card">
+                        {/* Use event.imageUrl from your backend entity */}
+                        <img
+                            src={event.imageUrl || 'https://via.placeholder.com/400x250/FDF5E6/B74F2F?text=Temple+Event'}
+                            alt={event.title}
+                            className="event-image"
+                        />
+                        <div className="event-card-content">
+                            <h3 className="event-title">{event.title}</h3>
+                            
+                            {/* Display all the rich details with icons */}
+                            <div className="event-details">
+                                <p><FaCalendarAlt /> {event.date ? format(parseISO(event.date), 'MMMM d, yyyy') : 'Date TBD'}</p>
+                                <p><FaClock /> {event.eventTime || 'Time TBD'}</p>
+                                <p><FaMapMarkerAlt /> {event.location || 'Location TBD'}</p>
+                            </div>
+
+                            <p className="event-description">{event.description}</p>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <p className="no-events-message">No upcoming events have been announced.</p>
+            )}
+        </div>
+    );
 };
 
 export default DashboardEventsDisplay;
