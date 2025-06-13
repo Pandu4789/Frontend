@@ -79,21 +79,46 @@ const Dashboard = () => {
 
   // Simulate fetching user data and event loading
   useEffect(() => {
-    // In a real app, fetch user name from auth context or API
-    const storedFirstName = localStorage.getItem('firstName') || 'Devotee';
-    setFirstName(storedFirstName);
+  const storedFirstName = localStorage.getItem('firstName') || 'Devotee';
+  setFirstName(storedFirstName);
 
-    // Simulate loading for events (it will eventually become false in DashboardEventsDisplay)
-    const timer = setTimeout(() => {
-      setIsEventsLoading(false);
-    }, 1500); // Simulate 1.5 seconds loading time for events
+  const timer = setTimeout(() => {
+    setIsEventsLoading(false);
+  }, 1500);
 
-    // Simulate fetching user's upcoming bookings/orders
-    setUpcomingBookings(0); // Example value
-    setRecentOrders(0); // Example value
+  // Fetch all bookings
+          const userId = localStorage.getItem('userId');
 
-    return () => clearTimeout(timer);
-  }, []);
+  const bookings = `http://localhost:8080/api/booking/customer/${userId}`;
+
+  fetch(bookings)
+    .then(res => res.json())
+    .then(data => {
+
+      const now = new Date();
+
+      const upcoming = data.filter(booking => {
+        let bookingDate = new Date(booking.date || booking.datetime); // Adjust if needed
+
+        // If date string isn't parsable, skip
+        if (isNaN(bookingDate.getTime())) return false;
+
+        return bookingDate >= now;
+      });
+
+      setUpcomingBookings(upcoming.length);
+    })
+    .catch(err => {
+      console.error('Error fetching bookings:', err);
+      setUpcomingBookings(0);
+    });
+
+  // Set recent orders to 0 if unused
+  setRecentOrders(0);
+
+  return () => clearTimeout(timer);
+}, []);
+
 
   return (
     <div className="dashboard-container">
