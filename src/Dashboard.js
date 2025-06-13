@@ -44,6 +44,7 @@ const parsePrice = (priceString) => {
                 <p><strong>Event:</strong> {item.poojaType}</p>
                 <p><strong>Customer:</strong> {item.customerName}</p>
                 <p><strong>Contact:</strong> {item.contact}</p>
+                <p><strong>Notes:</strong> {item.note}</p>
             </div>
             <div className="pd-card-actions">
                 <span className="view-details-prompt">
@@ -96,6 +97,7 @@ const BookingsListView = ({ title, items, type, emptyMessage, onCardClick }) => 
                                 <p><strong>Contact:</strong> {item.contact}</p>
                                 <p><strong>Date:</strong> {item.date ? format(parseISO(item.date), 'EEE, MMM d, yyyy') : 'N/A'}</p>
                                 {item.startTime && <p><strong>Time:</strong> {item.startTime}</p>}
+                                <p><strong>Notes:</strong>{item.note}</p>
                             </div>
                             {/* REMOVED: Action buttons are no longer displayed here */}
                         </div>
@@ -156,8 +158,8 @@ const priestId = localStorage.getItem('userId');
 
                 const priceMap = (eventsRes.data || []).reduce((map, event) => { map[event.name] = event.estimatedPrice; return map; }, {});
                 
-                const customerBookings = (bookingRes.data || []).map(b => ({ id: `booking-${b.id}`, poojaType: b.eventName || 'Event Booking', customerName: b.name, contact: b.phone, date: b.date, startTime: b.start, status: b.status, price: parsePrice(priceMap[b.eventName]) }));
-                const manualAppointments = (manualAppointmentRes.data || []).map(m => ({ id: `manual-${m.id}`, poojaType: m.eventName || m.events || 'Manual Entry', customerName: m.name, contact: m.phone, date: m.start ? format(parseISO(m.start), 'yyyy-MM-dd') : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed', price: parsePrice(priceMap[m.eventName || m.events]) }));
+                const customerBookings = (bookingRes.data || []).map(b => ({ id: `booking-${b.id}`, poojaType: b.eventName || 'Event Booking', customerName: b.name, contact: b.phone, date: b.date, startTime: b.start, status: b.status,note:b.note, price: parsePrice(priceMap[b.eventName]) }));
+                const manualAppointments = (manualAppointmentRes.data || []).map(m => ({ id: `manual-${m.id}`, poojaType: m.eventName || m.events || 'Manual Entry', customerName: m.name, contact: m.phone, date: m.start ? format(parseISO(m.start), 'yyyy-MM-dd') : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null,note:m.note, status: 'Confirmed', price: parsePrice(priceMap[m.eventName || m.events]) }));
                 
                 const combinedAppointments = [...customerBookings, ...manualAppointments];
                 setAllAppointments(combinedAppointments);

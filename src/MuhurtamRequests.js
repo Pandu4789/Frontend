@@ -171,6 +171,8 @@ const MuhurtamCard = ({ request, onView, getEventName }) => {
         {request.place && <p><strong>Birth Place:</strong> {request.place}</p>}
         {request.phone && <p><strong>Phone:</strong> {request.phone}</p>}
         {request.email && <p><strong>Email:</strong> {request.email}</p>}
+        {request.note && <p><strong>Notes:</strong> {request.note}</p>}
+
       </div>
       <div className="card-actions">
         {!request.viewed ? (
@@ -194,6 +196,8 @@ const AppointmentCard = ({ appointment, onAccept, onReject }) => {
         <p><strong>Date:</strong> {appointment.date}</p>
         <p><strong>Time:</strong> {appointment.start} - {appointment.end}</p>
         <p><strong>Address:</strong> {appointment.address}</p>
+        <p><strong>Notes:</strong> {appointment.note}</p>
+
       </div>
       <div className="card-actions">
         {status === 'PENDING' ? (

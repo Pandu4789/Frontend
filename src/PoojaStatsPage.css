@@ -9,10 +9,11 @@
     margin-bottom: 30px;
     padding-bottom: 15px;
     border-bottom: 2px solid var(--theme-accent);
+    justify-content: center;
 }
 .stats-page-title {
     font-size: 2rem;
-    color: var(--theme-primary);
+    color: var(--theme-heading);
     margin: 0;
     text-align: center;
 }

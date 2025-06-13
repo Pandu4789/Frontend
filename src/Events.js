@@ -102,11 +102,11 @@ const Dashboard = () => {
         <h2 className="user-greeting">Namaste, {userName}!</h2>
         <div className="user-stats">
           <div className="stat-item">
-            <FaCalendarAlt className="stat-icon" />
+            <FaCalendarAlt className="stat-icon blue" />
             <span>{upcomingBookings} Upcoming Bookings</span>
           </div>
           <div className="stat-item">
-            <FaBell className="stat-icon" />
+            <FaBell className="stat-icon orange" />
             <span>{recentOrders} Recent Orders</span>
           </div>
         </div>
