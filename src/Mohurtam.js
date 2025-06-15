@@ -1,116 +1,120 @@
-// Filename: Mohurtam.js - UPDATED with new page structure
-import React, { useState, useEffect } from "react";
-import "./Mohurtam.css";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import { FaPlus, FaTrash, FaSearch } from 'react-icons/fa';
+import './Mohurtam.css';
+
+const API_BASE = "http://localhost:8080";
 
 const Mohurtam = () => {
-  const [selectedNakshatrams, setSelectedNakshatrams] = useState([""]);
-  const [availableNakshatrams, setAvailableNakshatrams] = useState([]);
-  const [resultNakshatrams, setResultNakshatrams] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [nakshatramList, setNakshatramList] = useState([]);
+  const [selectedNakshatrams, setSelectedNakshatrams] = useState(['']);
+  const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
-  const [schedules, setSchedules] = useState({});
 
   useEffect(() => {
-    // This is a placeholder. Replace with your actual API endpoint.
-    const nakshatramList = ["Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"];
-    setAvailableNakshatrams(nakshatramList);
-    setLoading(false);
+    const staticNakshatrams = [
+      "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
+      "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
+      "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula",
+      "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha",
+      "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
+    ];
+    setNakshatramList(staticNakshatrams);
   }, []);
 
-  const handleDropdownChange = (e, index) => {
+  const handleNakshatramChange = (e, index) => {
     const updated = [...selectedNakshatrams];
     updated[index] = e.target.value;
     setSelectedNakshatrams(updated);
-    setSubmitted(false); // Reset on change
   };
 
-  const addDropdown = () => setSelectedNakshatrams((prev) => [...prev, ""]);
-  const removeDropdown = (index) => setSelectedNakshatrams((prev) => prev.filter((_, i) => i !== index));
+  const addNakshatram = () => setSelectedNakshatrams(prev => [...prev, '']);
+  const removeNakshatram = (index) => setSelectedNakshatrams(prev => prev.filter((_, i) => i !== index));
 
-  const computeNextNakshatrams = (selected) => {
-    const idx = availableNakshatrams.indexOf(selected);
-    if (idx === -1) return [];
-    const offsets = [1, 3, 5, 7, 8, 10, 12, 14, 16, 17, 19, 21, 23, 25, 26];
-    return offsets.map((offset) => availableNakshatrams[(idx + offset) % availableNakshatrams.length]).filter(Boolean);
-  };
-
-  const findCommonNakshatrams = () => {
-    const validSelections = selectedNakshatrams.filter(s => s !== "");
-    if (validSelections.length === 0) return [];
-    const allComputed = validSelections.map(computeNextNakshatrams);
-    const intersection = allComputed.reduce((acc, curr) => acc.filter((x) => curr.includes(x)));
-    return [...new Set(intersection)]; // Ensure unique results
-  };
-
-  const handleFind = () => {
+  const handleFind = async () => {
+    if (selectedNakshatrams.some(n => n === '')) {
+      toast.error("Please select a Nakshatram for each person.");
+      return;
+    }
+    setIsLoading(true);
     setSubmitted(true);
-    setResultNakshatrams([]); // Clear previous results
-    const common = findCommonNakshatrams();
-    setResultNakshatrams(common);
-    // In a real app, you would fetch schedule data here for the 'common' nakshatrams
+    setResults([]);
+    try {
+      const payload = { nakshatrams: selectedNakshatrams.filter(n => n) };
+      const response = await axios.post(`${API_BASE}/api/muhurtam/find`, payload);
+      setResults(response.data);
+    } catch (error) {
+      toast.error("Failed to find Muhurtams. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  if (loading) return <div className="loading-message">Loading Nakshatram data...</div>;
-  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="mohurtam-page-container">
-      <h1 className="mohurtam-page-title">Mohurtam Finder</h1>
-      <p className="mohurtam-page-description">
-        Select one or more birth Nakshatrams (for the bride, groom, etc.) to find common auspicious dates for important events.
-      </p>
-      
+      <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
+      <h1 className="mohurtam-page-title">Auspicious Time Finder (Muhurtam)</h1>
+      <p className="mohurtam-page-description">Enter the birth stars (Nakshatram) of the key individuals to find a list of astrologically favorable dates and times.</p>
+
       <div className="mohurtam-input-section">
-        <h2 className="input-section-title">Select Birth Nakshatrams</h2>
-        {selectedNakshatrams.map((value, index) => (
-          <div key={index} className="dropdown-group">
-            <select
-              value={value}
-              onChange={(e) => handleDropdownChange(e, index)}
-              className="nakshatram-dropdown"
-            >
-              <option value="">-- Choose Nakshatram --</option>
-              {availableNakshatrams.map((option, idx) => (
-                <option key={idx} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            {selectedNakshatrams.length > 1 && (
-                <button className="action-btn remove" onClick={() => removeDropdown(index)}>−</button>
-            )}
-          </div>
-        ))}
-        <div className="add-action-container">
-            <button className="action-btn add" onClick={addDropdown}>+ Add Person</button>
+        <div className="form-group">
+          <label>Enter Birth Nakshatrams</label>
+          {selectedNakshatrams.map((value, index) => (
+            <div key={index} className="dropdown-group">
+              <select
+                className="themed-select"
+                value={value}
+                onChange={(e) => handleNakshatramChange(e, index)}
+              >
+                <option value="">-- Person {index + 1} Nakshatram --</option>
+                {nakshatramList.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+              {selectedNakshatrams.length > 1 && (
+                <button className="action-btn remove" onClick={() => removeNakshatram(index)}><FaTrash /></button>
+              )}
+            </div>
+          ))}
+          <button className="action-btn add" onClick={addNakshatram}><FaPlus /> Add another person</button>
         </div>
-        <button
-          onClick={handleFind}
-          disabled={selectedNakshatrams.some((val) => val === "")}
-          className="find-btn"
-        >
-          Find Common Mohurtams
+        <button onClick={handleFind} disabled={isLoading} className="find-btn">
+          <FaSearch /> {isLoading ? 'Searching...' : 'Find Auspicious Dates'}
         </button>
       </div>
-  
-      {submitted && (
+
+      {submitted && !isLoading && (
         <div className="results-section">
-          <h2 className="results-section-title">Auspicious Results</h2>
-          {resultNakshatrams.length > 0 ? (
+          <h2 className="results-section-title">Recommended Muhurtams</h2>
+          {results.length > 0 ? (
             <div className="results-grid">
-              {resultNakshatrams.map((name, idx) => (
-                <div key={idx} className="result-card">
-                  <h4>{name}</h4>
-                  <p className="mock-data-notice">
-                    No available dates and times for '{name}' .
-                  </p>
+              {results.map((res, idx) => (
+                <div key={idx} className={`result-card status-${(res.status || '').toLowerCase()}`}>
+                  <h4>{new Date(res.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}</h4>
+                  <p><strong>Tithi:</strong> {res.tithi}</p>
+                  <p><strong>Nakshatram:</strong> {res.nakshatram}</p>
+                  <div className="auspicious-times">
+                    <strong>{res.status === 'orange' ? 'Suggested Time:' : 'Muhurtam Time:'}</strong>
+                    <p className="muhurtam-time-display">
+                      {res.status === 'orange' && res.alternateTime ? res.alternateTime : res.muhurtamTime}
+                    </p>
+                    <p className="muhurtam-lagna-display"><strong>Lagna:</strong> {res.muhurtamLagna}</p>
+                    <p className="muhurtam-notes-disply"><strong>Notes:</strong> {res.notes}</p>
+                    <p className="muhurtam-status-disply"><strong>Status:</strong> {res.status}</p>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="no-match-message">
-              <p>No common Mohurtam found for the selected Nakshatrams.</p>
+              <p>No suitable dates found in the next 90 days. Please try a different combination.</p>
             </div>
           )}
         </div>
