@@ -2,127 +2,113 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FaUserTie, FaPrayingHands, FaUtensils, FaChevronLeft, FaChevronRight,
-  FaBell, FaCalendarAlt, FaHandsHelping // New icons for enhancements
+  FaBell, FaCalendarAlt, FaHandsHelping
 } from 'react-icons/fa';
 import DashboardEventsDisplay from './DashboardEventsDisplay';
 import './CustomerDashboard.css';
 
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+
+// This helper function already handles null/undefined input gracefully
+const formatTime12Hour = (timeString) => {
+  if (!timeString || typeof timeString !== 'string') return null; // Return null instead of 'N/A'
+  const [hours, minutes] = timeString.split(':');
+  const h = parseInt(hours, 10);
+  const m = parseInt(minutes, 10);
+  if (isNaN(h) || isNaN(m)) return null;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const formattedHours = h % 12 || 12;
+  return `${String(formattedHours).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [userName, setFirstName] = useState("Devotee"); // State for user name
-  const [upcomingBookings, setUpcomingBookings] = useState(0); // State for dummy data
-  const [recentOrders, setRecentOrders] = useState(0); // State for dummy data
-  const [isEventsLoading, setIsEventsLoading] = useState(true); // State for events loading
+  const [userName, setFirstName] = useState("Devotee");
+  const [upcomingBookings, setUpcomingBookings] = useState(0);
+  const [recentOrders, setRecentOrders] = useState(0);
+  const [isEventsLoading, setIsEventsLoading] = useState(true);
 
-  // Dummy data for prominent display images
+  // State for the timings widget
+  const [todayTimings, setTodayTimings] = useState(null);
+  const [isTimingsLoading, setIsTimingsLoading] = useState(true);
+
+  // (Dummy data and other functions remain the same)
   const displayImages = [
     { id: 1, src: 'https://via.placeholder.com/1200x400/F0D55C/4A2000?text=Grand+Temple+Celebration', alt: 'Grand Temple Celebration' },
     { id: 2, src: 'https://via.placeholder.com/1200x400/4A2000/FFD700?text=Peaceful+Morning+Pooja', alt: 'Peaceful Morning Pooja' },
     { id: 3, src: 'https://via.placeholder.com/1200x400/B74F2F/FDF5E6?text=Community+Gathering', alt: 'Community Gathering' },
-    { id: 4, src: 'https://via.placeholder.com/1200x400/FFD700/B74F2F?text=Divine+Offerings', alt: 'Divine Offerings' },
   ];
-
   const quickLinks = [
-    {
-      id: 'book-priest',
-      name: 'Book Priest',
-      icon: <FaUserTie />,
-      description: 'Find and book a priest for your ceremonies.',
-      path: '/book-priest',
-      isProminent: true, // Mark this for potential special styling if needed
-    },
-    {
-      id: 'pooja-items',
-      name: 'Pooja Guide',
-      icon: <FaPrayingHands />,
-      description: 'Explore pooja items and its significance.',
-      path: '/pooja-items',
-    },
-    {
-      id: 'prasadam',
-      name: 'Food',
-      icon: <FaUtensils />,
-      description: 'Get blessed food delivered to your home.',
-      path: '/prasadam',
-    },
-    {
-      id: 'your-bookings',
-      name: 'Your Bookings',
-      icon: <FaHandsHelping />,
-      description: 'View all your active bookings and requests.',
-      path: '/your-bookings',
-    }
+    { id: 'book-priest', name: 'Book Priest', icon: <FaUserTie />, description: 'Find a priest for your ceremonies.', path: '/book-priest', isProminent: true },
+    { id: 'pooja-items', name: 'Pooja Guide', icon: <FaPrayingHands />, description: 'Explore pooja items and significance.', path: '/pooja-items' },
+    { id: 'prasadam', name: 'Food', icon: <FaUtensils />, description: 'Get blessed food delivered.', path: '/prasadam' },
+    { id: 'your-bookings', name: 'Your Bookings', icon: <FaHandsHelping />, description: 'View all your active bookings.', path: '/your-bookings' }
   ];
+  const handleQuickLinkClick = (path) => navigate(path);
+  const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % displayImages.length);
+  const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
 
-  const handleQuickLinkClick = (path) => {
-    navigate(path);
-  };
-
-  const nextImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      (prevIndex + 1) % displayImages.length
-    );
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      (prevIndex - 1 + displayImages.length) % displayImages.length
-    );
-  };
-
-  // Auto-swipe functionality for carousel
   useEffect(() => {
-    const autoSwipe = setInterval(nextImage, 5000); // Change image every 5 seconds
-    return () => clearInterval(autoSwipe);
-  }, [displayImages.length]);
+    // Auto-swipe for carousel
+    const autoSwipe = setInterval(nextImage, 5000);
+    const storedFirstName = localStorage.getItem('firstName') || 'Devotee';
+    setFirstName(storedFirstName);
+    const timer = setTimeout(() => setIsEventsLoading(false), 1500);
 
-  // Simulate fetching user data and event loading
-  useEffect(() => {
-  const storedFirstName = localStorage.getItem('firstName') || 'Devotee';
-  setFirstName(storedFirstName);
+    // Fetch user bookings
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      fetch(`${API_BASE}/api/booking/customer/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const upcoming = data.filter(booking => new Date(booking.date || booking.datetime) >= new Date());
+          setUpcomingBookings(upcoming.length);
+        })
+        .catch(err => setUpcomingBookings(0));
+    }
+    setRecentOrders(0);
 
-  const timer = setTimeout(() => {
-    setIsEventsLoading(false);
-  }, 1500);
+    // --- UPDATED: More resilient data fetching for timings ---
+    const todayStr = new Date().toISOString().split('T')[0];
+    const sunApiUrl = `${API_BASE}/api/sun?date=${todayStr}`;
+    const dailyTimesApiUrl = `${API_BASE}/api/daily-times/by-date/${todayStr}`;
 
-  // Fetch all bookings
-          const userId = localStorage.getItem('userId');
+    // Fetch each piece of data, resolving to null if the fetch fails
+    const fetchSun = fetch(sunApiUrl).then(res => res.ok ? res.json() : null).catch(() => null);
+    const fetchDaily = fetch(dailyTimesApiUrl).then(res => res.ok ? res.json() : null).catch(() => null);
 
-  const bookings = `http://localhost:8080/api/booking/customer/${userId}`;
-
-  fetch(bookings)
-    .then(res => res.json())
-    .then(data => {
-
-      const now = new Date();
-
-      const upcoming = data.filter(booking => {
-        let bookingDate = new Date(booking.date || booking.datetime); // Adjust if needed
-
-        // If date string isn't parsable, skip
-        if (isNaN(bookingDate.getTime())) return false;
-
-        return bookingDate >= now;
-      });
-
-      setUpcomingBookings(upcoming.length);
+    Promise.all([fetchSun, fetchDaily])
+    .then(([sunData, dailyTimesData]) => {
+      // Create the final object, even if parts are missing
+      const timings = {
+        sunrise: sunData?.sunrise, // Optional chaining in case sunData is null
+        sunset: sunData?.sunset,
+        rahukalamStart: dailyTimesData?.rahukalamStart,
+        rahukalamEnd: dailyTimesData?.rahukalamEnd,
+        yamagandamStart: dailyTimesData?.yamagandamStart,
+        yamagandamEnd: dailyTimesData?.yamagandamEnd,
+      };
+      setTodayTimings(timings);
     })
-    .catch(err => {
-      console.error('Error fetching bookings:', err);
-      setUpcomingBookings(0);
+    .catch(error => {
+      // This will only catch critical programming errors, not failed fetches
+      console.error("A critical error occurred fetching timings:", error);
+      setTodayTimings({}); // Set an empty object to render N/A for all fields
+    })
+    .finally(() => {
+      setIsTimingsLoading(false);
     });
 
-  // Set recent orders to 0 if unused
-  setRecentOrders(0);
-
-  return () => clearTimeout(timer);
-}, []);
-
+    return () => {
+      clearInterval(autoSwipe);
+      clearTimeout(timer);
+    };
+  }, []);
 
   return (
     <div className="dashboard-container">
-      {/* Personalized Greeting & Summary */}
+      {/* (Other sections like Greeting, Carousel, CTA, Quick Links remain the same) */}
       <section className="dashboard-section user-summary-section">
         <h2 className="user-greeting">Namaste, {userName}!</h2>
         <div className="user-stats">
@@ -137,67 +123,62 @@ const Dashboard = () => {
         </div>
       </section>
 
-      {/* Image Carousel Section */}
       <section className="dashboard-section image-carousel-section">
         <div className="carousel-inner" style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}>
           {displayImages.map((image) => (
-            <div key={image.id} className="carousel-item">
-              <img src={image.src} alt={image.alt} />
-            </div>
+            <div key={image.id} className="carousel-item"><img src={image.src} alt={image.alt} /></div>
           ))}
         </div>
-        <button className="carousel-button prev" onClick={prevImage}>
-          <FaChevronLeft />
-        </button>
-        <button className="carousel-button next" onClick={nextImage}>
-          <FaChevronRight />
-        </button>
+        <button className="carousel-button prev" onClick={prevImage}><FaChevronLeft /></button>
+        <button className="carousel-button next" onClick={nextImage}><FaChevronRight /></button>
         <div className="carousel-dots">
           {displayImages.map((_, index) => (
-            <span
-              key={index}
-              className={`dot ${index === currentImageIndex ? 'active' : ''}`}
-              onClick={() => setCurrentImageIndex(index)}
-            ></span>
+            <span key={index} className={`dot ${index === currentImageIndex ? 'active' : ''}`} onClick={() => setCurrentImageIndex(index)}></span>
           ))}
         </div>
       </section>
 
-      {/* Today's Muhurtham / Auspicious Timings Widget */}
+      {/* --- UPDATED: Today's Timings Widget with Graceful Fallbacks --- */}
       <section className="dashboard-section muhurtham-widget">
-        <h2 className="section-title"><FaCalendarAlt /> Today's Auspicious Timings</h2>
+        <h2 className="section-title"><FaCalendarAlt /> Today's Timings</h2>
         <div className="muhurtham-details">
-          <p><strong>Sunrise:</strong> 06:00 AM</p>
-          <p><strong>Sunset:</strong> 07:00 PM</p>
-          <p><strong>Rahu Kalam:</strong> 03:00 PM - 04:30 PM</p>
-          <p><strong>Auspicious Time:</strong> 09:15 AM - 10:45 AM</p>
-          <p className="muhurtham-note">*(Timings are approximate and subject to location.)</p>
+          {isTimingsLoading ? (
+            <p>Loading timings...</p>
+          ) : (
+            <>
+              <p><strong>Sunrise:</strong> {formatTime12Hour(todayTimings?.sunrise) ?? 'N/A'}</p>
+              <p><strong>Sunset:</strong> {formatTime12Hour(todayTimings?.sunset) ?? 'N/A'}</p>
+              <p>
+                <strong>Rahu Kalam:</strong> 
+                {(todayTimings?.rahukalamStart && todayTimings?.rahukalamEnd) 
+                  ? `${formatTime12Hour(todayTimings.rahukalamStart)} - ${formatTime12Hour(todayTimings.rahukalamEnd)}` 
+                  : 'N/A'}
+              </p>
+              <p>
+                <strong>Yamagandam:</strong> 
+                {(todayTimings?.yamagandamStart && todayTimings?.yamagandamEnd)
+                  ? `${formatTime12Hour(todayTimings.yamagandamStart)} - ${formatTime12Hour(todayTimings.yamagandamEnd)}`
+                  : 'N/A'}
+              </p>
+              <p className="muhurtham-note">*(Timings are approximate for your location.)</p>
+            </>
+          )}
         </div>
       </section>
-
-      {/* Prominent Call-to-Action for Booking */}
+      
+      {/* (Other sections like CTA, Quick Links, Events Display remain the same) */}
       <section className="dashboard-section book-priest-cta">
         <h2 className="section-title"><FaUserTie /> Need a Priest?</h2>
         <p>Book a qualified priest for your next pooja or ceremony with ease.</p>
-        <button
-          className="cta-button"
-          onClick={() => handleQuickLinkClick('/book-priest')}
-        >
-          Book a Priest Now
-          <FaChevronRight className="cta-button-icon" />
+        <button className="cta-button" onClick={() => handleQuickLinkClick('/book-priest')}>
+          Book a Priest Now <FaChevronRight className="cta-button-icon" />
         </button>
       </section>
-
-      {/* Quick Links Section */}
       <section className="dashboard-section quick-links-section">
         <h2 className="section-title">Quick Actions</h2>
         <div className="quick-links-grid">
           {quickLinks.map((link) => (
-            <div
-              key={link.id}
-              className={`quick-link-card ${link.isProminent ? 'prominent-link' : ''}`}
-              onClick={() => handleQuickLinkClick(link.path)}
-            >
+            <div key={link.id} className={`quick-link-card ${link.isProminent ? 'prominent-link' : ''}`} onClick={() => handleQuickLinkClick(link.path)}>
               <div className="quick-link-icon">{link.icon}</div>
               <h3 className="quick-link-title">{link.name}</h3>
               <p className="quick-link-description">{link.description}</p>
@@ -205,11 +186,9 @@ const Dashboard = () => {
           ))}
         </div>
       </section>
-
-      {/* Daily Events Display */}
       <section className="dashboard-section events-display-section">
         <h2 className="section-title">Daily Events</h2>
-        <DashboardEventsDisplay isLoading={isEventsLoading} /> {/* Pass loading state */}
+        <DashboardEventsDisplay isLoading={isEventsLoading} />
       </section>
     </div>
   );
