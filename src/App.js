@@ -31,6 +31,7 @@ import Footer from './Footer';
 import ProtectedRoute from './ProtectedRoute';
 import AvailabilityManager from './AvailabilityManager';
 import YourBookings from './YourBookings'; // Import the new page component
+import PriestGallery from './PriestGallery';
 
 function MainApp({
   isAuthenticated,
@@ -116,7 +117,6 @@ function MainApp({
                 </ProtectedRoute>
               }
             />
-
             <Route
   path="/availability-manager"
   element={
@@ -125,7 +125,14 @@ function MainApp({
     </ProtectedRoute>
   }
 />
-
+<Route
+path="/priest-gallery"
+element={
+  <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+    <PriestGallery></PriestGallery>
+  </ProtectedRoute>
+}
+/>
             {/* Admin Routes */}
             <Route
               path="/adminpage"

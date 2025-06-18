@@ -1,0 +1,219 @@
+
+.gallery-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.gallery-title {
+    text-align: center;
+    color: var(--primaryDark);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--theme-heading);
+    margin: 0 0 5px 0;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin: 0 0 20px 0;
+}
+
+/* --- Upload Form Styles --- */
+.upload-form .form-content {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.file-upload-area #file-upload {
+    display: none; /* Hide the default ugly file input */
+}
+
+.file-drop-zone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 180px;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    overflow: hidden;
+}
+.file-drop-zone:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--theme-heading);
+}
+
+.upload-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+.upload-prompt svg {
+    font-size: 2.5rem;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-fields input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.upload-button {
+    padding: 12px 20px;
+    background-color: var(--theme-heading);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.upload-button:hover {
+    opacity: 0.9;
+}
+.upload-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- Feedback Messages --- */
+.status-text {
+    margin-top: 15px;
+    font-weight: 500;
+    text-align: center;
+}
+.error-text { color: var(--danger-color); }
+.success-text { color: var(--success-color); }
+
+/* --- Image Grid Styles --- */
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.image-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+.image-card:hover .image-overlay {
+    opacity: 1;
+}
+
+.image-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 10px;
+    color: white;
+}
+
+.caption {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.delete-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+.delete-btn:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.no-images-text {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-light);
+    padding: 40px 0;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .upload-form .form-content {
+        grid-template-columns: 1fr;
+    }
+    .file-upload-area {
+        width: 100%;
+        height: 200px;
+    }
+}

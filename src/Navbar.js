@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
-import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck } from 'react-icons/fa';
+import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck,FaRegImages } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 
 const colors = {
@@ -178,6 +178,16 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
         >
           <FaClipboardList style={styles.menuIcon} />
           <span>Requests</span>
+        </div>
+        <div
+          onClick={() => goToPage('/priest-gallery')}
+          style={{
+            ...styles.menuItem,
+            ...(location.pathname === '/priest-gallery' ? styles.activeMenuItem : {}),
+          }}
+        >
+          <FaRegImages style={styles.menuIcon} />
+          <span>Gallery</span>
         </div>
         </div>
       {/* Profile Dropdown */}
