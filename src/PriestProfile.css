@@ -256,7 +256,34 @@
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
+/* --- Add these styles to PriestProfile.css --- */
 
+/* This makes all buttons in the actions section have a similar base style */
+.pp-profile-actions button {
+  flex-grow: 1; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Style for the new horoscope button */
+.pp-horoscope-btn {
+  background: var(--mainContentBg); /* A lighter, secondary color from your theme */
+  color: var(--priestButtonBg); /* Text color matches the primary button's background */
+  border: 2px solid var(--priestButtonBg);
+}
+
+.pp-horoscope-btn:hover {
+  background: var(--hover-bg); /* Use a hover color from your theme */
+  transform: translateY(-2px);
+}
 /* --- Responsive Adjustments --- */
 @media (max-width: 992px) { /* Adjust breakpoint for larger tablets/smaller desktops */
   .pp-profile-wrapper {
