@@ -5,22 +5,29 @@ import {
 } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 import './CustomerNavbar.css';
+import ConfirmationModal from './ConfirmationModal';
 
 const CustomerNavbar = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();  // to get current path
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const dropdownRef = useRef(null);
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
   const profileIconRef = useRef(null);
 
   const handleLogout = () => {
-    onLogout();
+    setShowLogoutConfirm(false); // Close the modal first
+    if (onLogout) onLogout();   // Call the passed onLogout prop
     navigate('/login');
-    setIsSidebarOpen(false);
+  };
+
+  const handleLogoutClick = () => {
     setDropdownOpen(false);
+    setIsSidebarOpen(false);
+    setShowLogoutConfirm(true);
   };
 
   const handleNavigation = (path) => {
@@ -42,7 +49,7 @@ const CustomerNavbar = ({ onLogout }) => {
     setDropdownOpen(false);
     if (action === 'profile') navigate('/profile');
     else if (action === 'help') navigate('/help');
-    else if (action === 'logout') handleLogout();
+
   };
 
   useEffect(() => {
@@ -132,7 +139,7 @@ const CustomerNavbar = ({ onLogout }) => {
                 <div onClick={() => handleDropdownClick('help')} className="dropdown-item">
                   <MdOutlineHelpOutline style={{ marginRight: '8px' }} /> Help
                 </div>
-                <div onClick={() => handleDropdownClick('logout')} className="dropdown-item logout">
+                 <div onClick={handleLogoutClick} className="dropdown-item logout">
                   <MdOutlineLogout style={{ marginRight: '8px' }} /> Logout
                 </div>
               </div>
@@ -173,12 +180,20 @@ const CustomerNavbar = ({ onLogout }) => {
             <MdOutlineHelpOutline className="icon" />
             <span>Help</span>
           </div>
-          <div className="sidebar-item logout" onClick={handleLogout}>
+         <div className="sidebar-item logout" onClick={handleLogoutClick}>
             <MdOutlineLogout className="icon" />
             <span>Logout</span>
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to log out?"
+        confirmText="Logout"
+      />
     </>
   );
 };

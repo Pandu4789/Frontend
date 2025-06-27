@@ -4,7 +4,7 @@ import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
 import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck,FaRegImages } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
-
+import ConfirmationModal from './ConfirmationModal';
 const colors = {
   primaryDark: '#4A2000',
   textLight: '#FFD700',
@@ -32,7 +32,7 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-
+const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const firstName = localStorage.getItem('firstName') || 'Priest';
  const priestId = localStorage.getItem('userId') || 'ID123';
   const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePicture'));
@@ -54,9 +54,21 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
   };
 
   const handleLogout = () => {
-    onLogout();
-    navigate('/login');
-    setProfileOpen(false);
+        // This is your actual logout logic
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('firstName');
+        setShowLogoutConfirm(false); // Close the modal
+        navigate('/login'); // Redirect to login page
+        setProfileOpen(false);
+        window.location.reload(); // Force a refresh to update state everywhere
+    };
+
+
+      const handleLogoutClick = () => {
+    setProfileOpen(false);      // First, close the profile dropdown
+    setShowLogoutConfirm(true); // Then, open the confirmation modal
   };
 
   useEffect(() => {
@@ -206,12 +218,23 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
             <MdOutlineHelpOutline style={styles.dropdownItemIcon} />
             Help
           </div>
-          <div onClick={handleLogout} style={{ ...styles.dropdownItem, ...styles.logoutItem }}>
-            <MdOutlineLogout style={styles.dropdownItemIcon} />
-            Logout
+          <div onClick={handleLogoutClick} 
+  style={{ ...styles.dropdownItem, ...styles.logoutItem }}
+>
+  <MdOutlineLogout style={styles.dropdownItemIcon} />
+  Logout
           </div>
         </div>
       )}
+      <ConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to log out?"
+        confirmText="Logout"
+        cancelText="Cancel"
+      />
     </>
   );
 };

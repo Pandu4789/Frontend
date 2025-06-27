@@ -1,0 +1,98 @@
+/* Filename: src/components/ConfirmationModal.css - FINAL VERSION */
+
+/* Main overlay for the modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* The modal content box */
+.confirmation-modal-content {
+  background-color: var(--card-bg, #FFFFFF);
+  padding: 24px 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 450px;
+  border-top: 5px solid var(--theme-heading, #B74F2F);
+  text-align: center;
+}
+
+.confirmation-modal-header {
+  margin-bottom: 20px;
+}
+
+.confirmation-icon {
+  font-size: 3rem;
+  color: var(--warning-color, #fd7e14); /* Uses the orange status color */
+}
+
+.confirmation-title {
+  margin: 10px 0;
+  font-size: 1.5rem;
+  color: var(--primary-dark, #4A2000);
+}
+
+.confirmation-modal-body p {
+  font-size: 1.1rem;
+  color: var(--text-light, #6c757d);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.confirmation-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+
+/* --- ✅ NEW: Full Button Styles Added --- */
+
+/* Base style for all buttons inside the modal */
+.confirmation-modal-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.confirmation-modal-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Secondary "Cancel" Button */
+.confirmation-modal-actions .btn-secondary {
+  background-color: var(--card-bg, #FFFFFF);
+  color: var(--text-light, #6c757d);
+  border: 2px solid var(--border-color, #EEE0CB);
+}
+.confirmation-modal-actions .btn-secondary:hover {
+  background-color: var(--hover-bg, #FEF3E4);
+  border-color: var(--text-light, #6c757d);
+}
+
+/* Danger "Logout" Button */
+.confirmation-modal-actions .btn-danger {
+  background-color: var(--danger-color, #c0392b);
+  color: white;
+}
+.confirmation-modal-actions .btn-danger:hover {
+  opacity: 0.85;
+}
