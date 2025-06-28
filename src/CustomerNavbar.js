@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle, FaBars, FaOm
+  FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle, FaBars, FaOm,FaLock
 } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 import './CustomerNavbar.css';
 import ConfirmationModal from './ConfirmationModal';
+import ChangePasswordModal from './ChangePasswordModal';
 
 const CustomerNavbar = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const CustomerNavbar = ({ onLogout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+
   const dropdownRef = useRef(null);
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
@@ -49,6 +52,8 @@ const CustomerNavbar = ({ onLogout }) => {
     setDropdownOpen(false);
     if (action === 'profile') navigate('/profile');
     else if (action === 'help') navigate('/help');
+    else if (action === 'changePassword') setShowChangePasswordModal(true);
+
 
   };
 
@@ -136,6 +141,9 @@ const CustomerNavbar = ({ onLogout }) => {
                 <div onClick={() => handleDropdownClick('profile')} className="dropdown-item">
                   <FaUserCircle style={{ marginRight: '8px' }} /> Profile
                 </div>
+                <div onClick={() => handleDropdownClick('changePassword')} className="dropdown-item">
+                  <FaLock style={{ marginRight: '8px' }} /> Change Password
+                </div>
                 <div onClick={() => handleDropdownClick('help')} className="dropdown-item">
                   <MdOutlineHelpOutline style={{ marginRight: '8px' }} /> Help
                 </div>
@@ -193,6 +201,10 @@ const CustomerNavbar = ({ onLogout }) => {
         title="Confirm Logout"
         message="Are you sure you want to log out?"
         confirmText="Logout"
+      />
+      <ChangePasswordModal 
+        isOpen={showChangePasswordModal} 
+        onClose={() => setShowChangePasswordModal(false)} 
       />
     </>
   );

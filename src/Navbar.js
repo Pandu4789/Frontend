@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
-import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck,FaRegImages } from 'react-icons/fa';
+import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck,FaRegImages,FaLock } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 import ConfirmationModal from './ConfirmationModal';
+import ChangePasswordModal from './ChangePasswordModal'; 
+
 const colors = {
   primaryDark: '#4A2000',
   textLight: '#FFD700',
@@ -29,6 +31,7 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
   const profileIconRef = useRef(null);
   const sideMenuRef = useRef(null);
   const hamburgerIconRef = useRef(null);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false); 
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -214,6 +217,13 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
             <FaUserCircle style={styles.dropdownItemIcon} />
             Profile
           </div>
+          <div 
+            onClick={() => { setProfileOpen(false); setShowChangePasswordModal(true); }} 
+            style={styles.dropdownItem}
+          >
+            <FaLock style={styles.dropdownItemIcon} />
+            Change Password
+          </div>
           <div onClick={() => goToPage('/Help')} style={styles.dropdownItem}>
             <MdOutlineHelpOutline style={styles.dropdownItemIcon} />
             Help
@@ -234,6 +244,10 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
         message="Are you sure you want to log out?"
         confirmText="Logout"
         cancelText="Cancel"
+      />
+      <ChangePasswordModal 
+        isOpen={showChangePasswordModal} 
+        onClose={() => setShowChangePasswordModal(false)} 
       />
     </>
   );
