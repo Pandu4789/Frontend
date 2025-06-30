@@ -1,5 +1,13 @@
+// Filename: AdminPage.js - FULLY REDESIGNED
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  FaUserTie, FaUsers, FaCalendarCheck, FaPray, FaCalendarAlt,
+  FaQuestionCircle, FaShoppingBasket, FaGift, FaBookOpen, FaClock, FaSignOutAlt, FaOm
+} from 'react-icons/fa';
+import './AdminPage.css'; // We will create this new CSS file
+
+// Import your management components
 import ManagePriests from "./admin/ManagePriests";
 import ManageCustomers from "./admin/ManageCustomers";
 import ManageAppointments from "./admin/ManageAppointments";
@@ -13,10 +21,26 @@ import ManageDailyTimes from "./admin/ManageDailyTimes";
 import ManagePanchangam from "./admin/ManagePanchangam";
 
 const AdminPage = () => {
-  const [activeTab, setActiveTab] = useState("priests");
+  // ✅ Navigation is now driven by this array, making it easy to add/remove items
+  const navLinks = [
+    { key: "priests", label: "Priests", icon: <FaUserTie /> },
+    { key: "customers", label: "Customers", icon: <FaUsers /> },
+    { key: "appointments", label: "Appointments", icon: <FaCalendarCheck /> },
+    { key: "muhurtam", label: "Muhurtam Req.", icon: <FaQuestionCircle /> },
+    { key: "pooja", label: "Pooja Services", icon: <FaPray /> },
+    { key: "events", label: "Events", icon: <FaCalendarAlt /> },
+    { key: "festivals", label: "Festivals", icon: <FaGift /> },
+    { key: "prasadam", label: "Prasadam", icon: <FaShoppingBasket /> },
+    { key: "pooja-items", label: "Pooja Items", icon: <FaShoppingBasket /> },
+    { key: "panchangam", label: "Panchangam", icon: <FaBookOpen /> },
+    { key: "daily-times", label: "Daily Times", icon: <FaClock /> },
+  ];
+
+  const [activeTab, setActiveTab] = useState(navLinks[0].key); // Default to the first item
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    // We can add a confirmation modal here later if needed
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/login");
@@ -24,135 +48,62 @@ const AdminPage = () => {
 
   const renderComponent = () => {
     switch (activeTab) {
-      case "priests":
-        return <ManagePriests />;
-      case "customers":
-        return <ManageCustomers />;
-      case "appointments":
-        return <ManageAppointments />;
-      case "pooja":
-        return <ManagePoojaServices />;
-      case "events":
-        return <ManageEvents />;
-      case "muhurtam":
-        return <ManageMuhurtamRequests />;
-      case "pooja-items":
-        return <ManagePoojaItems />;
-      case "prasadam":
-        return <ManagePrasadams />;
-      case "festivals":
-        return <ManageFestivals />;
-      case "daily-times":
-        return <ManageDailyTimes />;
-      case "panchangam":
-        return <ManagePanchangam />;
-      default:
-        return <ManagePriests />;
+      case "priests": return <ManagePriests />;
+      case "customers": return <ManageCustomers />;
+      case "appointments": return <ManageAppointments />;
+      case "pooja": return <ManagePoojaServices />;
+      case "events": return <ManageEvents />;
+      case "muhurtam": return <ManageMuhurtamRequests />;
+      case "pooja-items": return <ManagePoojaItems />;
+      case "prasadam": return <ManagePrasadams />;
+      case "festivals": return <ManageFestivals />;
+      case "daily-times": return <ManageDailyTimes />;
+      case "panchangam": return <ManagePanchangam />;
+      default: return <ManagePriests />;
     }
   };
+  
+  // Find the label of the current active tab to display in the header
+  const activeLabel = navLinks.find(link => link.key === activeTab)?.label || 'Dashboard';
 
   return (
-    <>
-      <style>{`
-        .admin-container {
-          min-height: 100vh;
-          background-color: #f9fafb;
-          padding: 24px;
-          font-family: Arial, sans-serif;
-        }
-        .header {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .admin-heading {
-          color: black;
-          font-size: 32px;
-          font-weight: bold;
-          margin: 0;
-        }
-        .button-group {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-          position: relative;
-          padding-right: 140px; /* reserve space for logout button */
-          margin-bottom: 24px;
-          justify-content: flex-start;
-        }
-        .btn {
-          color: black;
-          font-size: 18px;
-          font-weight: 600;
-          padding: 10px 22px;
-          border: 1px solid #ccc;
-          border-radius: 6px;
-          background-color: white;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-          user-select: none;
-          white-space: nowrap;
-        }
-        .btn:hover {
-          background-color: #e5e7eb; /* light gray */
-        }
-        .btn:focus {
-          outline: 2px solid #2563eb; /* blue outline for accessibility */
-          outline-offset: 2px;
-        }
-        .btn-logout {
-          position: absolute;
-          top: 0;
-          right: 0;
-          background-color: #dc2626;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 6px;
-          font-weight: 600;
-          transition: background-color 0.2s ease;
-          cursor: pointer;
-          height: 42px;
-          line-height: 22px;
-        }
-        .btn-logout:hover {
-          background-color: #b91c1c;
-        }
-        .content {
-          background-color: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          padding: 24px;
-        }
-      `}</style>
-
-      <div className="admin-container">
-        <div className="header">
-          <h1 className="admin-heading">Admin Dashboard</h1>
+    <div className="admin-dashboard">
+      {/* --- Sidebar Navigation --- */}
+      <aside className="admin-sidebar">
+        <div className="sidebar-header">
+          <FaOm className="sidebar-logo-icon" />
+          <h1 className="sidebar-title">PRIESTify Admin</h1>
         </div>
-
-        <div className="button-group">
-          <button className="btn" onClick={() => setActiveTab("priests")}>Priests</button>
-          <button className="btn" onClick={() => setActiveTab("customers")}>Customers</button>
-          <button className="btn" onClick={() => setActiveTab("appointments")}>Appointments</button>
-          <button className="btn" onClick={() => setActiveTab("pooja")}>Pooja Services</button>
-          <button className="btn" onClick={() => setActiveTab("events")}>Events</button>
-          <button className="btn" onClick={() => setActiveTab("muhurtam")}>Muhurtam Requests</button>
-          <button className="btn" onClick={() => setActiveTab("pooja-items")}>Pooja Items</button>
-          <button className="btn" onClick={() => setActiveTab("prasadam")}>Prasadam</button>
-          <button className="btn" onClick={() => setActiveTab("festivals")}>Festivals</button>
-          <button className="btn" onClick={() => setActiveTab("daily-times")}>Daily Times</button>
-          <button className="btn" onClick={() => setActiveTab("panchangam")}>Panchangam</button>
-
-          {/* add more buttons here if needed */}
-
-          <button className="btn-logout" onClick={handleLogout}>Logout</button>
+        <nav className="sidebar-nav">
+          {navLinks.map(link => (
+            <button
+              key={link.key}
+              className={`sidebar-link ${activeTab === link.key ? 'active' : ''}`}
+              onClick={() => setActiveTab(link.key)}
+            >
+              <span className="sidebar-icon">{link.icon}</span>
+              {link.label}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+            <button className="sidebar-link logout" onClick={handleLogout}>
+                <span className="sidebar-icon"><FaSignOutAlt /></span>
+                Logout
+            </button>
         </div>
+      </aside>
 
-        <div className="content">{renderComponent()}</div>
-      </div>
-    </>
+      {/* --- Main Content Area --- */}
+      <main className="admin-main-content">
+        <header className="content-header">
+          <h2>{activeLabel}</h2>
+        </header>
+        <div className="content-card">
+          {renderComponent()}
+        </div>
+      </main>
+    </div>
   );
 };
 

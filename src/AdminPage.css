@@ -1,0 +1,157 @@
+/* Filename: AdminPage.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* You can use your theme variables here if defined globally */
+  --admin-bg: #f3f4f6;
+  --sidebar-bg: #1f2937;
+  --sidebar-text: #d1d5db;
+  --sidebar-text-hover: #ffffff;
+  --sidebar-active-bg: #4b5563;
+  --content-bg: #ffffff;
+  --content-header-text: #111827;
+  --border-color-light: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.admin-dashboard {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--admin-bg);
+}
+
+/* --- Sidebar Styles --- */
+.admin-sidebar {
+  width: 260px;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Prevents sidebar from shrinking */
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px;
+  border-bottom: 1px solid #374151; /* Darker border */
+}
+
+.sidebar-logo-icon {
+  font-size: 1.8rem;
+  color: #f59e0b; /* A golden accent */
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  margin: 0;
+  color: white;
+}
+
+.sidebar-nav {
+  flex-grow: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--sidebar-text);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+  background-color: #374151;
+  color: var(--sidebar-text-hover);
+}
+
+.sidebar-link.active {
+  background-color: var(--sidebar-active-bg);
+  color: white;
+  font-weight: 600;
+}
+
+.sidebar-icon {
+  font-size: 1.2rem;
+  width: 24px; /* Ensure icons align nicely */
+  text-align: center;
+}
+
+.sidebar-footer {
+    padding: 12px;
+    margin-top: auto; /* Pushes to the bottom */
+    border-top: 1px solid #374151;
+}
+
+.sidebar-footer .logout {
+    width: 100%;
+}
+.sidebar-footer .logout:hover {
+    background-color: #991b1b; /* Dark red on hover */
+}
+
+
+/* --- Main Content Area Styles --- */
+.admin-main-content {
+  flex-grow: 1;
+  padding: 32px;
+  overflow-y: auto; /* Allows content to scroll if it's too long */
+}
+
+.content-header {
+  margin-bottom: 24px;
+}
+
+.content-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--content-header-text);
+  margin: 0;
+}
+
+.content-card {
+  background-color: var(--content-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  border: 1px solid var(--border-color-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row; /* For a top-bar-like feel on mobile */
+    align-items: center;
+    overflow-x: auto; /* Allow horizontal scrolling for nav items */
+  }
+  .sidebar-header {
+      border-bottom: none;
+  }
+  .sidebar-nav {
+      flex-direction: row;
+      flex-grow: 0;
+  }
+  .sidebar-footer {
+      border-top: none;
+      margin-left: auto; /* Pushes logout to the end */
+  }
+}
