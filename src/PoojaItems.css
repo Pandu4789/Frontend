@@ -38,7 +38,27 @@
     color: #555;
     font-weight: 600;
 }
+.items-list-columns-container {
+    display: flex;
+    gap: 25px; /* Space between the columns */
+    align-items: flex-start;
+}
 
+.items-column {
+    flex: 1; /* Each column will take up equal space */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.items-column li {
+    font-size: 1em;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px; /* Space between items in a column */
+}
 .pooja-select {
     padding: 10px 15px;
     border: 2px solid #e0c8b2; /* Lighter orange/brown */
