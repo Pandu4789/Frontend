@@ -9,6 +9,7 @@ const API_BASE = "http://localhost:8080";
 const Mohurtam = () => {
   const [nakshatramList, setNakshatramList] = useState([]);
   const [selectedNakshatrams, setSelectedNakshatrams] = useState(['']);
+  const [favorableNakshatrams, setFavorableNakshatrams] = useState([]); // ✅ 1. New state
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -41,10 +42,14 @@ const Mohurtam = () => {
     setIsLoading(true);
     setSubmitted(true);
     setResults([]);
+    setFavorableNakshatrams([]);
     try {
       const payload = { nakshatrams: selectedNakshatrams.filter(n => n) };
       const response = await axios.post(`${API_BASE}/api/muhurtam/find`, payload);
-      setResults(response.data);
+      if (response.data) {
+        setResults(response.data.dailyResults || []);
+        setFavorableNakshatrams(Array.from(response.data.favorableNakshatrams || []).sort());
+      }
     } catch (error) {
       toast.error("Failed to find Muhurtams. Please try again.");
     } finally {
@@ -86,38 +91,61 @@ const Mohurtam = () => {
       </div>
 
       {submitted && !isLoading && (
-        <div className="results-section">
-          <h2 className="results-section-title">Recommended Muhurtams</h2>
-          {results.length > 0 ? (
-            <div className="results-grid">
-              {results.map((res, idx) => (
-                <div key={idx} className={`result-card status-${(res.status || '').toLowerCase()}`}>
-                  <h4>{new Date(res.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}</h4>
-                  <p><strong>Tithi:</strong> {res.tithi}</p>
-                  <p><strong>Nakshatram:</strong> {res.nakshatram}</p>
-                  <div className="auspicious-times">
-                    <strong>{res.status === 'orange' ? 'Suggested Time:' : 'Muhurtam Time:'}</strong>
-                    <p className="muhurtam-time-display">
-                      {res.status === 'orange' && res.alternateTime ? res.alternateTime : res.muhurtamTime}
-                    </p>
-                    <p className="muhurtam-lagna-display"><strong>Lagna:</strong> {res.muhurtamLagna}</p>
-                    <p className="muhurtam-notes-disply"><strong>Notes:</strong> {res.notes}</p>
-                    <p className="muhurtam-status-disply"><strong>Status:</strong> {res.status}</p>
-                  </div>
+        <>
+          <div className="favorable-nakshatrams-section">
+            {favorableNakshatrams.length > 0 ? (
+              <>
+                <h3>Your Favourable Nakshatrams (Tara Balam)</h3>
+                <div className="nakshatram-tags-container">
+                  {favorableNakshatrams.map(nakshatram => (
+                    <span key={nakshatram} className="nakshatram-tag">
+                      {nakshatram}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="no-match-message">
-              <p>No suitable dates found in the next 90 days. Please try a different combination.</p>
+              </>
+            ) : (
+              <div>
+                <h3>No Common Matches</h3>
+                <p>There are no common favorable nakshatrams for the selected birth stars.</p>
+              </div>
+            )}
+          </div>
+          {favorableNakshatrams.length > 0 && (
+            <div className="results-section">
+              <h2 className="results-section-title">Recommended Muhurtams</h2>
+              {results.length > 0 ? (
+                <div className="results-grid">
+                  {results.map((res, idx) => (
+                    <div key={idx} className={`result-card status-${(res.status || '').toLowerCase()}`}>
+                      <h4>{new Date(res.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}</h4>
+                      <p><strong>Tithi:</strong> {res.tithi}</p>
+                      <p><strong>Nakshatram:</strong> {res.nakshatram}</p>
+                      <div className="auspicious-times">
+                        <strong>{res.status === 'orange' ? 'Suggested Time:' : 'Muhurtam Time:'}</strong>
+                        <p className="muhurtam-time-display">
+                          {res.status === 'orange' && res.alternateTime ? res.alternateTime : res.muhurtamTime}
+                        </p>
+                        <p className="muhurtam-lagna-display"><strong>Lagna:</strong> {res.muhurtamLagna}</p>
+                        <p className="muhurtam-notes-disply"><strong>Notes:</strong> {res.notes}</p>
+                        <p className="muhurtam-status-disply"><strong>Status:</strong> {res.status}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-match-message">
+                  <p>No suitable dates found in the next 90 days. Please try a different combination.</p>
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

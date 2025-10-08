@@ -1,24 +1,116 @@
-/* Filename: Mohurtam.css - REDESIGNED */
+/* --- General Styles --- */
 .mohurtam-page-container { max-width: 1000px; margin: 20px auto; padding: 16px; font-family: 'Inter', sans-serif; }
-.mohurtam-page-title { font-size: 2rem; font-weight: 700; color: var(--theme-primary); text-align: center; margin-bottom: 10px; }
-.mohurtam-page-description { text-align: center; max-width: 700px; margin: 0 auto 30px auto; color: var(--text-dark); font-size: 1.1rem; line-height: 1.6; }
-.mohurtam-input-section { padding: 30px; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color); max-width: 700px; margin: 0 auto; }
+.mohurtam-page-title { font-size: 2rem; font-weight: 700; color: #B74F2F; text-align: center; margin-bottom: 10px; }
+.mohurtam-page-description { text-align: center; max-width: 700px; margin: 0 auto 30px auto; color: #555; font-size: 1.1rem; line-height: 1.6; }
+
+/* --- Input Section --- */
+.mohurtam-input-section {
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #EEE0CB;
+    /* ✅ CHANGED: Removed max-width to allow it to fill the container like the results section */
+    margin: 0 auto;
+    margin-bottom: 40px; /* ✅ CHANGED: Added a gap below this box */
+}
+
 .form-group { margin-bottom: 25px; }
-.form-group label { display: block; font-weight: 600; color: var(--theme-heading); margin-bottom: 10px; font-size: 1.2rem; }
+.form-group label { display: block; font-weight: 600; color: #B74F2F; margin-bottom: 10px; font-size: 1.2rem; }
 .dropdown-group { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
-.themed-select { flex: 1; padding: 12px 15px; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--hover-bg); }
-.action-btn { background-color: var(--theme-heading); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
-.action-btn.remove { background-color: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 10px; font-size: 1rem; }
+.themed-select { flex: 1; padding: 12px 15px; font-size: 1rem; border: 1px solid #EEE0CB; border-radius: 8px; background-color: #FEF3E4; }
+.action-btn { background-color: #4A2000; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+.action-btn.remove { background-color: transparent; border: 1px solid #d9534f; color: #d9534f; padding: 10px; font-size: 1rem; }
 .action-btn.add { padding: 8px 16px; font-size: 0.9rem; }
-.find-btn { margin-top: 20px; width: 100%; padding: 15px 0; background: var(--cta-gradient); color: white; font-size: 1.2rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.find-btn { margin-top: 20px; width: 100%; padding: 15px 0; background: linear-gradient(90deg, #B74F2F, #4A2000); color: white; font-size: 1.2rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .find-btn:disabled { background: #ccc; cursor: not-allowed; }
-.results-section { margin-top: 40px; }
-.results-section-title { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 30px; color: var(--theme-primary); }
-.results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
-.result-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-top: 4px solid var(--theme-heading); border-radius: 8px; padding: 24px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-.result-card h4 { margin: 0 0 15px 0; color: var(--theme-primary); font-size: 1.3rem; }
+.no-match-message { text-align: center; font-size: 1.1rem; padding: 20px; background-color: #FEF3E4; border-radius: 8px; }
+
+/* --- Two-Column Layout Styles --- */
+.results-layout-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  /* Note: margin-top is no longer needed here because of the margin-bottom on the input section */
+}
+
+/* --- Favorable Nakshatrams Section (Side Column) --- */
+.favorable-nakshatrams-section {
+    flex: 1;
+    background-color: #FFFFFF;
+    border: 1px solid #EEE0CB;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.favorable-nakshatrams-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    color: #B74F2F;
+    margin: 0 0 20px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #EEE0CB;
+}
+
+.nakshatram-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.nakshatram-tag {
+    background-color: #FEF3E4;
+    color: #4A2000;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid #EEE0CB;
+}
+
+/* --- Recommended Muhurtams Section (Main Column) --- */
+.results-section {
+    flex: 3;
+}
+
+.results-section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #B74F2F;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.result-card {
+    background-color: #fff;
+    border: 1px solid #EEE0CB;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #4A2000;
+}
+
+.result-card.status-green { border-top-color: #28a745; }
+.result-card.status-red { border-top-color: #dc3545; }
+.result-card.status-orange { border-top-color: #fd7e14; }
+.result-card.status-gray { border-top-color: #6c757d; }
+.result-card h4 { margin: 0 0 15px 0; color: #B74F2F; font-size: 1.3rem; }
 .result-card p { margin: 8px 0; font-size: 1rem; }
 .auspicious-times { margin-top: 15px; }
-.auspicious-times ul { padding-left: 20px; margin: 5px 0 0 0; }
-.auspicious-times li { color: #28a745; font-weight: 600; }
-.no-match-message { text-align: center; font-size: 1.1rem; padding: 20px; background-color: var(--hover-bg); border-radius: 8px; }
+
+/* --- Responsive Styles for Mobile --- */
+@media (max-width: 900px) {
+  .results-layout-container {
+    flex-direction: column;
+  }
+}
+
