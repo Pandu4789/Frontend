@@ -1,21 +1,24 @@
-/* Filename: Events.css - REDESIGNED */
+/* Filename: DashboardEventsDisplay.css - REDESIGNED */
 
-/* --- Masonry Layout --- */
-.masonry-layout {
-    column-count: 3;
-    column-gap: 20px;
+/* ✅ 1. CHANGED: Replaced column-count with a robust grid layout. 
+   This fixes the issue where a single card stretches to full width. */
+.events-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
     padding: 10px;
 }
 
 .event-card {
-    display: inline-block;
+    display: flex; /* Use flexbox for better internal alignment */
+    flex-direction: column;
     width: 100%;
-    margin-bottom: 20px;
-    background-color: var(--card-bg);
+    margin-bottom: 0; /* Gap is handled by the grid now */
+    background-color: #fff;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border-color);
+    border: 1px solid #EEE0CB;
     transition: all 0.3s ease;
 }
 
@@ -26,26 +29,27 @@
 
 .event-image {
     width: 100%;
-    height: 200px; /* Give images a consistent height */
-    object-fit: cover; /* Ensure images cover the area without distortion */
+    height: 200px;
+    object-fit: cover;
     display: block;
 }
 
 .event-card-content {
     padding: 20px;
+    flex-grow: 1; /* Allows content to fill space if cards have different heights */
 }
 
 .event-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--theme-primary);
+    color: #B74F2F;
     margin: 0 0 15px 0;
 }
 
 .event-details {
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid #EEE0CB;
 }
 
 .event-details p {
@@ -54,72 +58,85 @@
     gap: 10px;
     margin: 5px 0;
     font-weight: 500;
-    color: var(--text-dark);
+    color: #555;
 }
 
 .event-details svg {
-    color: var(--theme-heading);
+    color: #B74F2F;
 }
 
 .event-description {
     font-size: 1rem;
     line-height: 1.6;
-    color: var(--text-light);
+    color: #777;
     margin: 0;
+    /* ✅ 2. ADDED: Word wrapping to prevent text from overflowing the card */
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .no-events-message {
     text-align: center;
-    grid-column: 1 / -1; /* Make it span all columns if grid is used */
+    grid-column: 1 / -1; /* Make it span all columns */
     font-size: 1.1rem;
-    color: var(--text-light);
+    color: #777;
+    padding: 40px;
 }
 
-/* --- Skeleton Loader Styles --- */
-.skeleton-card {
-    background-color: #fff;
-}
-
-@keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
-}
-
-.skeleton-image {
-    width: 100%;
-    height: 200px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 2000px 100%;
-    animation: shimmer 1.5s infinite;
-}
-
-.skeleton-content {
-    padding: 20px;
-}
-
-.skeleton-line {
-    height: 16px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 2000px 100%;
-    animation: shimmer 1.5s infinite;
-}
-
+/* --- Skeleton Loader Styles (Unchanged) --- */
+.skeleton-card { background-color: #fff; }
+@keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+.skeleton-image { width: 100%; height: 200px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 2000px 100%; animation: shimmer 1.5s infinite; }
+.skeleton-line { height: 16px; margin-bottom: 10px; border-radius: 4px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 2000px 100%; animation: shimmer 1.5s infinite; }
 .skeleton-line.short { width: 40%; }
 .skeleton-line.medium { width: 80%; }
 .skeleton-line.long { width: 100%; }
 
-
-/* --- Responsive Adjustments --- */
-@media (max-width: 992px) {
-    .masonry-layout {
-        column-count: 2;
-    }
+/* --- ✅ 3. ADDED: Styles for the view toggle and "Show More" buttons --- */
+.em-view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    margin-top: 20px;
 }
 
-@media (max-width: 768px) {
-    .masonry-layout {
-        column-count: 1;
-    }
+.toggle-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 20px;
+    border: 2px solid #EEE0CB;
+    background-color: transparent;
+    color: #B74F2F;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 }
+
+.toggle-btn.active {
+    background-color: #B74F2F;
+    color: white;
+    border-color: #B74F2F;
+}
+
+.toggle-btn:not(.active):hover {
+    background-color: #FEF3E4;
+    border-color: #B74F2F;
+}
+
+.show-more-btn {
+    background: none;
+    border: none;
+    color: #B74F2F; 
+    font-weight: 600;
+    padding: 4px 0;
+    margin-top: 5px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.show-more-btn:hover {
+    text-decoration: underline;
+}
+
+/* --- Responsive Adjustments are now handled by the grid, so media queries for columns are removed --- */
