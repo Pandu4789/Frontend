@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdOutlineMailOutline, MdOutlinePhone, MdOutlineLock } from 'react-icons/md';
-import { FaRegUser } from "react-icons/fa"; // Using FaRegUser for both Customer and Priest
-import { BsHouseDoor } from "react-icons/bs"; // Keeping import, but BsHouseDoor is not used for Priest role button anymore
+import { FaRegUser } from "react-icons/fa"; 
+import { BsHouseDoor } from "react-icons/bs"; 
+import './signup.css'; // Importing the new CSS file
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -42,7 +43,6 @@ const SignUp = () => {
     { value: 'Marathi', label: 'Marathi' },
     { value: 'Punjabi', label: 'Punjabi' },
     { value: 'Sanskrit', label: 'Sanskrit' },
-    // Add more languages as needed
   ];
 
   const [error, setError] = useState('');
@@ -112,6 +112,7 @@ const SignUp = () => {
       selectedServices: selectedOptions || [],
     }));
   };
+  
   const handleLanguagesChange = (selectedOptions) => {
     setForm((prevForm) => ({
       ...prevForm,
@@ -199,333 +200,137 @@ const SignUp = () => {
     }
   };
 
-  const styles = {
-    authContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh', // Ensure full viewport height
-      backgroundColor: '#FEF3E4', // Hindu priest theme background
-      padding: '20px', // Padding around the card
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
-      color: '#333',
-      boxSizing: 'border-box', // Include padding in element's total width and height
-      overflowY: 'auto', // Allow scrolling if content is too tall
-    },
-    authCard: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: '8px',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
-      padding: '30px 40px',
-      width: '100%',
-      maxWidth: '800px', // Maximum width for the card
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '30px', // Space between major sections
-      boxSizing: 'border-box',
-    },
-    sectionHeading: {
-      fontSize: '20px',
+  // Custom styles for React-Select to match the Priestify theme
+  const customSelectStyles = {
+    control: (base, state) => ({
+      ...base,
+      border: state.isFocused ? '1px solid #E65C00' : '1px solid #E0E0E0',
+      borderRadius: '10px',
+      boxShadow: state.isFocused ? '0 0 0 4px rgba(230, 92, 0, 0.1)' : 'none',
+      '&:hover': {
+        borderColor: '#E65C00',
+      },
+      minHeight: '52px',
+      backgroundColor: '#F8F9FA',
+    }),
+    multiValue: (base) => ({
+      ...base,
+      backgroundColor: 'rgba(230, 92, 0, 0.15)',
+      borderRadius: '5px',
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      color: '#BF360C',
       fontWeight: '600',
-      color: '#B74F2F', // Deeper reddish-brown for section titles
-      marginBottom: '20px',
-      borderBottom: '1px solid #F0E0D0', // Lighter, themed border
-      paddingBottom: '10px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-    },
-    roleSelection: {
-      display: 'flex',
-      gap: '15px',
-      marginBottom: '20px',
-      marginTop: '10px',
-    },
-    roleButton: {
-      flex: 'none', // Make buttons share equal width
-      padding: '10px 20px', // Previous padding for button size
-      borderRadius: '25px',
-      border: '1px solid #FFB300', // Golden border for buttons
-      backgroundColor: 'transparent', // Transparent background for inactive
-      color: '#FF8F00', // Orange-gold text for inactive
-      fontSize: '16px',
-      fontWeight: '500',
+    }),
+    multiValueRemove: (base) => ({
+      ...base,
+      color: '#BF360C',
+      '&:hover': {
+        backgroundColor: '#E65C00',
+        color: '#FFF',
+      },
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused ? 'rgba(230, 92, 0, 0.1)' : null,
+      color: state.isSelected ? '#E65C00' : '#333',
       cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center', // Center icon and text
-      gap: '8px',
-      boxSizing: 'border-box',
-      width: '150px',
-    },
-    roleButtonActive: {
-      backgroundColor: '#FF8F00', // Saffron/Orange for active
-      color: 'white',
-      borderColor: '#FF8F00',
-    },
-    formGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '20px 30px',
-    },
-    formRow: {
-      gridColumn: '1 / span 2',
-    },
-    inputContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '4px', // Reduced gap between label and input
-    },
-    inputLabel: {
-      fontSize: '14px',
-      fontWeight: '500',
-      color: '#555',
-    },
-    inputGroup: {
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      border: '1px solid #DDD',
-      borderRadius: '5px',
-      backgroundColor: '#FFF',
-      minHeight: '52px', // Consistent height for inputs
-      boxSizing: 'border-box',
-    },
-    inputIcon: {
-      color: '#999',
-      marginLeft: '15px',
-      marginRight: '10px',
-      fontSize: '20px',
-      flexShrink: 0,
-    },
-    authInput: {
-      flexGrow: 1,
-      border: 'none',
-      outline: 'none',
-      fontSize: '16px',
-      color: '#333',
-      padding: '12px 15px', // Consistent padding for all inputs
-      boxSizing: 'border-box',
-    },
-    authTextarea: {
-      width: '100%',
-      padding: '15px',
-      borderRadius: '5px',
-      border: '1px solid #DDD',
-      fontSize: '16px',
-      minHeight: '150px',
-      resize: 'vertical',
-      backgroundColor: '#FFFFFF',
-      color: '#333',
-      outline: 'none',
-      boxSizing: 'border-box',
-    },
-    passwordToggle: {
-      cursor: 'pointer',
-      color: '#999',
-      fontSize: '18px',
-      position: 'absolute',
-      right: '15px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      flexShrink: 0,
-    },
-    errorText: {
-      color: '#D32F2F',
-      fontSize: '13px',
-      marginTop: '5px',
-      marginLeft: '5px',
-    },
-    smallText: {
-      color: '#777',
-      fontSize: '13px',
-      marginTop: '5px',
-      display: 'block',
-      marginLeft: '5px',
-    },
-    checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center',
-      fontSize: '16px',
-      color: '#333',
-      cursor: 'pointer',
-      marginTop: '10px',
-    },
-    checkboxInput: {
-      marginRight: '10px',
-      transform: 'scale(1.2)',
-      accentColor: '#B74F2F',
-      cursor: 'pointer',
-    },
-    radioGroup: {
-      display: 'flex',
-      gap: '20px',
-    },
-    authBtn: {
-      backgroundColor: '#BF360C', // Register button color
-      color: 'white',
-      border: 'none',
-      padding: '15px 25px',
-      borderRadius: '5px',
-      fontSize: '18px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      marginTop: '20px',
-      width: '100%',
-      opacity: isSubmitting ? 0.7 : 1,
-      pointerEvents: isSubmitting ? 'none' : 'auto',
-      transition: 'background-color 0.2s ease',
-      boxSizing: 'border-box',
-    },
-    switchLink: {
-      textAlign: 'center',
-      marginTop: '25px',
-      color: '#555',
-      fontSize: '15px',
-    },
-    link: {
-      color: '#BF360C', // Link color matches register button
-      cursor: 'pointer',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-    },
-    reactSelect: {
-      control: (base) => ({
-        ...base,
-        border: '1px solid #DDD',
-        borderRadius: '5px',
-        boxShadow: 'none',
-        '&:hover': {
-          borderColor: '#B74F2F',
-        },
-        minHeight: '52px',
-        boxSizing: 'border-box',
-      }),
-      multiValue: (base) => ({
-        ...base,
-        backgroundColor: '#FFECB3',
-        borderRadius: '3px',
-      }),
-      multiValueLabel: (base) => ({
-        ...base,
-        color: '#555',
-      }),
-      multiValueRemove: (base) => ({
-        ...base,
-        color: '#999',
-        '&:hover': {
-          backgroundColor: '#FFD54F',
-          color: '#333',
-        },
-      }),
-      option: (base, state) => ({
-        ...base,
-        backgroundColor: state.isFocused ? '#FFF3E0' : null,
-        color: '#333',
-      }),
-    },
+    }),
   };
 
   return (
-    <div style={styles.authContainer}>
-      <div style={styles.authCard}>
+    <div className="signup-page-container">
+      <div className="signup-card">
+        
+        {/* BRAND HEADER */}
+        <div className="signup-header">
+            <h1 className="signup-brand-text">
+              <span className="brand-priest-dark">PRIEST</span>
+              <span className="brand-ify">IFY</span>
+            </h1>
+            <p className="signup-subtitle">Create your account to get started</p>
+        </div>
 
         {/* ROLE SELECTION */}
-        <div>
-          <h3 style={styles.sectionHeading}>
-            <FaRegUser /> Select Your Role
-          </h3>
-          <div style={styles.roleSelection}>
+        <div className="signup-role-section">
+          <div className="signup-role-toggle">
             <button
               type="button"
-              style={{
-                ...styles.roleButton,
-                ...(form.role === 'customer' ? styles.roleButtonActive : {}),
-              }}
+              className={`signup-role-btn ${form.role === 'customer' ? 'active' : ''}`}
               onClick={() => handleRoleChange('customer')}
             >
               <FaRegUser /> Customer
             </button>
             <button
               type="button"
-              style={{
-                ...styles.roleButton,
-                ...(form.role === 'priest' ? styles.roleButtonActive : {}),
-              }}
+              className={`signup-role-btn ${form.role === 'priest' ? 'active' : ''}`}
               onClick={() => handleRoleChange('priest')}
             >
-              <FaRegUser /> Priest {/* Changed icon back to FaRegUser */}
+              <FaRegUser /> Priest
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* PERSONAL INFORMATION SECTION */}
-          <div>
-            <h3 style={styles.sectionHeading}>
-              <FaRegUser /> Personal Information
+          <div className="signup-section">
+            <h3 className="signup-section-heading">
+              <FaRegUser className="heading-icon" /> Personal Information
             </h3>
-            <div style={styles.formGrid}>
-              {/* FIRST NAME */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="firstName" style={styles.inputLabel}>First Name</label>
-                <div style={styles.inputGroup}>
+            <div className="signup-form-grid">
+              
+              <div className="signup-input-container">
+                <label className="signup-input-label">First Name</label>
+                <div className="signup-input-group">
                   <input
-                    id="firstName"
                     name="firstName"
                     type="text"
                     placeholder="e.g. Ramesh"
                     value={form.firstName}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* LAST NAME */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="lastName" style={styles.inputLabel}>Last Name</label>
-                <div style={styles.inputGroup}>
+              <div className="signup-input-container">
+                <label className="signup-input-label">Last Name</label>
+                <div className="signup-input-group">
                   <input
-                    id="lastName"
                     name="lastName"
                     type="text"
                     placeholder="e.g. Sharma"
                     value={form.lastName}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* EMAIL ID */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="email" style={styles.inputLabel}>Email ID</label>
-                <div style={styles.inputGroup}>
-                  <MdOutlineMailOutline style={styles.inputIcon} />
+              <div className="signup-input-container">
+                <label className="signup-input-label">Email ID</label>
+                <div className="signup-input-group">
+                  <MdOutlineMailOutline className="signup-input-icon" />
                   <input
-                    id="email"
                     name="email"
                     type="email"
                     placeholder="user@example.com"
                     value={form.email}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* PHONE NUMBER */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="phone" style={styles.inputLabel}>Phone Number</label>
-                <div style={styles.inputGroup}>
-                  <MdOutlinePhone style={styles.inputIcon} />
+              <div className="signup-input-container">
+                <label className="signup-input-label">Phone Number</label>
+                <div className="signup-input-group">
+                  <MdOutlinePhone className="signup-input-icon" />
                   <input
-                    id="phone"
                     name="phone"
                     type="text"
                     placeholder="9876543210"
@@ -536,143 +341,130 @@ const SignUp = () => {
                         handleChange({ target: { name: 'phone', value: onlyNums } });
                       }
                     }}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* PASSWORD */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="password" style={styles.inputLabel}>Password</label>
-                <div style={styles.inputGroup}>
-                  <MdOutlineLock style={styles.inputIcon} />
+              <div className="signup-input-container">
+                <label className="signup-input-label">Password</label>
+                <div className="signup-input-group">
+                  <MdOutlineLock className="signup-input-icon" />
                   <input
-                    id="password"
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="********"
                     value={form.password}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                   <span
                     onClick={() => setShowPassword(!showPassword)}
-                    style={styles.passwordToggle}
+                    className="signup-password-toggle"
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                {passwordError && <p style={styles.errorText}>{passwordError}</p>}
+                {passwordError && <p className="signup-error-text">{passwordError}</p>}
               </div>
 
-              {/* CONFIRM PASSWORD */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="confirmPassword" style={styles.inputLabel}>Confirm Password</label>
-                <div style={styles.inputGroup}>
-                  <MdOutlineLock style={styles.inputIcon} />
+              <div className="signup-input-container">
+                <label className="signup-input-label">Confirm Password</label>
+                <div className="signup-input-group">
+                  <MdOutlineLock className="signup-input-icon" />
                   <input
-                    id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="********"
                     value={form.confirmPassword}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                   <span
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    style={styles.passwordToggle}
+                    className="signup-password-toggle"
                   >
                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                {confirmPasswordError && <p style={styles.errorText}>{confirmPasswordError}</p>}
+                {confirmPasswordError && <p className="signup-error-text">{confirmPasswordError}</p>}
               </div>
             </div>
           </div>
 
           {/* ADDRESS SECTION */}
-          <div>
-            <h3 style={styles.sectionHeading}>
-              <BsHouseDoor /> Address
+          <div className="signup-section">
+            <h3 className="signup-section-heading">
+              <BsHouseDoor className="heading-icon" /> Address
             </h3>
-            <div style={styles.formGrid}>
-              {/* ADDRESS LINE 1 */}
-              <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                <label htmlFor="addressLine1" style={styles.inputLabel}>Address Line 1</label>
-                <div style={styles.inputGroup}>
+            <div className="signup-form-grid">
+              
+              <div className="signup-input-container full-width">
+                <label className="signup-input-label">Address Line 1</label>
+                <div className="signup-input-group">
                   <input
-                    id="addressLine1"
                     name="addressLine1"
                     type="text"
                     placeholder="House No, Street Name"
                     value={form.addressLine1}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* ADDRESS LINE 2 (Optional) */}
-              <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                <label htmlFor="addressLine2" style={styles.inputLabel}>Address Line 2 (Optional)</label>
-                <div style={styles.inputGroup}>
+              <div className="signup-input-container full-width">
+                <label className="signup-input-label">Address Line 2 (Optional)</label>
+                <div className="signup-input-group">
                   <input
-                    id="addressLine2"
                     name="addressLine2"
                     type="text"
                     placeholder="Apartment, Suite, Landmark"
                     value={form.addressLine2}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                   />
                 </div>
               </div>
 
-              {/* CITY */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="city" style={styles.inputLabel}>City</label>
-                <div style={styles.inputGroup}>
+              <div className="signup-input-container">
+                <label className="signup-input-label">City</label>
+                <div className="signup-input-group">
                   <input
-                    id="city"
                     name="city"
                     type="text"
                     placeholder="e.g. Irving"
                     value={form.city}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* STATE */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="state" style={styles.inputLabel}>State</label>
-                <div style={styles.inputGroup}>
+              <div className="signup-input-container">
+                <label className="signup-input-label">State</label>
+                <div className="signup-input-group">
                   <input
-                    id="state"
                     name="state"
                     type="text"
                     placeholder="e.g. Texas"
                     value={form.state}
                     onChange={handleChange}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
               </div>
 
-              {/* ZIP / PIN Code */}
-              <div style={styles.inputContainer}>
-                <label htmlFor="zipCode" style={styles.inputLabel}>ZIP Code</label>
-                <div style={styles.inputGroup}>
+              <div className="signup-input-container">
+                <label className="signup-input-label">ZIP Code</label>
+                <div className="signup-input-group">
                   <input
-                    id="zipCode"
                     name="zipCode"
                     type="text"
                     placeholder="e.g. 75062"
@@ -683,7 +475,7 @@ const SignUp = () => {
                         handleChange({ target: { name: 'zipCode', value: onlyNums } });
                       }
                     }}
-                    style={styles.authInput}
+                    className="signup-auth-input"
                     required
                   />
                 </div>
@@ -693,84 +485,79 @@ const SignUp = () => {
 
           {/* PRIEST DETAILS SECTION (CONDITIONAL) */}
           {form.role === 'priest' && (
-            <div>
-              <h3 style={styles.sectionHeading}>Priest Details</h3>
-              <div style={styles.formGrid}>
-                {/* ABOUT YOU */}
-                <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                  <label htmlFor="bio" style={styles.inputLabel}>About You</label>
+            <div className="signup-section">
+              <h3 className="signup-section-heading">Priest Details</h3>
+              <div className="signup-form-grid">
+                
+                <div className="signup-input-container full-width">
+                  <label className="signup-input-label">About You</label>
                   <textarea
-                    id="bio"
                     name="bio"
                     placeholder="Tell us about your experience and background..."
                     value={form.bio}
                     onChange={handleChange}
-                    style={styles.authTextarea}
-                    rows="5"
+                    className="signup-auth-textarea"
+                    rows="4"
                     required
                   ></textarea>
                 </div>
 
-                {/* SERVICES OFFERED (now a multi-select) */}
-                <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                  <label htmlFor="servicesOfferedSelect" style={styles.inputLabel}>Services Offered</label>
+                <div className="signup-input-container full-width">
+                  <label className="signup-input-label">Services Offered</label>
                   <Select
-                    id="servicesOfferedSelect"
                     isMulti
                     name="servicesOffered"
                     options={availableServices}
                     value={form.selectedServices}
                     onChange={handleServicesChange}
                     placeholder="Select Services You Offer"
-                    styles={styles.reactSelect}
+                    styles={customSelectStyles}
                     required={form.role === 'priest' && form.selectedServices.length === 0}
                   />
-                  <small style={styles.smallText}>
+                  <small className="signup-small-text">
                     Please select all the spiritual services you provide.
                   </small>
                 </div>
-                {/* LANGUAGES SPOKEN (now a multi-select) */}
-                <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                  <label htmlFor="languagesSpokenSelect" style={styles.inputLabel}>Languages Spoken</label>
+                
+                <div className="signup-input-container full-width">
+                  <label className="signup-input-label">Languages Spoken</label>
                   <Select
-                    id="languagesSpokenSelect"
                     isMulti
                     name="languagesSpoken"
                     options={availableLanguages}
                     value={form.selectedLanguages}
                     onChange={handleLanguagesChange}
                     placeholder="Select Languages You Speak"
-                    styles={styles.reactSelect}
+                    styles={customSelectStyles}
                     required={form.role === 'priest' && form.selectedLanguages.length === 0}
                   />
-                  <small style={styles.smallText}>
+                  <small className="signup-small-text">
                     Please select all the languages you can communicate in.
                   </small>
                 </div>
 
-                {/* DO YOU OFFER JATAKAM (HOROSCOPE READING)? */}
-                <div style={{ ...styles.inputContainer, ...styles.formRow }}>
-                  <p style={styles.inputLabel}>Do you offer Jatakam (Horoscope Reading)?</p>
-                  <div style={styles.radioGroup}>
-                    <label style={styles.checkboxLabel}>
+                <div className="signup-input-container full-width">
+                  <p className="signup-input-label">Do you offer Jatakam (Horoscope Reading)?</p>
+                  <div className="signup-radio-group">
+                    <label className="signup-radio-label">
                       <input
                         type="radio"
                         name="offersHoroscopeReading"
                         value="yes"
                         checked={form.offersHoroscopeReading === true}
                         onChange={() => setForm({ ...form, offersHoroscopeReading: true })}
-                        style={styles.checkboxInput}
+                        className="signup-radio-input"
                       />{' '}
                       Yes
                     </label>
-                    <label style={styles.checkboxLabel}>
+                    <label className="signup-radio-label">
                       <input
                         type="radio"
                         name="offersHoroscopeReading"
                         value="no"
                         checked={form.offersHoroscopeReading === false}
                         onChange={() => setForm({ ...form, offersHoroscopeReading: false })}
-                        style={styles.checkboxInput}
+                        className="signup-radio-input"
                       />{' '}
                       No
                     </label>
@@ -780,16 +567,16 @@ const SignUp = () => {
             </div>
           )}
 
-          {error && <p style={styles.errorText}>{error}</p>}
+          {error && <div className="signup-main-error">{error}</div>}
 
-          <button type="submit" style={styles.authBtn} disabled={isSubmitting}>
-            {isSubmitting ? 'Registering...' : 'Register'}
+          <button type="submit" className="signup-auth-btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Registering...' : 'Create Account'}
           </button>
         </form>
 
-        <p style={styles.switchLink}>
+        <p className="signup-switch-link">
           Already have an account?{' '}
-          <a onClick={() => navigate('/login')} style={styles.link}>
+          <a onClick={() => navigate('/login')} className="signup-link">
             Login
           </a>
         </p>
