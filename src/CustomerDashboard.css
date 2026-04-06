@@ -1,472 +1,497 @@
-/* Color variables from your previous components */
-:root {
-  --primaryDark: #4A2000;
-  --textLight: #FFD700;
-  --textAccent: #F5F5DC;
-  --activeBgDark: #6F3000;
-  --navbarBg: #4A2000;
-  --navbarTextLight: #FFD700;
-  --mainContentBg: #FDF5E6; /* Main content background color */
-  --profileHeadingColor: #B74F2F; /* Heading color for some sections */
-  --cardBgColor: #FDEBC1; /* Color for event cards (as defined in DashboardEventsDisplay) */
-  --dashboardSectionBg: #FDF5E6; /* Light background for dashboard sections */
-  --quickLinkCardBg: #FFF; /* White background for quick links */
-  --quickLinkHoverBg: #FEF3E4; /* Light hover background */
-  --quickLinkBorder: #EEE; /* Light border */
-  --shadowColor: rgba(0, 0, 0, 0.1);
-  --ctaButtonBg: linear-gradient(145deg, #B74F2F, #D46C4A); /* Warm gradient for CTA */
-  --ctaButtonText: #FFF;
+/* =========================================
+   GLOBAL DASHBOARD VARIABLES & LAYOUT
+   ========================================= */
+.dashboard-page-wrapper {
+    background-color: #FEF9F3; /* Very soft, warm cream background */
+    min-height: calc(100vh - 70px); /* Account for navbar */
+    padding: 30px 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #2C3E50;
 }
 
 .dashboard-container {
-  max-width: 1200px; /* Consistent with your other centered content */
-  margin: 20px auto; /* Center the dashboard content */
-  padding: 20px;
-  background-color: var(--dashboardSectionBg); /* Overall light background */
-  border-radius: 8px;
-  box-shadow: 0 4px 12px var(--shadowColor);
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
-.dashboard-section {
-  margin-bottom: 30px; /* Space between sections */
-  padding: 20px;
-  background-color: #fff; /* White background for individual sections */
-  border-radius: 8px;
-  box-shadow: 0 2px 8px var(--shadowColor);
-  position: relative; /* Needed for carousel buttons */
+/* Reusable Card Style */
+.dashboard-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    padding: 24px;
+    border: 1px solid rgba(230, 92, 0, 0.05); /* Very subtle orange tint border */
 }
 
-.dashboard-section:last-child {
-  margin-bottom: 0; /* No bottom margin for the last section */
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #2C3E50;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.section-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--profileHeadingColor); /* Using the warm heading color */
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.title-icon {
+    color: #E65C00;
 }
 
-/* --- Personalized Greeting & Summary --- */
-.user-summary-section {
-  text-align: center;
-  padding: 25px 20px;
+/* =========================================
+   HERO / GREETING SECTION
+   ========================================= */
+.dashboard-hero-section {
+    background: linear-gradient(135deg, #FFCC70 0%, #E65C00 100%);
+    border-radius: 20px;
+    padding: 40px;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(230, 92, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Adds a subtle pattern overlay */
+.dashboard-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(circle at 20% 150%, rgba(255,255,255,0.15) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .user-greeting {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--primaryDark);
-  margin-bottom: 15px;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.user-stats {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
+.greeting-icon {
+    font-size: 2rem;
+    opacity: 0.8;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.1rem;
-  color: var(--profileHeadingColor);
-  font-weight: 500;
+.user-greeting-sub {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0 0 24px 0;
 }
 
-.stat-icon {
-  font-size: 1.5rem;
-  color: var(--activeBgDark);
+.user-stats-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-/* --- Image Carousel Section (remains largely the same) --- */
-.image-carousel-section {
-  padding: 0;
-  overflow: hidden;
-  background-color: transparent;
-  box-shadow: none;
+.stat-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    min-width: 220px;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.stat-icon-wrapper {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3rem;
+    background-color: #ffffff;
+}
+
+.stat-icon-wrapper.blue-bg { color: #2980B9; }
+.stat-icon-wrapper.orange-bg { color: #E65C00; }
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.stat-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* =========================================
+   MAIN GRID LAYOUT
+   ========================================= */
+.dashboard-main-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Left col takes 2 parts, right takes 1 */
+    gap: 24px;
+}
+
+.dashboard-left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.dashboard-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* =========================================
+   CAROUSEL SECTION
+   ========================================= */
+.carousel-card {
+    padding: 0; /* Remove padding to let image hit edges */
+    overflow: hidden;
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 350px;
 }
 
 .carousel-inner {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-  width: 100%;
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .carousel-item {
-  min-width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.carousel-item img {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px;
-}
-
-.carousel-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  border: none;
-  padding: 15px 10px;
-  cursor: pointer;
-  font-size: 1.5rem;
-  z-index: 10;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-.carousel-button:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.carousel-button.prev {
-  left: 10px;
-}
-
-.carousel-button.next {
-  right: 10px;
-}
-
-.carousel-dots {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-/* --- Ensure these styles are in CustomerDashboard.css --- */
-
-.image-carousel-section {
+    min-width: 100%;
+    height: 100%;
     position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    min-height: 200px;
 }
 
-.carousel-item {
-    position: relative;
-    line-height: 0; 
-}
 .carousel-item img {
     width: 100%;
-    height: 400px;
+    height: 100%;
     object-fit: cover;
 }
 
 .carousel-overlay {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-    color: white;
-    padding: 40px 20px 20px 20px;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+    padding: 60px 30px 25px 30px;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    pointer-events: none;
 }
 
-.carousel-caption {
-    text-align: left;
-}
-
-.carousel-caption .priest-attribution {
-    font-size: 1.5rem;
-    font-weight: 700;
+.carousel-title {
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 800;
     margin: 0 0 5px 0;
-    color: #FFD700; /* Your theme's textLight color */
 }
 
-.carousel-caption p {
-    margin: 0;
+.carousel-subtitle {
+    color: #E0E0E0;
     font-size: 1rem;
-    max-width: 80%;
+    margin: 0;
 }
 
-.carousel-book-now {
-    padding: 10px 20px;
-    background-color: var(--textLight);
-    color: var(--primaryDark);
+.carousel-btn {
+    background-color: #E65C00;
+    color: white;
     border: none;
+    padding: 12px 24px;
     border-radius: 8px;
     font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
-    transition: transform 0.2s;
-    white-space: nowrap;
-    pointer-events: auto;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
-.carousel-book-now:hover {
+.carousel-btn:hover {
+    background-color: #BF360C;
     transform: scale(1.05);
 }
-.dot.active {
-  background-color: var(--navbarTextLight);
-}
 
-/* --- Today's Muhurtham Widget --- */
-.muhurtham-widget {
-  padding: 25px 20px;
-  text-align: center;
-}
-
-.muhurtham-details p {
-  font-size: 1rem;
-  color: var(--primaryDark);
-  margin-bottom: 8px;
-}
-
-.muhurtham-details strong {
-  color: var(--profileHeadingColor);
-}
-
-.muhurtham-note {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 15px;
-}
-
-/* --- Prominent Call-to-Action for Booking --- */
-.book-priest-cta {
-  text-align: center;
-  padding: 30px 20px;
-  background-color: var(--mainContentBg); /* A slightly different background */
-  border: 1px solid var(--quickLinkBorder);
-}
-
-.book-priist-cta .section-title {
-  margin-bottom: 15px;
-  justify-content: center; /* Center title in this section */
-}
-
-.book-priest-cta p {
-  font-size: 1.1rem;
-  color: var(--primaryDark);
-  margin-bottom: 25px;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.cta-button {
-  background: var(--ctaButtonBg);
-  color: var(--ctaButtonText);
-  padding: 15px 30px;
-  border: none;
-  border-radius: 30px;
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex; /* For icon alignment */
-  align-items: center;
-  gap: 10px;
-}
-
-.cta-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.cta-button-icon {
-  font-size: 1.1rem;
-}
-
-/* --- Quick Links Section (remains largely the same) --- */
-.quick-links-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.quick-link-card {
-  background-color: var(--quickLinkCardBg);
-  border: 1px solid var(--quickLinkBorder);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 150px;
-}
-
-.quick-link-card:hover {
-  background-color: var(--quickLinkHoverBg);
-  border-color: var(--profileHeadingColor);
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-
-.quick-link-icon {
-  font-size: 2.5rem;
-  color: var(--profileHeadingColor);
-  margin-bottom: 10px;
-}
-
-.quick-link-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--primaryDark);
-  margin-bottom: 5px;
-}
-
-.quick-link-description {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-/* --- Events Display Section --- */
-/* (Styles for actual cards are in Events.css) */
-/* Add skeleton styles below */
-
-/* --- Responsive Adjustments --- */
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 15px;
-    margin: 10px auto;
-  }
-
-  .dashboard-section {
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-  }
-
-  /* User Summary */
-  .user-greeting {
-    font-size: 1.8rem;
-  }
-  .user-stats {
-    gap: 20px;
-  }
-  .stat-item {
-    font-size: 1rem;
-  }
-  .stat-icon {
-    font-size: 1.3rem;
-  }
-
-  /* Carousel */
-  .carousel-item img {
-    height: 250px; /* Adjust height for tablets */
-  }
-  .carousel-button {
-    padding: 10px 5px;
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.9);
+    color: #E65C00;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 1.2rem;
-  }
-
-  /* Muhurtham Widget */
-  .muhurtham-details p {
-    font-size: 0.9rem;
-  }
-
-  /* CTA Button */
-  .cta-button {
-    padding: 12px 25px;
-    font-size: 1.1rem;
-  }
-  .book-priest-cta p {
-    font-size: 1rem;
-  }
-
-  /* Quick Links */
-  .quick-links-grid {
-    grid-template-columns: 1fr; /* Stack quick links on mobile */
-    gap: 15px;
-  }
-  .quick-link-card {
-    padding: 15px;
-    min-height: 120px;
-  }
-  .quick-link-icon {
-    font-size: 2rem;
-  }
-  .quick-link-title {
-    font-size: 1.1rem;
-  }
-  .quick-link-description {
-    font-size: 0.8rem;
-  }
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: background 0.2s, color 0.2s;
 }
 
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 10px;
-  }
+.carousel-nav-btn:hover {
+    background: #E65C00;
+    color: #ffffff;
+}
 
-  .dashboard-section {
-    padding: 10px;
-  }
+.carousel-nav-btn.prev { left: 15px; }
+.carousel-nav-btn.next { right: 15px; }
 
-  .section-title {
-    font-size: 1.3rem;
-  }
+.carousel-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
 
-  /* User Summary */
-  .user-greeting {
-    font-size: 1.5rem;
-  }
-  .user-stats {
-    flex-direction: column; /* Stack stats */
-    gap: 10px;
-  }
-
-  /* Carousel */
-  .carousel-item img {
-    height: 180px;
-    border-radius: 0;
-  }
-  .carousel-button {
-    font-size: 1rem;
-    padding: 8px 3px;
-  }
-  .carousel-dots {
-    bottom: 5px;
-    gap: 5px;
-  }
-  .dot {
+.dot {
     width: 8px;
     height: 8px;
-  }
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+}
 
-  /* CTA Button */
-  .cta-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-  }
+.dot.active {
+    background-color: #E65C00;
+    transform: scale(1.3);
+}
+
+/* =========================================
+   QUICK ACTIONS
+   ========================================= */
+.quick-links-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.quick-link-tile {
+    background-color: #F8F9FA;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-link-tile:hover {
+    background-color: #ffffff;
+    border-color: #E65C00;
+    box-shadow: 0 6px 15px rgba(230, 92, 0, 0.1);
+    transform: translateY(-3px);
+}
+
+.tile-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(230, 92, 0, 0.1);
+    color: #E65C00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.quick-link-tile:hover .tile-icon-wrapper {
+    background: #E65C00;
+    color: #ffffff;
+}
+
+.tile-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2C3E50;
+    margin: 0 0 5px 0;
+}
+
+.tile-desc {
+    font-size: 0.85rem;
+    color: #7F8C8D;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* =========================================
+   MUHURTHAM (TIMINGS) WIDGET
+   ========================================= */
+.timing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.timing-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.timing-icon {
+    font-size: 1.5rem;
+}
+.timing-icon.sun { color: #F39C12; }
+.timing-icon.moon { color: #34495E; }
+
+.timing-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.timing-label {
+    font-size: 0.85rem;
+    color: #7F8C8D;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.timing-label.bad-time {
+    color: #E74C3C;
+}
+
+.timing-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2C3E50;
+}
+
+.timing-divider {
+    height: 1px;
+    background-color: #F0F0F0;
+    margin: 5px 0;
+}
+
+.timing-note {
+    font-size: 0.8rem;
+    color: #A0A0A0;
+    margin: 20px 0 0 0;
+    text-align: center;
+    font-style: italic;
+}
+
+/* =========================================
+   CTA WIDGET
+   ========================================= */
+.cta-card {
+    background: linear-gradient(135deg, #2C3E50 0%, #1A252F 100%);
+    color: white;
+    text-align: center;
+}
+
+.cta-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.cta-huge-icon {
+    font-size: 3rem;
+    color: #FFCC70;
+    margin-bottom: 15px;
+}
+
+.cta-content h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+}
+
+.cta-content p {
+    font-size: 0.95rem;
+    color: #BDC3C7;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.primary-cta-btn {
+    background-color: #E65C00;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.primary-cta-btn:hover {
+    background-color: #D84315;
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+@media (max-width: 900px) {
+    .dashboard-main-grid {
+        grid-template-columns: 1fr; /* Stack columns */
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-page-wrapper {
+        padding: 15px 10px;
+    }
+    
+    .dashboard-hero-section {
+        padding: 25px 20px;
+    }
+
+    .user-greeting {
+        font-size: 1.8rem;
+    }
+
+    .stat-card {
+        min-width: 100%; /* Stats take full width on mobile */
+    }
+
+    .carousel-wrapper {
+        height: 250px;
+    }
+
+    .quick-links-grid {
+        grid-template-columns: 1fr; /* 1 col quick links on very small screens */
+    }
 }

@@ -14,13 +14,13 @@
 .navbar-content-wrapper {
     display: flex;
     align-items: center;
-    max-width: 100%; /* Ensures it stretches to the edges */
+    max-width: 100%; 
     margin: 0 auto;
     padding: 0 24px;
     height: 70px;
 }
 
-/* Hamburger Icon - Visible on ALL screens */
+/* Hamburger Icon */
 .nav-hamburger {
     background: transparent;
     border: none;
@@ -28,7 +28,7 @@
     color: #2C3E50;
     cursor: pointer;
     padding: 8px;
-    display: flex; /* Visible on desktop and mobile */
+    display: flex; 
     align-items: center;
     justify-content: center;
     border-radius: 8px;
@@ -41,7 +41,7 @@
     color: #E65C00;
 }
 
-/* App Logo/Brand */
+/* App Logo/Brand - FORCE VISIBILITY */
 .nav-brand {
     display: flex;
     align-items: center;
@@ -52,11 +52,28 @@
     transition: transform 0.2s ease, opacity 0.2s ease, visibility 0.2s ease;
 }
 
+/* Specific selectors to prevent white-out from Dashboard CSS */
+.nav-brand .brand-priest, 
+.sidebar-header .brand-priest {
+    color: #2C3E50 !important; /* Dark Slate - Always visible */
+}
+
+.nav-brand .brand-ify, 
+.sidebar-header .brand-ify {
+    color: #E65C00 !important; /* Vibrant Orange */
+}
+
+.brand-text-container {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
 .nav-brand:hover {
     transform: scale(1.02);
 }
 
-/* Hides top brand when sidebar opens to prevent seeing it twice */
+/* Hides top brand when sidebar opens */
 .navbar-content-wrapper.sidebar-is-open .nav-brand {
     opacity: 0;
     visibility: hidden;
@@ -72,21 +89,13 @@
     display: block;
 }
 
-.brand-priest {
-    color: #2C3E50;
-}
-
-.brand-ify {
-    color: #E65C00;
-}
-
 /* Desktop Links - Aligned Right */
 .navbar-center-desktop {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-left: auto; /* This pushes the links and profile to the far right */
-    margin-right: 24px; /* Gap between the links and the profile icon */
+    margin-left: auto; 
+    margin-right: 24px; 
 }
 
 .navbar-button {
@@ -232,7 +241,7 @@
     height: 100vh;
     background-color: rgba(44, 62, 80, 0.4);
     backdrop-filter: blur(2px);
-    z-index: 1025; /* Sits OVER the top navbar */
+    z-index: 1025; 
 }
 
 .priestify-sidebar {
@@ -245,7 +254,7 @@
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1050; /* Sits OVER the overlay */
+    z-index: 1050; 
     display: flex;
     flex-direction: column;
 }
@@ -321,17 +330,14 @@
    MEDIA QUERIES (MOBILE)
    ========================================= */
 @media (max-width: 900px) {
-    /* Hide desktop center links */
     .navbar-center-desktop {
         display: none;
     }
 
-    /* Hide profile icon on mobile (moved to sidebar) */
     .nav-right {
         display: none;
     }
 
-    /* Center the brand on mobile */
     .nav-brand {
         position: absolute;
         left: 50%;

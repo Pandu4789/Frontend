@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUserTie, FaPrayingHands, FaUtensils, FaChevronLeft, FaChevronRight, FaBell, FaCalendarAlt, FaHandsHelping } from 'react-icons/fa';
+import { FaUserTie, FaPrayingHands, FaUtensils, FaChevronLeft, FaChevronRight, FaBell, FaCalendarAlt, FaHandsHelping, FaSun, FaMoon, FaOm } from 'react-icons/fa';
 import { format } from 'date-fns';
 import DashboardEventsDisplay from './DashboardEventsDisplay';
 import './CustomerDashboard.css';
@@ -28,15 +28,15 @@ const Dashboard = () => {
   const [isEventsLoading, setIsEventsLoading] = useState(true);
 
   const dummyImages = [
-    { id: 'dummy-1', type: 'dummy', imageUrl: 'https://via.placeholder.com/1200x400/F0D55C/4A2000?text=Grand+Temple+Celebration', title: 'Grand Temple Celebration', subtitle: '', linkUrl: '/book-priest' },
-    { id: 'dummy-2', type: 'dummy', imageUrl: 'https://via.placeholder.com/1200x400/4A2000/FFD700?text=Peaceful+Morning+Pooja', title: 'Peaceful Morning Pooja', subtitle: '', linkUrl: '/book-priest' },
+    { id: 'dummy-1', type: 'dummy', imageUrl: 'https://images.unsplash.com/photo-1604318721473-cb7223b37803?q=80&w=2070', title: 'Find Divine Peace', subtitle: 'Book authentic priests for your home ceremonies.', linkUrl: '/book-priest' },
+    { id: 'dummy-2', type: 'dummy', imageUrl: 'https://images.unsplash.com/photo-1590050882195-2bd076329381?q=80&w=2070', title: 'Sacred Rituals', subtitle: 'Ensure every pooja is performed with devotion.', linkUrl: '/book-priest' },
   ];
   
   const quickLinks = [
-    { id: 'book-priest', name: 'Book Priest', icon: <FaUserTie />, description: 'Find a priest for your ceremonies.', path: '/book-priest' },
-    { id: 'pooja-items', name: 'Pooja Guide', icon: <FaPrayingHands />, description: 'Explore pooja items and significance.', path: '/pooja-items' },
-    { id: 'prasadam', name: 'Food', icon: <FaUtensils />, description: 'Get blessed food delivered.', path: '/prasadam' },
-    { id: 'your-bookings', name: 'Your Bookings', icon: <FaHandsHelping />, description: 'View all your active bookings.', path: '/your-bookings' }
+    { id: 'book-priest', name: 'Book Priest', icon: <FaUserTie />, description: 'Find a priest for ceremonies', path: '/book-priest' },
+    { id: 'pooja-items', name: 'Pooja Guide', icon: <FaPrayingHands />, description: 'Explore pooja significance', path: '/pooja-items' },
+    { id: 'prasadam', name: 'Food', icon: <FaUtensils />, description: 'Blessed food delivered', path: '/prasadam' },
+    { id: 'your-bookings', name: 'Your Bookings', icon: <FaHandsHelping />, description: 'View active bookings', path: '/your-bookings' }
   ];
 
   const handleQuickLinkClick = (path) => navigate(path);
@@ -57,7 +57,7 @@ const Dashboard = () => {
 
     const todayStr = new Date().toISOString().split('T')[0];
     const fetchSun = fetch(`${API_BASE}/api/sun?date=${todayStr}`).then(res => res.ok ? res.json() : null);
-    const fetchDaily = fetch(`${API_BASE}/api/daily-times/by-date/${todayStr}`).then(res => res.ok ? res.json() : null);
+    const fetchDaily = fetch(`${API_BASE}/api/daily-times/by-date=${todayStr}`).then(res => res.ok ? res.json() : null);
     Promise.all([fetchSun, fetchDaily])
       .then(([sunData, dailyTimesData]) => setTodayTimings({ ...sunData, ...dailyTimesData }))
       .finally(() => setIsTimingsLoading(false));
@@ -80,84 +80,157 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <section className="dashboard-section user-summary-section">
-        <h2 className="user-greeting">Namaste, {userName}!</h2>
-        <div className="user-stats">
-          <div className="stat-item"><FaCalendarAlt className="stat-icon blue" /><span>{upcomingBookings} Upcoming Bookings</span></div>
-          <div className="stat-item"><FaBell className="stat-icon orange" /><span>0 Recent Orders</span></div>
-        </div>
-      </section>
+    <div className="dashboard-page-wrapper">
+      <div className="dashboard-container">
+        
+        {/* Welcome Section */}
+        <section className="dashboard-hero-section">
+          <div className="hero-content">
+            <h1 className="user-greeting">Namaste, {userName} <FaOm className="greeting-icon"/></h1>
+            <p className="user-greeting-sub">Welcome back to your spiritual hub.</p>
+            
+            <div className="user-stats-container">
+              <div className="stat-card" onClick={() => navigate('/your-bookings')}>
+                <div className="stat-icon-wrapper blue-bg">
+                  <FaCalendarAlt />
+                </div>
+                <div className="stat-info">
+                  <h3>{upcomingBookings}</h3>
+                  <p>Upcoming Bookings</p>
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon-wrapper orange-bg">
+                  <FaBell />
+                </div>
+                <div className="stat-info">
+                  <h3>0</h3>
+                  <p>Recent Orders</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <section className="dashboard-section image-carousel-section">
-        {carouselImages.length > 0 && (
-          <>
-            <div className="carousel-inner" style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}>
-              {carouselImages.map((image) => (
-                <div key={image.id} className="carousel-item">
-                  <img src={image.imageUrl} alt={image.title} />
-                  <div className="carousel-overlay">
-                    <div className="carousel-caption">
-                      <h3 className="priest-attribution">{image.title}</h3>
-                      <p>{image.subtitle}</p>
-                    </div>
-                    {image.type !== 'dummy' && (
-                       <button className="carousel-book-now" onClick={() => navigate(image.linkUrl)}>
-                          {image.type === 'gallery' ? 'Book Now' : 'View Event'}
-                       </button>
-                    )}
+        <div className="dashboard-main-grid">
+          {/* Left Column */}
+          <div className="dashboard-left-col">
+            
+            {/* Image Carousel Section */}
+            <section className="dashboard-card carousel-card">
+              {carouselImages.length > 0 && (
+                <div className="carousel-wrapper">
+                  <div className="carousel-inner" style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}>
+                    {carouselImages.map((image) => (
+                      <div key={image.id} className="carousel-item">
+                        <img src={image.imageUrl} alt={image.title} />
+                        <div className="carousel-overlay">
+                          <div className="carousel-caption">
+                            <h3 className="carousel-title">{image.title}</h3>
+                            <p className="carousel-subtitle">{image.subtitle}</p>
+                          </div>
+                          {image.type !== 'dummy' && (
+                            <button className="carousel-btn" onClick={() => navigate(image.linkUrl)}>
+                                {image.type === 'gallery' ? 'Book Now' : 'View Event'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="carousel-nav-btn prev" onClick={prevImage}><FaChevronLeft /></button>
+                  <button className="carousel-nav-btn next" onClick={nextImage}><FaChevronRight /></button>
+                  <div className="carousel-dots">
+                    {carouselImages.map((_, index) => (
+                      <span key={index} className={`dot ${index === currentImageIndex ? 'active' : ''}`} onClick={() => setCurrentImageIndex(index)}></span>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-            <button className="carousel-button prev" onClick={prevImage}><FaChevronLeft /></button>
-            <button className="carousel-button next" onClick={nextImage}><FaChevronRight /></button>
-            <div className="carousel-dots">
-              {carouselImages.map((_, index) => (<span key={index} className={`dot ${index === currentImageIndex ? 'active' : ''}`} onClick={() => setCurrentImageIndex(index)}></span>))}
-            </div>
-          </>
-        )}
-      </section>
+              )}
+            </section>
 
-      <section className="dashboard-section muhurtham-widget">
-        <h2 className="section-title"><FaCalendarAlt /> Today's Timings</h2>
-        <div className="muhurtham-details">
-          {isTimingsLoading ? <p>Loading timings...</p> : (
-            <>
-              <p><strong>Sunrise:</strong> {formatTime12Hour(todayTimings?.sunrise) ?? 'N/A'}</p>
-              <p><strong>Sunset:</strong> {formatTime12Hour(todayTimings?.sunset) ?? 'N/A'}</p>
-              <p><strong>Rahu Kalam:</strong> {(todayTimings?.rahukalamStart && todayTimings?.rahukalamEnd) ? `${formatTime12Hour(todayTimings.rahukalamStart)} - ${formatTime12Hour(todayTimings.rahukalamEnd)}` : 'N/A'}</p>
-              <p><strong>Yamagandam:</strong> {(todayTimings?.yamagandamStart && todayTimings?.yamagandamEnd) ? `${formatTime12Hour(todayTimings.yamagandamStart)} - ${formatTime12Hour(todayTimings.yamagandamEnd)}` : 'N/A'}</p>
-              <p className="muhurtham-note">*(Timings are approximate for your location.)</p>
-            </>
-          )}
+            {/* Quick Actions */}
+            <section className="dashboard-card quick-links-card">
+              <h2 className="card-title">Quick Actions</h2>
+              <div className="quick-links-grid">
+                {quickLinks.map((link) => (
+                  <div key={link.id} className="quick-link-tile" onClick={() => handleQuickLinkClick(link.path)}>
+                    <div className="tile-icon-wrapper">{link.icon}</div>
+                    <h3 className="tile-title">{link.name}</h3>
+                    <p className="tile-desc">{link.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Events Display */}
+            <section className="dashboard-card events-card">
+              <h2 className="card-title">Daily Events</h2>
+              <DashboardEventsDisplay isLoading={isEventsLoading} />
+            </section>
+
+          </div>
+
+          {/* Right Column (Sidebar Widgets) */}
+          <div className="dashboard-right-col">
+            
+            {/* Muhurtham Widget */}
+            <section className="dashboard-card muhurtham-card">
+              <h2 className="card-title"><FaCalendarAlt className="title-icon"/> Today's Timings</h2>
+              <div className="muhurtham-content">
+                {isTimingsLoading ? <p className="loading-text">Loading auspicious timings...</p> : (
+                  <div className="timing-list">
+                    <div className="timing-item">
+                      <FaSun className="timing-icon sun" />
+                      <div className="timing-details">
+                        <span className="timing-label">Sunrise</span>
+                        <span className="timing-value">{formatTime12Hour(todayTimings?.sunrise) ?? 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="timing-item">
+                      <FaMoon className="timing-icon moon" />
+                      <div className="timing-details">
+                        <span className="timing-label">Sunset</span>
+                        <span className="timing-value">{formatTime12Hour(todayTimings?.sunset) ?? 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="timing-divider"></div>
+                    <div className="timing-item">
+                      <div className="timing-details">
+                        <span className="timing-label bad-time">Rahu Kalam</span>
+                        <span className="timing-value">{(todayTimings?.rahukalamStart && todayTimings?.rahukalamEnd) ? `${formatTime12Hour(todayTimings.rahukalamStart)} - ${formatTime12Hour(todayTimings.rahukalamEnd)}` : 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="timing-item">
+                      <div className="timing-details">
+                        <span className="timing-label bad-time">Yamagandam</span>
+                        <span className="timing-value">{(todayTimings?.yamagandamStart && todayTimings?.yamagandamEnd) ? `${formatTime12Hour(todayTimings.yamagandamStart)} - ${formatTime12Hour(todayTimings.yamagandamEnd)}` : 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <p className="timing-note">*Timings are approximate for your location.</p>
+              </div>
+            </section>
+
+            {/* Book Priest CTA Widget */}
+            <section className="dashboard-card cta-card">
+              <div className="cta-content">
+                <FaUserTie className="cta-huge-icon" />
+                <h3>Need a Priest?</h3>
+                <p>Book a qualified, authentic priest for your next pooja or ceremony.</p>
+                <button className="primary-cta-btn" onClick={() => handleQuickLinkClick('/book-priest')}>
+                  Book Now <FaChevronRight className="btn-icon" />
+                </button>
+              </div>
+            </section>
+
+          </div>
         </div>
-      </section>
-      
-      <section className="dashboard-section book-priest-cta">
-        <h2 className="section-title"><FaUserTie /> Need a Priest?</h2>
-        <p>Book a qualified priest for your next pooja or ceremony with ease.</p>
-        <button className="cta-button" onClick={() => handleQuickLinkClick('/book-priest')}>Book a Priest Now <FaChevronRight className="cta-button-icon" /></button>
-      </section>
 
-      <section className="dashboard-section quick-links-section">
-        <h2 className="section-title">Quick Actions</h2>
-        <div className="quick-links-grid">
-          {quickLinks.map((link) => (
-            <div key={link.id} className="quick-link-card" onClick={() => handleQuickLinkClick(link.path)}>
-              <div className="quick-link-icon">{link.icon}</div>
-              <h3 className="quick-link-title">{link.name}</h3>
-              <p className="quick-link-description">{link.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="dashboard-section events-display-section">
-        <h2 className="section-title">Daily Events</h2>
-        <DashboardEventsDisplay isLoading={isEventsLoading} />
-      </section>
+      </div>
     </div>
   );
 };
+
 export default Dashboard;
