@@ -28,17 +28,30 @@
 .signup-header {
     text-align: center;
     margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* New Logo Styling */
+.signup-logo {
+    height: 110px; /* Consistent with Forgot Password page */
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 0; /* Ensures no space below the logo */
+    display: block;
 }
 
 .signup-brand-text {
     font-size: 38px;
     font-weight: 900;
     letter-spacing: 1.5px;
-    margin: 0 0 5px 0;
+    margin: 0 0 5px 0; /* No margin on top to touch the logo */
+    line-height: 1; /* Removes natural padding around the text */
 }
 
 .brand-priest-dark {
-    color: #2C3E50; /* Dark blue/grey instead of white for the white card */
+    color: #2C3E50; /* Dark blue/grey */
 }
 
 .brand-ify {
@@ -49,6 +62,7 @@
     font-size: 15px;
     color: #7F8C8D;
     margin: 0;
+    margin-top: 5px;
 }
 
 /* Section Headings */
@@ -312,6 +326,7 @@
     text-decoration: underline;
 }
 
+/* Responsive adjustments */
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .signup-form-grid {

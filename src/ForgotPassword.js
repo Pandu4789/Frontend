@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { MdOutlineMailOutline, MdOutlineLock } from "react-icons/md"; 
 import './ForgotPassword.css';
+
+// Import your logo here
+import logo from './image.png'; 
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -10,6 +15,9 @@ const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handleNewPasswordChange = (e) => setNewPassword(e.target.value);
@@ -70,16 +78,27 @@ const ForgotPassword = () => {
   return (
     <div className="forget-password-container">
       <div className="forget-password-card">
-        <h2 className="forget-password-title">Forgot Password?</h2>
-        <p className="forget-password-subtitle">
-          {step === 1
-            ? 'Enter your registered email to reset your password.'
-            : 'Set your new password below.'}
-        </p>
+        
+        {/* BRAND HEADER WITH LOGO */}
+        <div className="forget-password-header">
+            <img src={logo} alt="Priestify Logo" className="forget-password-logo" />
+            <h1 className="forget-password-brand-text">
+              <span className="brand-priest-dark">PRIEST</span>
+              <span className="brand-ify">IFY</span>
+            </h1>
+            
+            <h2 className="forget-password-title">Reset Password</h2>
+            <p className="forget-password-subtitle">
+              {step === 1
+                ? 'Enter your registered email to reset your password.'
+                : 'Set your new secure password below.'}
+            </p>
+        </div>
 
         {step === 1 ? (
           <form onSubmit={handleEmailSubmit} className="forget-password-form-container">
             <div className="forget-password-input-group">
+              <MdOutlineMailOutline className="forget-password-input-icon" />
               <input
                 type="email"
                 name="email"
@@ -99,6 +118,7 @@ const ForgotPassword = () => {
         ) : (
           <form onSubmit={handlePasswordSubmit} className="forget-password-form-container">
             <div className="forget-password-input-group">
+              <MdOutlineLock className="forget-password-input-icon" />
               <input
                 type="password"
                 name="newPassword"
@@ -108,8 +128,16 @@ const ForgotPassword = () => {
                 required
                 className="forget-password-auth-input"
               />
+              <span
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="forget-password-toggle"
+              >
+                {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
+            
             <div className="forget-password-input-group">
+              <MdOutlineLock className="forget-password-input-icon" />
               <input
                 type="password"
                 name="confirmPassword"
@@ -119,6 +147,12 @@ const ForgotPassword = () => {
                 required
                 className="forget-password-auth-input"
               />
+              <span
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="forget-password-toggle"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
 
             {error && <p className="forget-password-error-text">{error}</p>}

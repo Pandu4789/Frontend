@@ -5,7 +5,10 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdOutlineMailOutline, MdOutlinePhone, MdOutlineLock } from 'react-icons/md';
 import { FaRegUser } from "react-icons/fa"; 
 import { BsHouseDoor } from "react-icons/bs"; 
-import './signup.css'; // Importing the new CSS file
+import './signup.css';
+
+// Import your logo here
+import logo from './image.png'; 
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -243,8 +246,9 @@ const SignUp = () => {
     <div className="signup-page-container">
       <div className="signup-card">
         
-        {/* BRAND HEADER */}
+        {/* BRAND HEADER WITH LOGO */}
         <div className="signup-header">
+            <img src={logo} alt="Priestify Logo" className="signup-logo" />
             <h1 className="signup-brand-text">
               <span className="brand-priest-dark">PRIEST</span>
               <span className="brand-ify">IFY</span>
