@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "./Photos/image.png"; // Make sure the path is correct
+import logo from "./image.png"; // Make sure the path is correct
 
 export default function SplashScreen() {
   return (

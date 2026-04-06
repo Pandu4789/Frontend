@@ -1,206 +1,320 @@
-/* LoginPage.css */
-
-/* Overall Container - Similar to SignUp's auth-container */
-.login-container {
+/* Overall Container */
+.login-page-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #FEF3E4; /* Hindu priest theme background */
+    /* Vibrant orange to golden-yellow radial gradient */
+    background: radial-gradient(circle at center, #FFCC70 0%, #E65C00 100%);
     padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #333;
 }
 
-/* Auth Card - Similar to SignUp's auth-card */
-.login-card {
-    background-color: #fff;
-    padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1); /* Slightly less intense shadow than given */
-    max-width: 400px;
+/* Flex Wrapper for Side Panel and Form Card */
+.login-content-wrapper {
+    display: flex;
+    max-width: 900px;
     width: 100%;
+    border-radius: 20px;
+    overflow: hidden; /* Important for rounded corners on inner divs */
+    box-shadow: 0px 15px 50px rgba(0, 0, 0, 0.25); /* Stronger shadow to pop against bright background */
+}
+
+/* --- SIDE PANEL STYLING --- */
+.login-side-panel {
+    flex: 1;
+    background-color: #BF360C; /* Deep saffron/red */
+    color: #FEF3E4; 
+    padding: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
-/* Auth Title - Similar to SignUp's auth-title/section-heading */
-.login-title {
-    font-size: 28px;
-    margin-bottom: 10px;
-    color: #B74F2F;
-    font-weight: 600;
-    text-align: center; /* Center the text */
+/* Removed margin-bottom to bring text closer to the logo */
+.login-side-panel-logo {
+    height: 220px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 0; 
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
+/* Brand Text in side panel */
+.login-brand-text {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    margin: 0 0 20px 0; /* Zero top margin, pulls it tight to logo */
+}
 
-/* Auth Subtitle */
-.login-subtitle {
+/* Two-Tone Colors for Brand Name */
+.brand-priest {
+    color: #FFFFFF; /* Pure white */
+}
+
+.brand-ify {
+    color: #FFB300; /* Vibrant golden-amber to contrast the dark red */
+}
+
+.login-side-panel-text {
     font-size: 16px;
-    margin-bottom: 30px;
-    color: #666;
+    line-height: 1.6;
+    margin: 0;
+    color: #F8F9FA; /* Off-white for readability */
+}
+
+/* --- FORM CARD STYLING --- */
+.login-card {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 60px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Auth Title & Subtitle */
+.login-title {
+    font-size: 28px;
+    margin: 0 0 10px 0;
+    color: #2C3E50;
+    font-weight: 800;
+}
+
+.login-subtitle {
+    font-size: 15px;
+    margin: 0 0 40px 0;
+    color: #7F8C8D;
 }
 
 /* Form Container */
 .login-form-container {
     display: flex;
     flex-direction: column;
-    /* align-items: flex-start; /* Keeping this from your snippet, adjust if not needed */ 
 }
 
 /* Input Group */
 .login-input-group {
-    position: relative; /* Needed for icons/toggles inside */
+    position: relative;
     display: flex;
     align-items: center;
-    border: 1px solid #ddd;
-    border-radius: 5px; /* Consistent with SignUp */
-    background-color: #fff;
-    min-height: 52px; /* Consistent with SignUp inputs */
-    margin-bottom: 20px; /* From your snippet */
+    background-color: #F8F9FA;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    min-height: 56px;
+    margin-bottom: 18px;
+    transition: all 0.3s ease;
 }
 
-/* Input Icon - For icon inside input group */
+.login-input-group:focus-within {
+    border-color: #E65C00;
+    background-color: #FFF;
+    box-shadow: 0 0 0 4px rgba(230, 92, 0, 0.1);
+}
+
 .login-input-icon {
-    color: #999;
-    margin-left: 15px; /* Consistent with SignUp */
-    margin-right: 10px; /* Consistent with SignUp */
-    font-size: 20px;
+    color: #A0A0A0;
+    margin-left: 18px;
+    font-size: 22px;
+    transition: color 0.3s ease;
 }
 
-/* Auth Input - For text, email, password fields */
+.login-input-group:focus-within .login-input-icon {
+    color: #E65C00; /* Icon lights up on focus */
+}
+
+/* Inputs */
 .login-auth-input {
     flex-grow: 1;
-    border: none; /* Border is on input-group */
+    border: none;
     outline: none;
-    padding: 12px 15px; /* From your snippet, consistent with SignUp */
-    font-size: 16px;
-    color: #333;
-    /* Transition for focus state */
-    transition: border-color 0.3s;
-}
-
-.login-auth-input:focus {
-    border-color: #B74F2F; /* Themed focus color */
-    box-shadow: 0 0 0 2px rgba(183, 79, 47, 0.2); /* Consistent with SignUp focus */
+    background: transparent;
+    padding: 16px;
+    font-size: 15px;
+    color: #2C3E50;
+    width: 100%;
 }
 
 .login-auth-input::placeholder {
-    color: #BBB;
+    color: #BDBDBD;
 }
 
 /* Password Toggle Icon */
 .login-password-toggle {
     cursor: pointer;
-    color: #999;
+    color: #A0A0A0;
     font-size: 18px;
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-/* Forgot Password Link Inline */
-.forgot-password-link-inline {
-    text-align: right;
-    margin-top: 4px;
-    margin-bottom: 12px;
-}
-
-/* Remember Me Checkbox Group */
-.remember-me {
+    padding: 0 18px;
     display: flex;
-    justify-content: flex-start;
-    margin-bottom: 12px;
+    align-items: center;
+    transition: color 0.2s;
 }
 
-/* Remember Me Label */
+.login-password-toggle:hover {
+    color: #E65C00;
+}
+
+/* Options Row (Remember Me & Forgot Password inline) */
+.login-options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-top: 4px;
+}
+
 .remember-label {
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
     font-size: 14px;
+    color: #555;
     user-select: none;
-    white-space: nowrap;
-    color: #555; /* Consistent with other text */
 }
 
-/* Remember Me Checkbox */
 .remember-checkbox {
-    transform: scale(1.1); /* Slightly larger checkbox */
-    accent-color: #B74F2F; /* Themed accent color */
+    width: 16px;
+    height: 16px;
+    accent-color: #E65C00;
+    cursor: pointer;
 }
 
+/* Links */
+.login-link {
+    color: #E65C00;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.login-link:hover {
+    color: #BF360C;
+    text-decoration: underline;
+}
 
 /* Error Text */
 .login-error-text {
-    color: #D32F2F; /* Consistent red error color */
+    color: #E74C3C;
     font-size: 14px;
-    margin-bottom: 15px;
-    text-align: left; /* Align left for form errors */
+    margin-bottom: 18px;
+    text-align: center;
+    background-color: #FDEDEC;
+    padding: 12px;
+    border-radius: 10px;
 }
 
-/* Auth Button (Login Button) - Similar to SignUp's auth-btn */
+/* Primary Button (Login) */
 .login-auth-btn {
-    padding: 15px 25px; /* Increased padding for consistency with SignUp */
-    background-color: #BF360C; /* Deep orange-red, consistent with SignUp Register button */
+    padding: 18px;
+    background: linear-gradient(135deg, #F58220, #E65C00); /* Gradient matching the logo */
     border: none;
     color: white;
-    font-size: 18px;
-    font-weight: 600; /* Added font-weight for consistency */
-    border-radius: 5px; /* Consistent with SignUp */
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%; /* Full width */
-    margin-top: 5px; /* Adjusted margin */
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.3);
 }
-
-.guest-btn {
-    padding: 15px 25px; /* Increased padding for consistency with SignUp */
-    background-color: #BF360C; /* Deep orange-red, consistent with SignUp Register button */
-    border: none;
-    color: white;
-    font-size: 18px;
-    font-weight: 600; /* Added font-weight for consistency */
-    border-radius: 5px; /* Consistent with SignUp */
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: auto; /* Full width */
-    margin-top: 5px; /* Adjusted margin */
-}
-
 
 .login-auth-btn:hover {
-    background-color: #D84315; /* Darker orange-red on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(230, 92, 0, 0.4);
 }
 
 .login-auth-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+    transform: none;
 }
 
-/* Switch Link (e.g., "Don't have an account? Sign Up") */
+/* Switch Link */
 .login-switch-link {
-    margin-top: 20px;
+    margin-top: 30px;
     font-size: 14px;
-    color: #555;
+    color: #7F8C8D;
 }
 
-/* Link within Switch Link / Forgot Password Link */
-.login-link {
-    color: #BF360C; /* Deep orange-red, consistent with SignUp link */
+/* Divider ("OR") */
+.login-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0;
+    color: #BDBDBD;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.login-divider span {
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Secondary Button (Guest) */
+.guest-btn {
+    padding: 16px;
+    background-color: transparent;
+    border: 2px solid #E65C00;
+    color: #E65C00;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
-    text-decoration: underline; /* From your snippet */
-    font-weight: bold; /* Added font-weight for consistency */
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
-.login-link:hover {
-    text-decoration: underline; /* Ensures hover state is consistent */
+.guest-btn:hover {
+    background-color: rgba(230, 92, 0, 0.05);
 }
 
-/* Specific adjustment for inputs when inside input-group for consistent left padding */
-.login-input-group .login-auth-input {
-    /* If the input group has an icon, its left padding is handled by the icon margin */
-    /* If no icon, the input itself needs left padding. */
-    padding-left: 15px; /* Ensures text starts consistently from left */
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+    .login-content-wrapper {
+        flex-direction: column; /* Stack vertically on mobile */
+        max-width: 450px;
+    }
+
+    .login-side-panel {
+        padding: 40px;
+    }
+
+    .login-side-panel-logo {
+        height: 120px;
+        margin-bottom: 0;
+    }
+
+    .login-brand-text {
+        font-size: 32px;
+    }
+
+    .login-card {
+        padding: 40px;
+    }
+
+    .login-title {
+        font-size: 24px;
+    }
+
+    .login-subtitle {
+        margin-bottom: 30px;
+    }
 }
