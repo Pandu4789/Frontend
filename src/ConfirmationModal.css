@@ -1,98 +1,177 @@
-/* Filename: src/components/ConfirmationModal.css - FINAL VERSION */
-
-/* Main overlay for the modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050;
+/* --- OVERLAY --- */
+.cp-modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(44, 62, 80, 0.5); /* Darker slate for focus */
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: cpFadeIn 0.3s ease;
 }
 
-/* The modal content box */
-.confirmation-modal-content {
-  background-color: var(--card-bg, #FFFFFF);
-  padding: 24px 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-  width: 90%;
-  max-width: 450px;
-  border-top: 5px solid var(--theme-heading, #B74F2F);
-  text-align: center;
+@keyframes cpFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- MODAL CARD --- */
+.cp-modal-card {
+    background: #ffffff;
+    width: 95%;
+    max-width: 420px;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    font-family: 'Inter', sans-serif;
 }
 
-.confirmation-modal-header {
-  margin-bottom: 20px;
+.cp-modal-header {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
-.confirmation-icon {
-  font-size: 3rem;
-  color: var(--warning-color, #fd7e14); /* Uses the orange status color */
+.cp-icon-circle {
+    width: 60px;
+    height: 60px;
+    background: rgba(230, 92, 0, 0.1);
+    color: #E65C00;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    margin: 0 auto 15px;
 }
 
-.confirmation-title {
-  margin: 10px 0;
-  font-size: 1.5rem;
-  color: var(--primary-dark, #4A2000);
+.cp-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2C3E50;
+    font-weight: 800;
 }
 
-.confirmation-modal-body p {
-  font-size: 1.1rem;
-  color: var(--text-light, #6c757d);
-  line-height: 1.6;
-  margin: 0;
+.cp-modal-header p {
+    color: #7F8C8D;
+    font-size: 0.9rem;
+    margin-top: 5px;
 }
 
-.confirmation-modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 30px;
+.cp-close-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none; border: none;
+    font-size: 1.8rem; color: #BDC3C7;
+    cursor: pointer;
 }
 
+/* --- FORM GROUPS --- */
+.cp-form { display: flex; flex-direction: column; gap: 18px; }
 
-/* --- ✅ NEW: Full Button Styles Added --- */
-
-/* Base style for all buttons inside the modal */
-.confirmation-modal-actions .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.confirmation-modal-actions .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.cp-input-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #2C3E50;
+    margin-bottom: 8px;
 }
 
-/* Secondary "Cancel" Button */
-.confirmation-modal-actions .btn-secondary {
-  background-color: var(--card-bg, #FFFFFF);
-  color: var(--text-light, #6c757d);
-  border: 2px solid var(--border-color, #EEE0CB);
-}
-.confirmation-modal-actions .btn-secondary:hover {
-  background-color: var(--hover-bg, #FEF3E4);
-  border-color: var(--text-light, #6c757d);
+.cp-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-/* Danger "Logout" Button */
-.confirmation-modal-actions .btn-danger {
-  background-color: var(--danger-color, #c0392b);
-  color: white;
+.cp-input-wrapper input, .cp-simple-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    background: #F8F9FA;
+    font-size: 1rem;
+    transition: all 0.2s;
 }
-.confirmation-modal-actions .btn-danger:hover {
-  opacity: 0.85;
+
+.cp-input-wrapper input:focus, .cp-simple-input:focus {
+    outline: none;
+    border-color: #E65C00;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(230, 92, 0, 0.1);
 }
+
+.cp-input-wrapper span {
+    position: absolute;
+    right: 15px;
+    color: #95A5A6;
+    cursor: pointer;
+}
+
+/* --- REQUIREMENTS CHECKER --- */
+.cp-requirements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cp-requirements div {
+    font-size: 0.75rem;
+    color: #BDC3C7;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s;
+}
+
+.cp-requirements div.met {
+    color: #27AE60;
+}
+
+.cp-requirements svg { font-size: 10px; }
+
+/* --- ERROR BOX --- */
+.cp-error-box {
+    background: #FDEDEC;
+    color: #E74C3C;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* --- ACTIONS --- */
+.cp-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.cp-btn-cancel {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #E0E0E0;
+    background: #fff;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #7F8C8D;
+    cursor: pointer;
+}
+
+.cp-btn-submit {
+    flex: 2;
+    padding: 12px;
+    border: none;
+    background: linear-gradient(135deg, #FFCC70 0%, #E65C00 100%);
+    color: #fff;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(230, 92, 0, 0.3);
+}
+
+.cp-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230, 92, 0, 0.4); }
+.cp-btn-submit:disabled { opacity: 0.7; transform: none; }
+
+.cp-spin { animation: cp-spin 1s linear infinite; }
+@keyframes cp-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

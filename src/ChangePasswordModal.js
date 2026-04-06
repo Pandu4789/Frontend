@@ -1,61 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import './ChangePasswordModal.css'; // The new, improved CSS
-import { FaLock, FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
+import { FaLock, FaEye, FaEyeSlash, FaSpinner, FaCheckCircle, FaCircle } from 'react-icons/fa';
+import './ChangePasswordModal.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
-
-// ✅ NEW: Helper function to check password strength
-const checkPasswordStrength = (password) => {
-    let score = 0;
-    if (password.length > 8) score++;
-    if (password.match(/[a-z]/)) score++;
-    if (password.match(/[A-Z]/)) score++;
-    if (password.match(/[0-9]/)) score++;
-    if (password.match(/[^a-zA-Z0-9]/)) score++; // Special characters
-
-    switch (score) {
-        case 5: return { label: 'Very Strong', score: 4, color: '#28a745' };
-        case 4: return { label: 'Strong', score: 3, color: '#20c997' };
-        case 3: return { label: 'Medium', score: 2, color: '#fd7e14' };
-        case 2: return { label: 'Weak', score: 1, color: '#dc3545' };
-        default: return { label: 'Very Weak', score: 0, color: '#6c757d' };
-    }
-};
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [passwordStrength, setPasswordStrength] = useState({ label: '', score: 0, color: '#6c757d' }); // ✅ NEW state for strength
+    const [showCurrent, setShowCurrent] = useState(false);
+    const [showNew, setShowNew] = useState(false);
+    
+    // Track specific requirements
+    const [checks, setChecks] = useState({
+        length: false,
+        number: false,
+        special: false,
+        upper: false
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setError('');
         setPasswords(prev => ({ ...prev, [name]: value }));
 
-        // ✅ Check strength only for the new password field
         if (name === 'newPassword') {
-            setPasswordStrength(checkPasswordStrength(value));
+            setChecks({
+                length: value.length >= 8,
+                number: /[0-9]/.test(value),
+                special: /[^A-Za-z0-9]/.test(value),
+                upper: /[A-Z]/.test(value)
+            });
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
         if (passwords.newPassword !== passwords.confirmPassword) {
-            setError("New passwords do not match.");
+            setError("Passwords do not match.");
             return;
         }
-        if (passwordStrength.score < 2) { // Optional: Enforce at least medium strength
-            setError("Password is too weak. Please choose a stronger one.");
+        if (!Object.values(checks).every(Boolean)) {
+            setError("Please meet all password requirements.");
             return;
         }
-        
+
         setLoading(true);
         try {
             const payload = {
@@ -64,65 +55,96 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                 newPassword: passwords.newPassword,
             };
             await axios.post(`${API_BASE}/api/auth/change-password`, payload);
-            toast.success("Password changed successfully!");
+            toast.success("Security updated successfully!");
             onClose();
         } catch (err) {
-            const errorMessage = err.response?.data?.message || "Failed to change password. Check your current password.";
-            setError(errorMessage);
-            toast.error(errorMessage);
+            setError(err.response?.data?.message || "Check your current password.");
         } finally {
             setLoading(false);
         }
     };
 
-    if (!isOpen) {
-        return null;
-    }
+    if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content change-password-modal" onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2><FaLock /> Change Your Password</h2>
-                    <button onClick={onClose} className="close-button">&times;</button>
+        <div className="cp-modal-overlay" onClick={onClose}>
+            <div className="cp-modal-card" onClick={e => e.stopPropagation()}>
+                <div className="cp-modal-header">
+                    <div className="cp-icon-circle">
+                        <FaLock />
+                    </div>
+                    <h2>Security Update</h2>
+                    <p>Update your password to keep your account safe.</p>
+                    <button onClick={onClose} className="cp-close-btn">&times;</button>
                 </div>
-                <form onSubmit={handleSubmit} noValidate>
-                    <div className="form-group">
-                        <label htmlFor="currentPassword">Current Password</label>
-                        <div className="password-input-wrapper">
-                            <input id="currentPassword" type={showCurrentPassword ? "text" : "password"} name="currentPassword" value={passwords.currentPassword} onChange={handleChange} required />
-                            <span className="password-toggle-icon" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>{showCurrentPassword ? <FaEyeSlash /> : <FaEye />}</span>
+
+                <form onSubmit={handleSubmit} className="cp-form">
+                    <div className="cp-input-group">
+                        <label>Current Password</label>
+                        <div className="cp-input-wrapper">
+                            <input 
+                                type={showCurrent ? "text" : "password"} 
+                                name="currentPassword" 
+                                value={passwords.currentPassword} 
+                                onChange={handleChange} 
+                                placeholder="Enter current password"
+                            />
+                            <span onClick={() => setShowCurrent(!showCurrent)}>
+                                {showCurrent ? <FaEyeSlash /> : <FaEye />}
+                            </span>
                         </div>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="newPassword">New Password</label>
-                         <div className="password-input-wrapper">
-                            <input id="newPassword" type={showNewPassword ? "text" : "password"} name="newPassword" value={passwords.newPassword} onChange={handleChange} required />
-                             <span className="password-toggle-icon" onClick={() => setShowNewPassword(!showNewPassword)}>{showNewPassword ? <FaEyeSlash /> : <FaEye />}</span>
-                        </div>
-                        {/* ✅ NEW: Password Strength Indicator */}
-                        {passwords.newPassword && (
-                            <div className="strength-indicator">
-                                <div className="strength-bar">
-                                    {Array.from(Array(4).keys()).map(i => (
-                                        <div key={i} className={`strength-bar-segment ${i < passwordStrength.score ? 'filled' : ''}`} style={{'--segment-color': passwordStrength.color}}></div>
-                                    ))}
-                                </div>
-                                <span className="strength-label" style={{ color: passwordStrength.color }}>{passwordStrength.label}</span>
-                            </div>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm New Password</label>
-                        <input id="confirmPassword" type="password" name="confirmPassword" value={passwords.confirmPassword} onChange={handleChange} required />
                     </div>
 
-                    {error && <p className="error-message">{error}</p>}
-                    
-                    <div className="modal-actions">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? <FaSpinner className="spinner" /> : 'Save Changes'}
+                    <div className="cp-input-group">
+                        <label>New Password</label>
+                        <div className="cp-input-wrapper">
+                            <input 
+                                type={showNew ? "text" : "password"} 
+                                name="newPassword" 
+                                value={passwords.newPassword} 
+                                onChange={handleChange}
+                                placeholder="Enter new password"
+                            />
+                            <span onClick={() => setShowNew(!showNew)}>
+                                {showNew ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+                        </div>
+                        
+                        {/* Requirement Tracker */}
+                        <div className="cp-requirements">
+                            <div className={checks.length ? 'met' : ''}>
+                                {checks.length ? <FaCheckCircle /> : <FaCircle />} 8+ Characters
+                            </div>
+                            <div className={checks.upper ? 'met' : ''}>
+                                {checks.upper ? <FaCheckCircle /> : <FaCircle />} Uppercase
+                            </div>
+                            <div className={checks.number ? 'met' : ''}>
+                                {checks.number ? <FaCheckCircle /> : <FaCircle />} Number
+                            </div>
+                            <div className={checks.special ? 'met' : ''}>
+                                {checks.special ? <FaCheckCircle /> : <FaCircle />} Special Char
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="cp-input-group">
+                        <label>Confirm New Password</label>
+                        <input 
+                            className="cp-simple-input"
+                            type="password" 
+                            name="confirmPassword" 
+                            value={passwords.confirmPassword} 
+                            onChange={handleChange}
+                            placeholder="Repeat new password"
+                        />
+                    </div>
+
+                    {error && <div className="cp-error-box">{error}</div>}
+
+                    <div className="cp-actions">
+                        <button type="button" className="cp-btn-cancel" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="cp-btn-submit" disabled={loading}>
+                            {loading ? <FaSpinner className="cp-spin" /> : 'Update Password'}
                         </button>
                     </div>
                 </form>
