@@ -1,28 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaBars, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaUserCircle, FaPray, FaClipboardList, FaRegImages, FaLock, FaOm } from 'react-icons/fa';
 import { BsGridFill, BsCalendar } from 'react-icons/bs';
-import { FaPray, FaClipboardList,  FaOm, FaCalendarCheck,FaRegImages,FaLock } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 import ConfirmationModal from './ConfirmationModal';
 import ChangePasswordModal from './ChangePasswordModal'; 
-
-const colors = {
-  primaryDark: '#4A2000',
-  textLight: '#FFD700',
-  textAccent: '#F5F5DC',
-  activeBgDark: '#6F3000',
-  navbarBg: '#4A2000',
-  navbarTextLight: '#FFD700',
-  mainContentBg: '#FDF5E6',
-  dropdownBg: '#ffffff',
-  dropdownText: '#343a40',
-  dropdownHover: '#f8f9fa',
-  dropdownBorder: '#eeeeee',
-  danger: '#dc3545',
-  profileIconPlaceholderBg: '#F5F5DC',
-  profileIconDefaultColor: '#4A2000',
-};
+import './navbar.css'; // Importing the new styles
 
 const Navbar = ({ onLogout, onSidebarToggle }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,16 +15,17 @@ const Navbar = ({ onLogout, onSidebarToggle }) => {
   const sideMenuRef = useRef(null);
   const hamburgerIconRef = useRef(null);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false); 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
-const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   const firstName = localStorage.getItem('firstName') || 'Priest';
- const priestId = localStorage.getItem('userId') || 'ID123';
-  const [profilePicture, setProfilePicture] = useState(localStorage.getItem('profilePicture'));
+  const priestId = localStorage.getItem('userId') || 'ID123';
+  const profilePicture = localStorage.getItem('profilePicture');
 
   const sidebarWidthCollapsed = '0px';
-  const sidebarWidthExpanded = '220px';
+  const sidebarWidthExpanded = '260px'; // Made slightly wider for a modern feel
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
@@ -57,21 +41,19 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   };
 
   const handleLogout = () => {
-        // This is your actual logout logic
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('firstName');
-        setShowLogoutConfirm(false); // Close the modal
-        navigate('/login'); // Redirect to login page
-        setProfileOpen(false);
-        window.location.reload(); // Force a refresh to update state everywhere
-    };
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('firstName');
+    setShowLogoutConfirm(false); 
+    navigate('/login'); 
+    setProfileOpen(false);
+    window.location.reload(); 
+  };
 
-
-      const handleLogoutClick = () => {
-    setProfileOpen(false);      // First, close the profile dropdown
-    setShowLogoutConfirm(true); // Then, open the confirmation modal
+  const handleLogoutClick = () => {
+    setProfileOpen(false);      
+    setShowLogoutConfirm(true); 
   };
 
   useEffect(() => {
@@ -82,7 +64,9 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Close profile dropdown
       if (
+        profileOpen &&
         profileDropdownRef.current &&
         !profileDropdownRef.current.contains(event.target) &&
         profileIconRef.current &&
@@ -91,6 +75,7 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
         setProfileOpen(false);
       }
 
+      // Close sidebar if clicking outside
       let target = event.target;
       let isHamburgerClick = false;
       while (target) {
@@ -113,129 +98,131 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, profileOpen]);
 
   return (
     <>
       {/* Top Navbar */}
-      <div style={styles.navbar}>
-        <div style={styles.left}>
-          <FaBars
-            onClick={toggleMenu}
-            style={styles.hamburgerIcon}
+      <div className="priestify-navbar">
+        <div className="nav-left">
+          <button 
+            className="nav-hamburger" 
+            onClick={toggleMenu} 
             ref={hamburgerIconRef}
-            id="menu-toggle"
-          />
-          <h3 style={styles.logo} onClick={() => goToPage('/Dashboard')}>
-  <FaOm style={styles.omIcon} /> PRIESTify
-</h3>
+          >
+            <FaBars />
+          </button>
+          
+          <div className="nav-brand" onClick={() => goToPage('/Dashboard')}>
+            <FaOm className="nav-om-icon" />
+            <span className="brand-priest">PRIEST</span>
+            <span className="brand-ify">IFY</span>
+          </div>
         </div>
 
-        <div
-          style={styles.profileIconContainer}
-          onClick={toggleProfileDropdown}
-          ref={profileIconRef}
-        >
-          {profilePicture ? (
-            <img src={profilePicture} alt="Profile" style={styles.profilePicture} />
-          ) : (
-            <FaUserCircle style={styles.defaultProfileIcon} />
-          )}
+        <div className="nav-right">
+          <div
+            className="nav-profile-trigger"
+            onClick={toggleProfileDropdown}
+            ref={profileIconRef}
+          >
+            {profilePicture ? (
+              <img src={profilePicture} alt="Profile" className="nav-profile-pic" />
+            ) : (
+              <FaUserCircle className="nav-default-avatar" />
+            )}
+          </div>
         </div>
       </div>
 
-      {isOpen && <div style={styles.overlay} onClick={() => setIsOpen(false)} />}
+      {/* Overlay for Sidebar */}
+      {isOpen && <div className="sidebar-overlay" onClick={() => setIsOpen(false)} />}
 
-      {/* Sidebar */}
+      {/* Sidebar Menu */}
       <div
         ref={sideMenuRef}
-        style={{
-          ...styles.sideMenu,
-          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-        }}
+        className={`priestify-sidebar ${isOpen ? 'open' : ''}`}
       >
-        <div
-          onClick={() => goToPage('/Dashboard')}
-          style={{
-            ...styles.menuItem,
-            ...(location.pathname === '/Dashboard' ? styles.activeMenuItem : {}),
-          }}
-        >
-          <BsGridFill style={styles.menuIcon} />
-          <span>Dashboard</span>
+        <div className="sidebar-content">
+          <div
+            onClick={() => goToPage('/Dashboard')}
+            className={`sidebar-item ${location.pathname === '/Dashboard' ? 'active' : ''}`}
+          >
+            <BsGridFill className="sidebar-icon" />
+            <span>Dashboard</span>
+          </div>
+          
+          <div
+            onClick={() => goToPage('/Calendar')}
+            className={`sidebar-item ${location.pathname === '/Calendar' ? 'active' : ''}`}
+          >
+            <BsCalendar className="sidebar-icon" />
+            <span>Calendar</span>
+          </div>
+          
+          <div
+            onClick={() => goToPage('/Mohurtam')}
+            className={`sidebar-item ${location.pathname === '/Mohurtam' ? 'active' : ''}`}
+          >
+            <FaPray className="sidebar-icon" />
+            <span>Mohurtam</span>
+          </div>
+          
+          <div
+            onClick={() => goToPage('/Requests')}
+            className={`sidebar-item ${location.pathname === '/Requests' ? 'active' : ''}`}
+          >
+            <FaClipboardList className="sidebar-icon" />
+            <span>Requests</span>
+          </div>
+          
+          <div
+            onClick={() => goToPage('/priest-gallery')}
+            className={`sidebar-item ${location.pathname === '/priest-gallery' ? 'active' : ''}`}
+          >
+            <FaRegImages className="sidebar-icon" />
+            <span>Gallery</span>
+          </div>
         </div>
-        <div
-          onClick={() => goToPage('/Calendar')}
-          style={{
-            ...styles.menuItem,
-            ...(location.pathname === '/Calendar' ? styles.activeMenuItem : {}),
-          }}
-        >
-          <BsCalendar style={styles.menuIcon} />
-          <span>Calendar</span>
-        </div>
-        <div
-          onClick={() => goToPage('/Mohurtam')}
-          style={{
-            ...styles.menuItem,
-            ...(location.pathname === '/Mohurtam' ? styles.activeMenuItem : {}),
-          }}
-        >
-          <FaPray style={styles.menuIcon} />
-          <span>Mohurtam</span>
-        </div>
-        <div
-          onClick={() => goToPage('/Requests')}
-          style={{
-            ...styles.menuItem,
-            ...(location.pathname === '/Requests' ? styles.activeMenuItem : {}),
-          }}
-        >
-          <FaClipboardList style={styles.menuIcon} />
-          <span>Requests</span>
-        </div>
-        <div
-          onClick={() => goToPage('/priest-gallery')}
-          style={{
-            ...styles.menuItem,
-            ...(location.pathname === '/priest-gallery' ? styles.activeMenuItem : {}),
-          }}
-        >
-          <FaRegImages style={styles.menuIcon} />
-          <span>Gallery</span>
-        </div>
-        </div>
+      </div>
+
       {/* Profile Dropdown */}
       {profileOpen && (
-        <div ref={profileDropdownRef} style={styles.dropdown}>
-          <div style={styles.dropdownHeader}>
-            <div style={styles.dropdownUserName}>{firstName}</div>
-            <div style={styles.dropdownUserEmail}>ID: {priestId}</div>
+        <div ref={profileDropdownRef} className="profile-dropdown">
+          <div className="dropdown-header">
+            <div className="dropdown-name">{firstName}</div>
+            <div className="dropdown-id">ID: {priestId}</div>
           </div>
 
-          <div onClick={() => goToPage('/Profile')} style={styles.dropdownItem}>
-            <FaUserCircle style={styles.dropdownItemIcon} />
-            Profile
-          </div>
-          <div 
-            onClick={() => { setProfileOpen(false); setShowChangePasswordModal(true); }} 
-            style={styles.dropdownItem}
-          >
-            <FaLock style={styles.dropdownItemIcon} />
-            Change Password
-          </div>
-          <div onClick={() => goToPage('/Help')} style={styles.dropdownItem}>
-            <MdOutlineHelpOutline style={styles.dropdownItemIcon} />
-            Help
-          </div>
-          <div onClick={handleLogoutClick} 
-  style={{ ...styles.dropdownItem, ...styles.logoutItem }}
->
-  <MdOutlineLogout style={styles.dropdownItemIcon} />
-  Logout
+          <div className="dropdown-menu">
+            <div onClick={() => goToPage('/Profile')} className="dropdown-item">
+              <FaUserCircle className="dropdown-icon" />
+              Profile
+            </div>
+            
+            <div 
+              onClick={() => { setProfileOpen(false); setShowChangePasswordModal(true); }} 
+              className="dropdown-item"
+            >
+              <FaLock className="dropdown-icon" />
+              Change Password
+            </div>
+            
+            <div onClick={() => goToPage('/Help')} className="dropdown-item">
+              <MdOutlineHelpOutline className="dropdown-icon" />
+              Help
+            </div>
+            
+            <div className="dropdown-divider"></div>
+            
+            <div onClick={handleLogoutClick} className="dropdown-item logout-item">
+              <MdOutlineLogout className="dropdown-icon" />
+              Logout
+            </div>
           </div>
         </div>
       )}
+
       <ConfirmationModal
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
@@ -245,151 +232,13 @@ const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
         confirmText="Logout"
         cancelText="Cancel"
       />
+      
       <ChangePasswordModal 
         isOpen={showChangePasswordModal} 
         onClose={() => setShowChangePasswordModal(false)} 
       />
     </>
   );
-};
-
-const styles = {
-  navbar: {
-    background: colors.navbarBg,
-    color: colors.navbarTextLight,
-    padding: '1px 20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '60px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    zIndex: 1000,
-  },
-  left: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-  },
-  hamburgerIcon: {
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: colors.navbarTextLight,
-  },
-  logo: {
-    margin: 0,
-    cursor: 'pointer',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: colors.navbarTextLight,
-  },
-  profileIconContainer: {
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    backgroundColor: colors.profileIconPlaceholderBg,
-    overflow: 'hidden',
-  },
-  profilePicture: {
-    width: '100%',
-    height: '100%',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  defaultProfileIcon: {
-    fontSize: '28px',
-    color: colors.profileIconDefaultColor,
-  },
-  sideMenu: {
-    position: 'fixed',
-    top: '60px',
-    left: 0,
-    width: '220px',
-    height: 'calc(100vh - 60px)',
-    background: colors.primaryDark,
-    paddingTop: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'transform 0.3s ease-in-out',
-    zIndex: 950,
-    boxShadow: '2px 0 5px rgba(0,0,0,0.2)',
-  },
-  menuItem: {
-    padding: '15px 20px',
-    color: colors.textLight,
-    borderBottom: `1px solid ${colors.activeBgDark}`,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px',
-    transition: 'background-color 0.2s ease-in-out',
-  },
-  activeMenuItem: {
-    backgroundColor: colors.activeBgDark,
-    fontWeight: 'bold',
-  },
-  menuIcon: {
-    fontSize: '20px',
-    color: colors.textLight,
-  },
-  dropdown: {
-    position: 'fixed',
-    top: '60px',
-    right: '20px',
-    backgroundColor: colors.dropdownBg,
-    borderRadius: '5px',
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-    zIndex: 1100,
-    width: '200px',
-  },
-  dropdownHeader: {
-    padding: '10px 15px',
-    borderBottom: `1px solid ${colors.dropdownBorder}`,
-    color: colors.dropdownText,
-    marginBottom: '5px',
-  },
-  dropdownUserName: {
-    fontWeight: 'bold',
-    fontSize: '16px',
-  },
-  dropdownUserEmail: {
-    color: colors.dropdownText,
-    fontSize: '13px',
-  },
-  dropdownItem: {
-    padding: '10px 15px',
-    color: colors.dropdownText,
-    cursor: 'pointer',
-    borderBottom: `1px solid ${colors.dropdownBorder}`,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    transition: 'background-color 0.2s ease-in-out',
-  },
-  dropdownItemIcon: {
-    fontSize: '18px',
-    color: colors.dropdownText,
-  },
-  logoutItem: {
-    color: colors.danger,
-    borderBottom: 'none',
-  },
-  overlay: {
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 900,
-  },
 };
 
 export default Navbar;

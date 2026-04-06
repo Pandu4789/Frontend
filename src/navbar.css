@@ -1,0 +1,276 @@
+/* Top Navbar */
+.priestify-navbar {
+    background-color: #ffffff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Nav Left Side */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-hamburger {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #2C3E50;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.nav-hamburger:hover {
+    background-color: #F8F9FA;
+    color: #E65C00;
+}
+
+/* Brand/Logo */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.nav-om-icon {
+    color: #E65C00;
+    margin-right: 8px;
+    font-size: 24px;
+}
+
+.brand-priest {
+    color: #2C3E50;
+}
+
+.brand-ify {
+    color: #E65C00;
+}
+
+/* Nav Right Side & Profile */
+.nav-profile-trigger {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: rgba(230, 92, 0, 0.1);
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(230, 92, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nav-profile-trigger:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(230, 92, 0, 0.25);
+}
+
+.nav-profile-pic {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.nav-default-avatar {
+    font-size: 26px;
+    color: #E65C00;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(44, 62, 80, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 900;
+}
+
+/* Sidebar Menu */
+.priestify-sidebar {
+    position: fixed;
+    top: 70px; /* Below navbar */
+    left: 0;
+    width: 260px;
+    height: calc(100vh - 70px);
+    background-color: #ffffff;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 950;
+    overflow-y: auto;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.priestify-sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebar-content {
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Sidebar Items */
+.sidebar-item {
+    padding: 14px 20px;
+    color: #555555;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar-item:hover {
+    background-color: #F8F9FA;
+    color: #2C3E50;
+}
+
+.sidebar-item.active {
+    background-color: rgba(230, 92, 0, 0.1);
+    color: #E65C00;
+    font-weight: 600;
+}
+
+.sidebar-icon {
+    font-size: 20px;
+    color: inherit; /* Inherits from parent, active state turns it orange */
+}
+
+/* Profile Dropdown Menu */
+.profile-dropdown {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 1100;
+    width: 240px;
+    overflow: hidden;
+    border: 1px solid #F0F0F0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+    padding: 20px;
+    background-color: #F8F9FA;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.dropdown-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: #2C3E50;
+    margin-bottom: 4px;
+}
+
+.dropdown-id {
+    color: #7F8C8D;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    padding: 10px 0;
+}
+
+.dropdown-item {
+    padding: 12px 20px;
+    color: #2C3E50;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #F8F9FA;
+    color: #E65C00;
+}
+
+.dropdown-icon {
+    font-size: 18px;
+    color: #A0A0A0;
+    transition: color 0.2s;
+}
+
+.dropdown-item:hover .dropdown-icon {
+    color: #E65C00;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #F0F0F0;
+    margin: 8px 0;
+}
+
+.logout-item {
+    color: #E74C3C;
+}
+
+.logout-item:hover {
+    background-color: #FDEDEC;
+    color: #C0392B;
+}
+
+.logout-item:hover .dropdown-icon {
+    color: #C0392B;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nav-brand span {
+        display: none; /* Optionally hide text on mobile, just show Om icon */
+    }
+    
+    .nav-brand {
+        font-size: 18px;
+    }
+    
+    .priestify-navbar {
+        padding: 0 16px;
+    }
+    
+    .profile-dropdown {
+        right: 16px;
+    }
+}

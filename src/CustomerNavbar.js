@@ -1,20 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle, FaBars, FaOm,FaLock
+  FaHome, FaUserTie, FaPrayingHands, FaUtensils, FaUserCircle, FaBars, FaLock
 } from 'react-icons/fa';
 import { MdOutlineHelpOutline, MdOutlineLogout } from 'react-icons/md';
 import './CustomerNavbar.css';
 import ConfirmationModal from './ConfirmationModal';
 import ChangePasswordModal from './ChangePasswordModal';
 
+// Import your logo here
+import logo from './image.png';
+
 const CustomerNavbar = ({ onLogout }) => {
   const navigate = useNavigate();
-  const location = useLocation();  // to get current path
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-    const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const dropdownRef = useRef(null);
   const sidebarRef = useRef(null);
@@ -22,8 +25,8 @@ const CustomerNavbar = ({ onLogout }) => {
   const profileIconRef = useRef(null);
 
   const handleLogout = () => {
-    setShowLogoutConfirm(false); // Close the modal first
-    if (onLogout) onLogout();   // Call the passed onLogout prop
+    setShowLogoutConfirm(false); 
+    if (onLogout) onLogout();   
     navigate('/login');
   };
 
@@ -53,13 +56,13 @@ const CustomerNavbar = ({ onLogout }) => {
     if (action === 'profile') navigate('/profile');
     else if (action === 'help') navigate('/help');
     else if (action === 'changePassword') setShowChangePasswordModal(true);
-
-
   };
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
+      // Handle Dropdown outside click
       if (
+        dropdownOpen &&
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target) &&
         profileIconRef.current &&
@@ -68,6 +71,7 @@ const CustomerNavbar = ({ onLogout }) => {
         setDropdownOpen(false);
       }
 
+      // Handle Sidebar outside click
       let target = event.target;
       let isClickOnNavElements = false;
 
@@ -91,7 +95,7 @@ const CustomerNavbar = ({ onLogout }) => {
 
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isSidebarOpen]);
+  }, [isSidebarOpen, dropdownOpen]);
 
   const links = [
     { path: 'events', name: 'Dashboard', icon: <FaHome /> },
@@ -100,25 +104,30 @@ const CustomerNavbar = ({ onLogout }) => {
     { path: 'prasadam', name: 'Food', icon: <FaUtensils /> },
   ];
 
-  // Helper to check if a link is active based on current location.pathname
   const isActive = (path) => {
-    // Exact match or path includes (in case of nested routes)
     return location.pathname === `/${path}` || location.pathname.startsWith(`/${path}/`);
   };
 
   return (
     <>
-      <nav className="navbar">
-        <div className={`navbar-content-wrapper ${isSidebarOpen ? 'sidebar-active-top-nav' : ''}`}>
-          <FaBars
-            className="hamburger-icon"
+      <nav className="customer-navbar">
+        {/* Dynamic class added here to track sidebar state */}
+        <div className={`navbar-content-wrapper ${isSidebarOpen ? 'sidebar-is-open' : ''}`}>
+          
+          <button
+            className="nav-hamburger"
             onClick={toggleSidebar}
             ref={hamburgerRef}
-          />
+          >
+            <FaBars />
+          </button>
 
-          <div className="app-icon" onClick={() => handleNavigation('events')}>
-            <FaOm />
-            <span className="app-name">PRIESTify</span>
+          <div className="nav-brand" onClick={() => handleNavigation('events')}>
+            <img src={logo} alt="Priestify Logo" className="nav-logo" />
+            {/* WRAPPED IN ONE SPAN TO PREVENT FLEXBOX SPACING */}
+            <span className="brand-text-container">
+              <span className="brand-priest">PRIEST</span><span className="brand-ify">IFY</span>
+            </span>
           </div>
 
           <div className="navbar-center-desktop">
@@ -128,27 +137,37 @@ const CustomerNavbar = ({ onLogout }) => {
                 onClick={() => handleNavigation(link.path)}
                 className={`navbar-button ${isActive(link.path) ? 'active-menu-item' : ''}`}
               >
-                <span className="icon">{link.icon}</span>
+                <span className="nav-btn-icon">{link.icon}</span>
                 <span>{link.name}</span>
               </button>
             ))}
           </div>
 
-          <div className="profile-icon-wrapper" ref={profileIconRef}>
-            <FaUserCircle className="profile-icon" onClick={handleDropdownToggle} />
+          <div className="nav-right">
+            <div 
+              className="nav-profile-trigger" 
+              onClick={handleDropdownToggle} 
+              ref={profileIconRef}
+            >
+              <FaUserCircle className="nav-default-avatar" />
+            </div>
+
             {dropdownOpen && (
-             <div className="dropdown-menu" ref={dropdownRef}>
-                <div onClick={() => handleDropdownClick('profile')} className="dropdown-item">
-                  <FaUserCircle style={{ marginRight: '8px' }} /> Profile
-                </div>
-                <div onClick={() => handleDropdownClick('changePassword')} className="dropdown-item">
-                  <FaLock style={{ marginRight: '8px' }} /> Change Password
-                </div>
-                <div onClick={() => handleDropdownClick('help')} className="dropdown-item">
-                  <MdOutlineHelpOutline style={{ marginRight: '8px' }} /> Help
-                </div>
-                 <div onClick={handleLogoutClick} className="dropdown-item logout">
-                  <MdOutlineLogout style={{ marginRight: '8px' }} /> Logout
+              <div className="profile-dropdown" ref={dropdownRef}>
+                <div className="dropdown-menu">
+                  <div onClick={() => handleDropdownClick('profile')} className="dropdown-item">
+                    <FaUserCircle className="dropdown-icon" /> Profile
+                  </div>
+                  <div onClick={() => handleDropdownClick('changePassword')} className="dropdown-item">
+                    <FaLock className="dropdown-icon" /> Change Password
+                  </div>
+                  <div onClick={() => handleDropdownClick('help')} className="dropdown-item">
+                    <MdOutlineHelpOutline className="dropdown-icon" /> Help
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <div onClick={handleLogoutClick} className="dropdown-item logout-item">
+                    <MdOutlineLogout className="dropdown-icon" /> Logout
+                  </div>
                 </div>
               </div>
             )}
@@ -156,44 +175,54 @@ const CustomerNavbar = ({ onLogout }) => {
         </div>
       </nav>
 
+      {/* Sidebar Overlay */}
       {isSidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
 
-      <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+      {/* Mobile Sidebar */}
+      <div ref={sidebarRef} className={`priestify-sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
-          <FaOm />
-          <span className="app-name">PRIESTify</span>
+          <img src={logo} alt="Priestify Logo" className="nav-logo" />
+          {/* WRAPPED IN ONE SPAN TO PREVENT FLEXBOX SPACING */}
+          <span className="brand-text-container">
+            <span className="brand-priest">PRIEST</span><span className="brand-ify">IFY</span>
+          </span>
         </div>
-        <div className="sidebar-links">
+        
+        <div className="sidebar-content">
           {links.map((link) => (
             <div
               key={link.path}
               onClick={() => handleNavigation(link.path)}
-              className={`sidebar-item ${isActive(link.path) ? 'active-menu-item' : ''}`}
+              className={`sidebar-item ${isActive(link.path) ? 'active' : ''}`}
             >
-              <span className="icon">{link.icon}</span>
+              <span className="sidebar-icon">{link.icon}</span>
               <span>{link.name}</span>
             </div>
           ))}
+          
+          <div className="sidebar-divider"></div>
+
           <div
-            className={`sidebar-item ${location.pathname === '/profile' ? 'active-menu-item' : ''}`}
+            className={`sidebar-item ${location.pathname === '/profile' ? 'active' : ''}`}
             onClick={() => handleNavigation('profile')}
           >
-            <FaUserCircle className="icon" />
+            <FaUserCircle className="sidebar-icon" />
             <span>Profile</span>
           </div>
           <div
-            className={`sidebar-item ${location.pathname === '/help' ? 'active-menu-item' : ''}`}
+            className={`sidebar-item ${location.pathname === '/help' ? 'active' : ''}`}
             onClick={() => handleNavigation('help')}
           >
-            <MdOutlineHelpOutline className="icon" />
+            <MdOutlineHelpOutline className="sidebar-icon" />
             <span>Help</span>
           </div>
-         <div className="sidebar-item logout" onClick={handleLogoutClick}>
-            <MdOutlineLogout className="icon" />
+          <div className="sidebar-item logout-item" onClick={handleLogoutClick}>
+            <MdOutlineLogout className="sidebar-icon" />
             <span>Logout</span>
           </div>
         </div>
       </div>
+
       <ConfirmationModal
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
