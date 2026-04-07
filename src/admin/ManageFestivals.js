@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { format, parseISO } from 'date-fns';
 import { FaPlus, FaEdit, FaTrash, FaTimes } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
+import '../components/adminModalStyles.css';
 
 const API_BASE = 'http://localhost:8080';
 
@@ -119,14 +120,8 @@ const ManageFestivals = () => {
         .action-btn.delete { color: var(--danger-color); }
         .action-btn:hover { background-color: var(--hover-bg); }
 
-        /* Reusable Modal Styles */
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 500px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .modal-header h3 { margin: 0; font-size: 1.5rem; color: var(--primary-dark); }
-        .close-button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
-        .modal-body { display: flex; flex-direction: column; gap: 1rem; }
-        .modal-footer { padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; }
+        /* Reusable Modal Styles are now imported from adminModalStyles.css */
+        .admin-modal-content { max-width: 500px; }
       `}</style>
       
       <div className="manage-festivals-container">
@@ -167,13 +162,13 @@ const ManageFestivals = () => {
         )}
 
         {isModalOpen && (
-            <div className="modal-overlay">
-                <div className="modal-content">
-                    <div className="modal-header">
+            <div className="admin-modal-overlay">
+                <div className="admin-modal-content">
+                    <div className="admin-modal-header">
                         <h3>{isEditing ? 'Edit Festival' : 'Add New Festival'}</h3>
-                        <button onClick={handleCloseModal} className="close-button"><FaTimes /></button>
+                        <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
                     </div>
-                    <form onSubmit={handleSubmit} className="modal-body">
+                    <form onSubmit={handleSubmit} className="admin-modal-body">
                         <input
                             className="form-input"
                             type="text"
@@ -191,7 +186,7 @@ const ManageFestivals = () => {
                             onChange={handleInputChange}
                             required
                         />
-                        <div className="modal-footer">
+                        <div className="admin-modal-footer">
                             <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
                             <button type="submit" className="btn btn-primary">{isEditing ? 'Update Festival' : 'Add Festival'}</button>
                         </div>

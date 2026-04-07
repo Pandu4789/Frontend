@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { FaEdit, FaTrash, FaPlus, FaTimes, FaTag, FaClock, FaDollarSign } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
+import '../components/adminModalStyles.css';
 
 const API_BASE = "http://localhost:8080";
 
@@ -118,15 +119,6 @@ const ManagePoojaServices = () => {
         .btn-edit-service { background-color: var(--hover-bg); color: var(--theme-heading); }
         .btn-delete-service { background-color: var(--danger-color); color: white; }
 
-        /* Reusable Modal Styles */
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 600px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .modal-header h2 { margin: 0; font-size: 1.5rem; color: var(--primary-dark); }
-        .close-button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
-        .modal-body .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .modal-body .col-span-2 { grid-column: span 2 / span 2; }
-        .modal-footer { padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; }
       `}</style>
       <div className="manage-services-container">
         <ToastContainer position="bottom-right" autoClose={3000} theme="colored"/>
@@ -166,13 +158,13 @@ const ManagePoojaServices = () => {
         </div>
 
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-content">
+              <div className="admin-modal-header">
                 <h2>{isEditing ? 'Edit Service' : 'Create New Service'}</h2>
-                <button onClick={handleCloseModal} className="close-button"><FaTimes /></button>
+                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
               </div>
-              <form onSubmit={handleSubmit} className="modal-body">
+              <form onSubmit={handleSubmit} className="admin-modal-body">
                 <div className="form-grid">
                   <input className="form-input col-span-2" name="name" value={currentService.name} onChange={handleInputChange} placeholder="Service Name (e.g., Griha Pravesh)" required />
                   <input className="form-input" name="category" value={currentService.category} onChange={handleInputChange} placeholder="Category (e.g., Lifecycle Events)" />
@@ -180,7 +172,7 @@ const ManagePoojaServices = () => {
                   <input className="form-input col-span-2" name="estimatedPrice" value={currentService.estimatedPrice} onChange={handleInputChange} placeholder="Estimated Price (e.g., $351)" />
                   <textarea className="form-input col-span-2" name="description" value={currentService.description} onChange={handleInputChange} placeholder="A brief description of the service..." required />
                 </div>
-                <div className="modal-footer">
+                <div className="admin-modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
                   <button type="submit" className="btn btn-primary">{isEditing ? 'Update Service' : 'Create Service'}</button>
                 </div>

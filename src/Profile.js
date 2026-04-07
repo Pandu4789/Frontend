@@ -33,7 +33,11 @@ const Profile = () => {
     try {
       const res = await axios.get(`${API_URL}/api/profile?email=${userEmail}`);
       const data = res.data;
-      const formatted = { ...data, profilePicture: data.profilePicture ? `${API_URL}${data.profilePicture}` : '' };
+      // Prepend API_URL only if path is not already fully qualified
+      const pPic = data.profilePicture && !data.profilePicture.startsWith('http') 
+                  ? `${API_URL}${data.profilePicture}` 
+                  : data.profilePicture;
+      const formatted = { ...data, profilePicture: pPic || '' };
       setProfileData(formatted);
       setOriginalProfileData(formatted);
     } catch (error) {
@@ -45,6 +49,7 @@ const Profile = () => {
 
   useEffect(() => { fetchProfileData(); }, [fetchProfileData]);
 
+  // Comparison logic to enable/disable buttons
   const isChanged = () => JSON.stringify(profileData) !== JSON.stringify(originalProfileData);
 
   const onFileChange = (e) => {
@@ -73,6 +78,7 @@ const Profile = () => {
   const handleSaveChanges = async () => {
     setSaving(true);
     try {
+      // Map 'email' to 'mailId' if backend requires that naming
       await axios.post(`${API_URL}/api/profile/update`, { ...profileData, mailId: profileData.email });
       setOriginalProfileData(profileData);
       toast.success("Profile saved!");
@@ -80,12 +86,13 @@ const Profile = () => {
     finally { setSaving(false); }
   };
 
-  if (loading) return <div className="p-loader">Connecting...</div>;
+  if (loading) return <div className="p-loader">Connecting to Priestify...</div>;
 
   return (
     <div className="p-page-wrapper">
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" theme="colored" />
 
+      {/* CROP MODAL OVERLAY */}
       {imageToCrop && (
         <div className="p-crop-modal">
           <div className="p-crop-container">
@@ -105,15 +112,16 @@ const Profile = () => {
         {/* SIDEBAR */}
         <aside className="p-sidebar">
           <div className="p-profile-preview">
-            <div className="p-avatar-wrapper">
+            <div className="p-avatar-container">
               <div className="p-avatar-circle">
                 {profileData.profilePicture ? <img src={profileData.profilePicture} alt="User" /> : <FaUser className="p-icon-placeholder" />}
               </div>
+              {/* FIXED CAMERA OVERLAY POSITIONING */}
               <label htmlFor="p-upload" className="p-camera-overlay"><FaCamera /></label>
               <input type="file" id="p-upload" hidden onChange={onFileChange} accept="image/*" />
             </div>
             <h3>{profileData.firstName} {profileData.lastName}</h3>
-            <span className="p-role-label">{profileData.role}</span>
+            <span className="p-role-label">{profileData.role || 'CUSTOMER'}</span>
           </div>
 
           <nav className="p-nav">
@@ -138,17 +146,22 @@ const Profile = () => {
               <div className="p-grid fade-in">
                 <div className="p-input-group"><label>First Name</label><input value={profileData.firstName} onChange={e => setProfileData({...profileData, firstName: e.target.value})} /></div>
                 <div className="p-input-group"><label>Last Name</label><input value={profileData.lastName} onChange={e => setProfileData({...profileData, lastName: e.target.value})} /></div>
-                <div className="p-input-group full"><label>Email Address (Primary)</label><input value={profileData.email} readOnly className="p-disabled" /></div>
+                {/* Mail Alignment Fix: Uses full-row class */}
+                <div className="p-input-group full-row"><label>Email Address (Primary)</label><input value={profileData.email} readOnly className="p-disabled" /></div>
                 <div className="p-input-group"><label>Phone Number</label><input type="tel" value={profileData.phone} onChange={e => setProfileData({...profileData, phone: e.target.value})} /></div>
               </div>
             ) : (
               <div className="p-grid fade-in">
-                <div className="p-input-group full"><label>Street Address</label><input value={profileData.addressLine1} onChange={e => setProfileData({...profileData, addressLine1: e.target.value})} /></div>
-                <div className="p-input-group full"><label>Suite / Apartment</label><input value={profileData.addressLine2} onChange={e => setProfileData({...profileData, addressLine2: e.target.value})} /></div>
-                <div className="p-input-group"><label>City</label><input value={profileData.city} onChange={e => setProfileData({...profileData, city: e.target.value})} /></div>
-                <div className="p-input-group mini"><label>State</label><input value={profileData.state} onChange={e => setProfileData({...profileData, state: e.target.value})} /></div>
-                <div className="p-input-group mini"><label>Zip Code</label><input value={profileData.zipCode} onChange={e => setProfileData({...profileData, zipCode: e.target.value})} /></div>
-              </div>
+    <div className="p-input-group full-row"><label>Street Address</label><input value={profileData.addressLine1} onChange={e => setProfileData({...profileData, addressLine1: e.target.value})} /></div>
+    <div className="p-input-group full-row"><label>Suite / Apartment</label><input value={profileData.addressLine2} onChange={e => setProfileData({...profileData, addressLine2: e.target.value})} /></div>
+    
+    {/* City and State will now sit side-by-side because they are not 'full-row' */}
+    <div className="p-input-group"><label>City</label><input value={profileData.city} onChange={e => setProfileData({...profileData, city: e.target.value})} /></div>
+    <div className="p-input-group"><label>State</label><input value={profileData.state} onChange={e => setProfileData({...profileData, state: e.target.value})} /></div>
+    
+    {/* Zip Code spans the bottom row for a clean finish */}
+    <div className="p-input-group full-row"><label>Zip Code</label><input value={profileData.zipCode} onChange={e => setProfileData({...profileData, zipCode: e.target.value})} /></div>
+  </div>
             )}
           </div>
 
@@ -156,7 +169,8 @@ const Profile = () => {
             <button className="p-btn-discard" disabled={!isChanged() || saving} onClick={() => setProfileData(originalProfileData)}>
               <FaTimes /> Discard
             </button>
-            <button className="p-btn-save" disabled={!isChanged() || saving} onClick={handleSaveChanges}>
+            {/* UPDATED BUTTON STATE LOGIC */}
+            <button className={`p-btn-save ${!isChanged() ? 'disabled' : ''}`} disabled={!isChanged() || saving} onClick={handleSaveChanges}>
               {saving ? <FaSpinner className="p-spin" /> : <><FaCheck /> Save Changes</>}
             </button>
           </footer>

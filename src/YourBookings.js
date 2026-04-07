@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { 
     FaCheckCircle, FaExclamationCircle, FaUserAlt, FaCalendarAlt, FaInbox, 
     FaChevronLeft, FaChevronRight, FaArrowLeft, FaTimesCircle, FaMapMarkerAlt, 
-    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope 
+    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby 
 } from 'react-icons/fa';
 import './YourBookings.css';
 
@@ -96,10 +96,36 @@ const YourBookings = () => {
                                                 <div className={`yb-status-badge status-${cls}`}>{icon} <span>{item.status || (item.viewed ? 'Viewed' : 'Pending')}</span></div>
                                             </div>
                                             <h3 className="yb-ritual-title">{item.eventName || 'Ritual Service'}</h3>
+                                            
                                             <div className="yb-data-stack">
-                                                <div className="yb-data-row"><span className="yb-label">PRIEST</span><span className="yb-value">{item.priestName}</span></div>
-                                                <div className="yb-data-row"><span className="yb-label">SCHEDULE</span><span className="yb-value">{item.date ? format(new Date(item.date), 'MMMM dd, yyyy') : 'TBD'} {item.start ? `@ ${item.start}` : ''}</span></div>
+                                                <div className="yb-data-row">
+                                                    <span className="yb-label">PRIEST</span>
+                                                    <span className="yb-value">{item.priestName}</span>
+                                                </div>
+
+                                                {activeTab === 'requests' ? (
+                                                    item.nakshatram ? (
+                                                        <div className="yb-data-row">
+                                                            <span className="yb-label">NAKSHATRAM</span>
+                                                            <span className="yb-value">{item.nakshatram}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="yb-data-row">
+                                                            <span className="yb-label">BIRTH INFO</span>
+                                                            <span className="yb-value">{item.date} | {item.time}</span>
+                                                        </div>
+                                                    )
+                                                ) : (
+                                                    <div className="yb-data-row">
+                                                        <span className="yb-label">SCHEDULE</span>
+                                                        <span className="yb-value">
+                                                            {item.date && isValid(new Date(item.date)) ? format(new Date(item.date), 'MMMM dd, yyyy') : 'TBD'} 
+                                                            {item.start ? ` @ ${item.start}` : ''}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
+
                                             <div className="yb-card-footer">
                                                 {activeTab === 'bookings' && item.address ? <div className="yb-location-tag"><FaMapMarkerAlt /> <span>{item.address}</span></div> : <span></span>}
                                                 <button className="yb-btn-details" onClick={() => setSelectedItem(item)}>View Details <FaExternalLinkAlt /></button>
@@ -141,6 +167,7 @@ const YourBookings = () => {
                                     <p className="yb-drawer-priest-name">{selectedItem.priestName}</p>
                                     <div className="yb-contact-item">
                                         <FaPhoneAlt className="yb-contact-icon" />
+                                        {/* Pointing exactly to priestPhone from your updated DTO */}
                                         <span>{selectedItem.priestPhone || 'Not Provided'}</span>
                                     </div>
                                     <div className="yb-contact-item">
@@ -151,15 +178,31 @@ const YourBookings = () => {
                             </section>
 
                             <section className="yb-drawer-section">
-                                <h3><FaCalendarAlt /> Appointment Details</h3>
+                                <h3>{activeTab === 'requests' ? <FaBaby /> : <FaCalendarAlt />} Service Details</h3>
                                 <div className="yb-drawer-info">
                                     <p><strong>Ritual:</strong> {selectedItem.eventName}</p>
-                                    <p><strong>Date:</strong> {selectedItem.date ? format(new Date(selectedItem.date), 'PPPP') : 'To be determined'}</p>
-                                    <p><strong>Time:</strong> {selectedItem.start || 'To be determined'}</p>
+                                    
+                                    {activeTab === 'requests' ? (
+                                        selectedItem.nakshatram ? (
+                                            /* Clean View: Only Nakshatram, no Date/Time placeholders */
+                                            <p><strong>Nakshatram:</strong> {selectedItem.nakshatram}</p>
+                                        ) : (
+                                            <>
+                                                <p><strong>Birth Date:</strong> {selectedItem.date}</p>
+                                                <p><strong>Birth Time:</strong> {selectedItem.time}</p>
+                                                <p><strong>Birth Place:</strong> {selectedItem.place || 'N/A'}</p>
+                                            </>
+                                        )
+                                    ) : (
+                                        <>
+                                            <p><strong>Date:</strong> {selectedItem.date && isValid(new Date(selectedItem.date)) ? format(new Date(selectedItem.date), 'PPPP') : 'To be determined'}</p>
+                                            <p><strong>Time:</strong> {selectedItem.start || 'To be determined'}</p>
+                                        </>
+                                    )}
                                 </div>
                             </section>
 
-                            {selectedItem.address && (
+                            {activeTab === 'bookings' && selectedItem.address && (
                                 <section className="yb-drawer-section">
                                     <h3><FaMapMarkerAlt /> Venue Location</h3>
                                     <p className="yb-drawer-address">{selectedItem.address}</p>
@@ -168,7 +211,7 @@ const YourBookings = () => {
 
                             {selectedItem.note && (
                                 <section className="yb-drawer-section">
-                                    <h3><FaInfoCircle /> Your Instructions</h3>
+                                    <h3><FaInfoCircle /> Instructions</h3>
                                     <p className="yb-drawer-note">"{selectedItem.note}"</p>
                                 </section>
                             )}

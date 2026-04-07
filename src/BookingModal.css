@@ -1,4 +1,4 @@
-/* --- OVERLAY & BLUR --- */
+/* --- OVERLAY --- */
 .bm-overlay {
     position: fixed;
     inset: 0;
@@ -7,18 +7,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 5000;
+    z-index: 9999;
+    padding: 20px;
 }
 
-/* --- CARD STRUCTURE --- */
+/* --- THE CARD --- */
 .bm-card {
-    background: white;
-    width: 850px;
-    border-radius: 24px;
+    background: #ffffff;
+    width: 100%;
+    max-width: 900px;
+    min-height: 660px; 
+    border-radius: 32px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
-    transition: transform 0.3s ease;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
 }
 
 .bm-split-container {
@@ -26,86 +28,72 @@
     height: 660px;
 }
 
-/* --- CLOSE BUTTON --- */
-.bm-close {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #f1f5f9;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #64748b;
-    z-index: 100;
-    transition: 0.2s;
-}
-
-.bm-close:hover { 
-    background: #e2e8f0; 
-    color: #1e293b; 
-    transform: rotate(90deg); 
-}
-
-/* --- LEFT SIDE: SUMMARY --- */
-.bm-summary-side {
-    flex: 0.8;
-    background: #23272a;
-    color: white;
-    padding: 40px;
+/* --- SIDEBAR FIX: CENTERED & LOCKED --- */
+.bm-sidebar-branding {
+    flex: 0 0 320px; 
+    width: 320px;
+    min-width: 320px; /* Forces the width to stay at 320px */
+    background: #fffaf5;
+    border-right: 1px solid #fce8d5;
+    padding: 50px 30px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    align-items: center; /* Centers the photo and text */
+    box-sizing: border-box;
 }
 
-.bm-priest-mini { display: flex; align-items: center; gap: 15px; }
-.bm-priest-mini img { 
-    width: 55px; 
-    height: 55px; 
-    border-radius: 50%; 
-    border: 2px solid #B74F2F; 
-    object-fit: cover; 
+.bm-priest-box {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 40px;
 }
 
-.bm-mini-meta h4 { margin: 0; font-size: 1.1rem; font-weight: 700; }
-.bm-mini-meta span { font-size: 0.85rem; color: #aab8c2; display: block; margin-top: 2px; }
+.bm-priest-img-container {
+    width: 130px;
+    height: 130px;
+    min-height: 130px;
+    min-width: 130px;
+    border-radius: 50%;
+    border: 5px solid #ffffff;
+    box-shadow: 0 10px 25px rgba(230, 81, 0, 0.15);
+    overflow: hidden;
+    flex-shrink: 0;
+    
+    /* ADD THESE TWO LINES */
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+}
 
-/* TRUST BADGES */
-.bm-trust-badges { display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
-.bm-trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 500; color: #fff; }
-.icon-green { color: #10b981 !important; font-size: 1.1rem; }
+.bm-priest-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Crops the image into a perfect circle */
+    display: block;
+}
 
-/* --- RIGHT SIDE: FORM --- */
-.bm-form-side { 
+.bm-priest-text h4 { font-size: 1.35rem; font-weight: 900; color: #1a1a1a; margin: 0; }
+.bm-priest-text p { font-size: 0.9rem; color: #e65100; font-weight: 700; margin-top: 5px; }
+
+.bm-trust-badges { margin-top: auto; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+.bm-trust-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 700; color: #444; }
+.bm-trust-item svg { color: #22c55e; }
+
+/* --- FORM AREA --- */
+.bm-form-side, .bm-form-area { 
     flex: 1.2; 
     padding: 40px; 
     overflow-y: auto; 
     box-sizing: border-box; 
+    background: #ffffff;
 }
 
-.bm-form-header h3 { 
-    font-size: 1.6rem; 
-    font-weight: 800; 
-    color: #1e293b; 
-    margin: 0; 
-}
+.bm-form-header h3 { font-size: 1.6rem; font-weight: 800; color: #1e293b; margin: 0 0 25px 0; }
 
-/* --- INPUTS & FIELDS --- */
 .bm-field { margin-bottom: 20px; }
 .bm-field label { 
-    display: flex; 
-    align-items: center; 
-    gap: 8px; 
-    font-size: 0.75rem; 
-    font-weight: 800; 
-    color: #B74F2F; 
-    text-transform: uppercase; 
-    margin-bottom: 8px; 
-    letter-spacing: 0.5px; 
+    display: flex; align-items: center; gap: 8px; font-size: 0.75rem; 
+    font-weight: 800; color: #e65100; text-transform: uppercase; margin-bottom: 8px; 
 }
 
 .bm-input {
@@ -115,18 +103,14 @@
     border: 1.5px solid #e2e8f0;
     background: #f8fafc; 
     font-size: 0.95rem; 
-    box-sizing: border-box; 
-    transition: 0.2s;
+    box-sizing: border-box;
 }
 
-.bm-input:focus { 
-    outline: none; 
-    border-color: #B74F2F; 
-    background: white; 
-    box-shadow: 0 0 0 4px rgba(183, 79, 47, 0.1); 
-}
+/* ERROR VISIBILITY */
+.error-label { color: #ff0000 !important; }
+.error-border { border: 2px solid #ff0000 !important; background-color: #fffafb !important; }
 
-/* --- TIME PILLS GRID --- */
+/* TIME PILLS */
 .bm-time-pills {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
@@ -143,227 +127,33 @@
     font-weight: 600;
     font-size: 0.85rem;
     color: #475569;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
 }
+.bm-pill.active { background: #e65100 !important; color: #ffffff !important; border-color: #e65100 !important; }
 
-.bm-pill:hover {
-    border-color: #B74F2F;
-    color: #B74F2F;
-    background: #fffaf5;
-    transform: translateY(-2px);
-}
-
-.bm-pill.active {
-    background: #B74F2F !important;
-    color: #ffffff !important;
-    border-color: #B74F2F !important;
-    box-shadow: 0 4px 12px rgba(183, 79, 47, 0.3);
-}
-
-/* --- LOCATION GRID --- */
+/* ADDRESS FIELDS (RESTORED) */
 .bm-grid-layout { display: flex; flex-direction: column; gap: 10px; }
 .bm-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-/* --- ERROR STATES & SHAKE --- */
-.error-label { color: #ef4444 !important; }
-.error-border { border-color: #ef4444 !important; background-color: #fffafb !important; box-shadow: 0 0 0 1px #ef4444 !important; }
-.error-pill { border-color: #ef4444 !important; background-color: #fffafb !important; }
-
-@keyframes shake { 
-    0%, 100% { transform: translateX(0); } 
-    25% { transform: translateX(-6px); } 
-    75% { transform: translateX(6px); } 
-}
-.animate-shake { animation: shake 0.3s ease-in-out 0s 2; }
-
-/* --- BUTTONS --- */
+/* BUTTONS */
 .bm-actions { display: flex; gap: 12px; margin-top: 30px; }
+.bm-btn-submit { flex: 2; background: #e65100; color: white; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.bm-btn-cancel { flex: 1; background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; font-weight: 600; cursor: pointer; }
 
-.bm-btn-submit { 
-    flex: 2; 
-    background: #B74F2F; 
-    color: white; 
-    padding: 15px; 
-    border: none; 
-    border-radius: 12px; 
-    font-weight: 700; 
-    cursor: pointer; 
-    transition: 0.3s; 
-}
+/* UTILS */
+.bm-close { position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; z-index: 100; }
+.animate-shake { animation: shake 0.3s ease-in-out 0s 2; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
-.bm-btn-submit:hover { 
-    background: #963f25; 
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 12px rgba(183, 79, 47, 0.2); 
-}
+/* SUCCESS VIEW */
+.bm-success-view { padding: 40px; text-align: center; background: #ffffff; display: flex; flex-direction: column; align-items: center; width: 100%; height: 660px; box-sizing: border-box; }
+.bm-icon-circle-success { font-size: 4rem; color: #22c55e; margin-bottom: 20px; }
+.bm-receipt-card { width: 100%; max-width: 400px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+.bm-receipt-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1; }
+.bm-btn-finish { width: 100%; max-width: 400px; background: #e65100; color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
 
-.bm-btn-cancel { 
-    flex: 1; 
-    background: white; 
-    border: 1.5px solid #e2e8f0; 
-    border-radius: 12px; 
-    color: #64748b; 
-    font-weight: 600; 
-    cursor: pointer; 
-}
-
-/* --- SUCCESS VIEW (FIXED COMPACT VERSION) --- */
-.bm-success-view {
-    padding: 30px 40px; /* Reduced vertical padding */
-    text-align: center;
-    background: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 660px; /* Match split-container height exactly */
-    box-sizing: border-box;
-    overflow-y: auto; /* Fallback scroll */
-}
-
-.bm-icon-circle { 
-    font-size: 3.5rem; /* Scaled down slightly */
-    color: #10b981; 
-    margin-bottom: 15px; 
-}
-
-.bm-success-header h2 {
-    font-size: 1.5rem; /* Scaled down for better fit */
-    color: #1e293b;
-    margin: 0;
-    font-weight: 800;
-}
-
-.bm-success-tagline {
-    color: #64748b;
-    font-size: 0.9rem;
-    margin-top: 5px;
-    margin-bottom: 20px; /* Reduced gap */
-}
-
-/* COMPACT RECEIPT CARD */
-.bm-receipt-card {
-    width: 100%;
-    max-width: 400px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px 20px; /* Slimmer padding */
-    margin-bottom: 25px; /* Reduced margin */
-    box-sizing: border-box;
-}
-
-.bm-receipt-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0; /* Slimmer rows */
-    border-bottom: 1px dashed #cbd5e1;
-}
-
-.bm-receipt-row:last-child {
-    border-bottom: none;
-}
-
-.bm-receipt-row span {
-    color: #64748b;
-    font-size: 0.85rem;
-    text-align: left;
-}
-
-.bm-receipt-row strong {
-    color: #1e293b;
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-align: right;
-}
-
-/* COMPACT NEXT STEPS */
-.bm-next-steps {
-    text-align: left;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 20px;
-}
-
-.bm-next-steps h4 {
-    font-size: 0.9rem;
-    color: #1e293b;
-    margin-bottom: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-}
-
-.bm-step {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 10px;
-}
-
-.bm-step-number {
-    background: #f1f5f9;
-    color: #B74F2F;
-    width: 20px; /* Smaller bullet */
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 800;
-    flex-shrink: 0;
-}
-
-.bm-step p {
-    font-size: 0.85rem;
-    color: #475569;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* ACTION BUTTON */
-.bm-btn-finish {
-    width: 100%;
-    max-width: 400px;
-    background: #B74F2F;
-    color: white;
-    padding: 14px; /* Slimmer button */
-    border: none;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: auto; /* Pushes button to bottom if space allows */
-}
-
-.bm-btn-finish:hover {
-    background: #963f25;
-}
-
-.bm-support-text {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    margin-top: 10px;
-}
-
-/* --- ANIMATIONS --- */
-.animate-pop { animation: pop 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards; }
-.animate-slide-up { animation: slideUp 0.5s ease-out 0.2s forwards; opacity: 0; }
-.animate-fade-in { animation: fadeIn 0.5s ease-out 0.4s forwards; opacity: 0; }
-
-@keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    70% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+@media (max-width: 850px) {
+    .bm-split-container { flex-direction: column; height: auto; }
+    .bm-sidebar-branding { flex: 0 0 auto; width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 30px; }
+    .bm-card { height: auto; max-height: 95vh; overflow-y: auto; }
 }

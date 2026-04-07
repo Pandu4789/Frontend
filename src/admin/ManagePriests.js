@@ -3,6 +3,7 @@ import axios from "axios";
 import Select from "react-select";
 import { toast } from 'react-toastify';
 import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from 'react-icons/fa';
+import '../components/adminModalStyles.css';
 // Note: You no longer need to import './ManagePriests.css'
 
 const API_BASE = "http://localhost:8080";
@@ -143,16 +144,7 @@ const ManagePriests = () => {
         .btn-delete { background-color: var(--danger-color); color: white; }
 
         /* Modal Styles */
-        .modal-overlay { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background-color: var(--card-bg); padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 600px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .modal-header h3 { margin: 0; font-size: 1.5rem; color: var(--primary-dark); }
-        .close-button { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
-        .modal-body .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .modal-body .col-span-2 { grid-column: span 2 / span 2; }
-        .modal-body input { /* Uses global .form-input style */ }
-        .modal-body label { font-weight: 600; margin-bottom: 4px; display: block; }
-        .modal-footer { padding-top: 1.5rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem; }
+        /* Reusable admin modal styles are imported from adminModalStyles.css */
         
         /* React-Select Customization */
         .react-select__control { border-color: var(--border-color) !important; }
@@ -198,13 +190,13 @@ const ManagePriests = () => {
         </div>
 
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-content">
+              <div className="admin-modal-header">
                 <h3>{isEditing ? 'Edit Priest' : 'Create New Priest'}</h3>
-                <button onClick={handleCloseModal} className="close-button"><FaTimes /></button>
+                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
               </div>
-              <div className="modal-body">
+              <div className="admin-modal-body">
                 <div className="form-grid">
                   <input className="form-input" name="firstName" value={currentPriest.firstName} onChange={handleInputChange} placeholder="First Name" />
                   <input className="form-input" name="lastName" value={currentPriest.lastName} onChange={handleInputChange} placeholder="Last Name" />
@@ -226,7 +218,7 @@ const ManagePriests = () => {
                   </div>
                 </div>
               </div>
-              <div className="modal-footer">
+              <div className="admin-modal-footer">
                 <button className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
                 <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
               </div>

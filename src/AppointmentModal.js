@@ -22,8 +22,6 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
 
     const [selectedTime, setSelectedTime] = useState('');
     const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
-        const [isLoadingSlots, setIsLoadingSlots] = useState(false);
-
     const [events, setEvents] = useState([]);
     const modalRef = useRef();
 
@@ -31,7 +29,6 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
         if (formData.date && priest?.id) {
             const dateString = format(formData.date, 'yyyy-MM-dd');
             const fetchSlots = async () => {
-                setIsLoadingSlots(true);
                 setAvailableTimeSlots([]);
                 setSelectedTime('');
                 try {
@@ -39,8 +36,6 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
                     setAvailableTimeSlots(response.data || []);
                 } catch (error) {
                     toast.error("Could not fetch time slots for this date.");
-                } finally {
-                    setIsLoadingSlots(false);
                 }
             };
             fetchSlots();
@@ -107,12 +102,8 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
             toast.error("Please select a valid event.");
             return;
         }
-      const formattedDate = format(formData.date, 'yyyy-MM-dd');
-       const startDateTime = `${formattedDate}T${selectedTime}`;
         const startTimeObject = parse(selectedTime, 'HH:mm', new Date());
         const endTimeString = format(addHours(startTimeObject, 1), 'HH:mm');
-     const endDateTime = `${formattedDate}T${endTimeString}`;
-
 
         const payload = {
             name: formData.name,

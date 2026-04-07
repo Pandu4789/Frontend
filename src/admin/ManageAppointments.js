@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 import { format, parseISO } from 'date-fns';
 import { FaPlus, FaTimes, FaUser, FaPhoneAlt, FaRegCalendarAlt, FaRegClock } from 'react-icons/fa';
+import '../components/adminModalStyles.css';
 
 const API_BASE = "http://localhost:8080";
 
@@ -170,12 +171,7 @@ const ManageAppointments = () => {
         .btn-edit { background-color: #0d6efd; color: white; }
         .btn-delete { background-color: #6c757d; color: white; }
 
-        /* Modal Styles */
-        .modal-overlay { /* ... same as other modals ... */ }
-        .modal-content { /* ... same as other modals ... */ }
-        .modal-header, .modal-footer { /* ... same as other modals ... */ }
-        .modal-body .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .modal-body .col-span-2 { grid-column: span 2 / span 2; }
+        /* Reusable admin modal styles are imported from adminModalStyles.css */
       `}</style>
 
       <div className="manage-appointments-container">
@@ -211,13 +207,13 @@ const ManageAppointments = () => {
         </div>
 
         {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <div className="modal-header">
+          <div className="admin-modal-overlay">
+            <div className="admin-modal-content">
+              <div className="admin-modal-header">
                 <h3>{isEditing ? 'Edit Appointment' : 'Create Appointment'}</h3>
-                <button onClick={handleCloseModal} className="close-button"><FaTimes /></button>
+                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
               </div>
-              <form onSubmit={handleSubmit} className="modal-body">
+              <form onSubmit={handleSubmit} className="admin-modal-body">
                 <div className="form-grid">
                   <input className="form-input" name="name" value={currentAppointment.name} onChange={handleInputChange} placeholder="Customer Name" required />
                   <input className="form-input" name="phone" value={currentAppointment.phone} onChange={handleInputChange} placeholder="Phone Number" required />
@@ -231,7 +227,7 @@ const ManageAppointments = () => {
                   <input className="form-input col-span-2" name="address" value={currentAppointment.address} onChange={handleInputChange} placeholder="Address" />
                   <textarea className="form-input col-span-2" name="note" value={currentAppointment.note} onChange={handleInputChange} placeholder="Notes..." />
                 </div>
-                <div className="modal-footer">
+                <div className="admin-modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
                   <button type="submit" className="btn btn-primary">{isEditing ? "Save Changes" : "Create Appointment"}</button>
                 </div>

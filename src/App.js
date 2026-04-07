@@ -27,7 +27,6 @@ import PriestProfile from './PriestProfile';
 import MohurtamRequests from './MuhurtamRequests';
 import SessionTimeout from './SessionTimeout';
 import AdminPage from './AdminPage';
-import Footer from './Footer';
 import ProtectedRoute from './ProtectedRoute';
 import AvailabilityManager from './AvailabilityManager';
 import YourBookings from './YourBookings'; // Import the new page component
