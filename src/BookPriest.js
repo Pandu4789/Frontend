@@ -20,7 +20,6 @@ const BookPriest = () => {
   const [filters, setFilters] = useState({ name: '', poojaType: '' });
   const [loading, setLoading] = useState(true);
   
-  // Track which priest card has the "More" menu open
   const [expandedPriestId, setExpandedPriestId] = useState(null);
 
   const API_URL = "http://localhost:8080";
@@ -49,7 +48,7 @@ const BookPriest = () => {
         setPriests(priestData);
         setAvailablePoojas(poojaRes.data);
       } catch (err) {
-        console.error('Error loading holy directory:', err);
+        console.error('Error loading directory:', err);
       } finally {
         setLoading(false);
       }
@@ -59,15 +58,13 @@ const BookPriest = () => {
   }, [filters]);
 
   const resetFilters = () => setFilters({ name: '', poojaType: '' });
-
-  const toggleExpand = (id) => {
-    setExpandedPriestId(expandedPriestId === id ? null : id);
-  };
+  const toggleExpand = (id) => setExpandedPriestId(expandedPriestId === id ? null : id);
 
   return (
     <div className="bp-page-wrapper">
-      <header className="bp-header">
-        <div className="bp-header-glass">
+      {/* --- CURVED HERO SECTION --- */}
+      <header className="bp-hero">
+        <div className="bp-hero-content">
           <h1>Divine Directory</h1>
           <p>Connect with verified, experienced priests for your sacred rituals.</p>
         </div>

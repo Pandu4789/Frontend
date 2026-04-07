@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaPrint, FaClock, FaTag, FaCheckCircle, FaInfoCircle, FaSearch, FaLeaf, FaSpinner } from 'react-icons/fa';
+import { FaPrint, FaClock, FaTag, FaCheckCircle, FaInfoCircle, FaSearch, FaLeaf, FaSpinner, FaChevronRight } from 'react-icons/fa';
 import './PoojaItems.css';
 import logo from './image.png'; 
 
@@ -50,43 +50,42 @@ const PoojaItems = () => {
 
   if (loading) return <div className="pg-loader"><FaSpinner className="pg-spin" /> Initializing Guide...</div>;
 
-return (
-  <div className="pg-page-wrapper">
-    
-    {/* --- COMPACT PRINT HEADER --- */}
-    {/* --- COMPACT PRINT HEADER (CENTERED TOP) --- */}
-    <div className="pg-print-brand-header">
-      <div className="print-header-center">
-          <div className="print-header-top">
-              <img src={logo} alt="Logo" className="print-logo-img" /> 
-              <h1 className="print-brand-text">
-                  <span className="p-black">PRIEST</span><span className="p-orange">IFY</span>
-              </h1>
-          </div>
-          <p className="print-tagline">Your Sacred Ritual Partner</p>
-      </div>
+  return (
+    <div className="pg-page-wrapper">
       
-      {selectedPooja && (
-          <div className="print-ritual-summary-box">
-              <div className="print-ritual-header-row">
-                  <h2>{selectedPooja.name}</h2>
-                  <div className="print-stats-inline">
-                      <span><strong>Duration:</strong> {selectedPooja.duration || '15-20 Min'}</span>
-                      <span><strong>Price:</strong> {selectedPooja.estimatedPrice || '$51'}</span>
-                  </div>
-              </div>
-              <div className="print-ritual-description">
-                  <p>{selectedPooja.description}</p>
-              </div>
-          </div>
-      )}
-    </div>
-
-    <header className="pg-hero">
-        <div className="pg-hero-content">
-          <h1>Sacred Pooja Guide</h1>
-          <p>Prepare for your rituals with our comprehensive list of required items.</p>
+      {/* --- ORIGINAL PRINT HEADER --- */}
+      <div className="pg-print-brand-header">
+        <div className="print-header-center">
+            <div className="print-header-top">
+                <img src={logo} alt="Logo" className="print-logo-img" /> 
+                <h1 className="print-brand-text">
+                    <span className="p-black">PRIEST</span><span className="p-orange">IFY</span>
+                </h1>
+            </div>
+            <p className="print-tagline">Your Sacred Ritual Partner</p>
         </div>
+        
+        {selectedPooja && (
+            <div className="print-ritual-summary-box">
+                <div className="print-ritual-header-row">
+                    <h2>{selectedPooja.name}</h2>
+                    <div className="print-stats-inline">
+                        <span><strong>Duration:</strong> {selectedPooja.duration || '15-20 Min'}</span>
+                        <span><strong>Price:</strong> {selectedPooja.estimatedPrice || '$51'}</span>
+                    </div>
+                </div>
+                <div className="print-ritual-description">
+                    <p>{selectedPooja.description}</p>
+                </div>
+            </div>
+        )}
+      </div>
+
+      <header className="pg-hero">
+          <div className="pg-hero-content">
+            <h1>Sacred Pooja Guide</h1>
+            <p>Prepare for your rituals with our comprehensive list of required items.</p>
+          </div>
       </header>
 
       <div className="pg-container">
@@ -108,7 +107,8 @@ return (
                   className={`pg-list-item ${selectedPoojaId == p.id ? 'active' : ''}`}
                   onClick={() => setSelectedPoojaId(p.id)}
                 >
-                  {p.name}
+                  <span className="pg-item-label">{p.name}</span>
+                  <FaChevronRight className="pg-arrow-icon" />
                 </button>
               ))
             ) : (
@@ -119,7 +119,7 @@ return (
 
         <main className="pg-main-content">
           {selectedPooja ? (
-            <div className="pg-card animate-fade-in">
+            <div className="pg-card">
               <div className="pg-card-header">
                 <div className="pg-title-box">
                   <FaLeaf className="pg-leaf-icon" />
