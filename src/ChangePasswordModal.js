@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
-import { FaLock, FaEye, FaEyeSlash, FaSpinner, FaCheckCircle, FaCircle } from 'react-icons/fa';
+import { toast, ToastContainer } from 'react-toastify';
+import { FaLock, FaEye, FaEyeSlash, FaSpinner, FaCheckCircle, FaCircle, FaShieldAlt } from 'react-icons/fa';
 import './ChangePasswordModal.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
@@ -42,7 +42,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             return;
         }
         if (!Object.values(checks).every(Boolean)) {
-            setError("Please meet all requirements.");
+            setError("Please meet all strength requirements.");
             return;
         }
 
@@ -55,7 +55,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             };
             await axios.post(`${API_BASE}/api/auth/change-password`, payload);
             toast.success("Security updated successfully!");
-            onClose();
+            setTimeout(() => {
+                onClose();
+            }, 1500);
         } catch (err) {
             setError(err.response?.data?.message || "Check your current password.");
         } finally {
@@ -67,12 +69,14 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
     return (
         <div className="cp-modal-overlay" onClick={onClose}>
+            <ToastContainer />
             <div className="cp-modal-card" onClick={e => e.stopPropagation()}>
+                <button onClick={onClose} className="cp-close-btn">&times;</button>
+                
                 <div className="cp-modal-header">
-                    <div className="cp-icon-circle"><FaLock /></div>
+                    <div className="cp-icon-circle"><FaShieldAlt /></div>
                     <h2>Security Update</h2>
-                    <p>Keep your account safe with a strong password.</p>
-                    <button onClick={onClose} className="cp-close-btn">&times;</button>
+                    <p>Maintain your account's divine protection with a strong password.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="cp-form">
@@ -84,7 +88,8 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                 name="currentPassword" 
                                 value={passwords.currentPassword} 
                                 onChange={handleChange} 
-                                placeholder="Enter current password"
+                                placeholder="Verify current password"
+                                className={error && error.includes('current') ? 'error-input' : ''}
                             />
                             <span className="cp-toggle" onClick={() => setShowCurrent(!showCurrent)}>
                                 {showCurrent ? <FaEyeSlash /> : <FaEye />}
@@ -100,7 +105,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                 name="newPassword" 
                                 value={passwords.newPassword} 
                                 onChange={handleChange}
-                                placeholder="Enter new password"
+                                placeholder="Create new password"
                             />
                             <span className="cp-toggle" onClick={() => setShowNew(!showNew)}>
                                 {showNew ? <FaEyeSlash /> : <FaEye />}
@@ -109,22 +114,22 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                         
                         <div className="cp-requirements">
                             <div className={checks.length ? 'met' : ''}>
-                                {checks.length ? <FaCheckCircle /> : <FaCircle />} 8+ Chars
+                                {checks.length ? <FaCheckCircle /> : <FaCircle className="dot-icon"/>} 8+ Characters
                             </div>
                             <div className={checks.upper ? 'met' : ''}>
-                                {checks.upper ? <FaCheckCircle /> : <FaCircle />} Uppercase
+                                {checks.upper ? <FaCheckCircle /> : <FaCircle className="dot-icon"/>} Uppercase
                             </div>
                             <div className={checks.number ? 'met' : ''}>
-                                {checks.number ? <FaCheckCircle /> : <FaCircle />} Number
+                                {checks.number ? <FaCheckCircle /> : <FaCircle className="dot-icon"/>} Number
                             </div>
                             <div className={checks.special ? 'met' : ''}>
-                                {checks.special ? <FaCheckCircle /> : <FaCircle />} Special
+                                {checks.special ? <FaCheckCircle /> : <FaCircle className="dot-icon"/>} Special Char
                             </div>
                         </div>
                     </div>
 
                     <div className="cp-input-group">
-                        <label>Confirm New Password</label>
+                        <label>Confirm Password</label>
                         <input 
                             className="cp-simple-input"
                             type="password" 
@@ -138,9 +143,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                     {error && <div className="cp-error-box">{error}</div>}
 
                     <div className="cp-actions">
-                        <button type="button" className="cp-btn-cancel" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="cp-btn-submit" disabled={loading}>
-                            {loading ? <FaSpinner className="cp-spin" /> : 'Update Password'}
+                        <button type="button" className="cp-btn-secondary" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="cp-btn-primary" disabled={loading}>
+                            {loading ? <FaSpinner className="cp-spin" /> : 'Update Security'}
                         </button>
                     </div>
                 </form>
