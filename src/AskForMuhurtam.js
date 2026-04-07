@@ -17,11 +17,30 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [events, setEvents] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Error States
+    const [errors, setErrors] = useState({});
     const [birthErrors, setBirthErrors] = useState({});
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/events').then(res => setEvents(res.data));
     }, []);
+
+    const validateMainForm = () => {
+        const newErrors = {};
+        if (!eventId) newErrors.eventId = true;
+        
+        // Ensure either Nakshatram is picked OR Birth Details are filled
+        const hasNakshatram = nakshatram && nakshatram.trim() !== '';
+        const hasBirthDetails = birthDate && birthTime && birthPlace.trim();
+        
+        if (!hasNakshatram && !hasBirthDetails) {
+            newErrors.nakshatram = true;
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const validateBirthDetails = () => {
         const bErrors = {};
@@ -37,15 +56,18 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
             toast.error('Please fill in all birth details.');
             return;
         }
+        // Clear main form nakshatram error if they provided birth details instead
+        setErrors(prev => ({ ...prev, nakshatram: false }));
         toast.success('Birth details recorded.');
         setShowBirthDetailsPopup(false);
     };
 
     const handleSendMuhurtamRequest = async () => {
-        if (!eventId) {
-            toast.error('Please select an occasion.');
+        if (!validateMainForm()) {
+            toast.error('Please fill in all required fields.');
             return;
         }
+
         setIsSubmitting(true);
         const payload = {
             event: eventId,
@@ -73,7 +95,8 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
 
     return (
         <div className="am-overlay">
-            <div className="am-card">
+            {/* Added shake animation trigger on main card */}
+            <div className={`am-card ${Object.keys(errors).length > 0 ? 'animate-shake' : ''}`}>
                 <button className="am-close" onClick={onClose}><FaTimes /></button>
 
                 {showConfirmation ? (
@@ -85,7 +108,6 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
                     </div>
                 ) : (
                     <div className="am-split-container">
-                        {/* LEFT SIDE: SUMMARY */}
                         <div className="am-summary-side">
                             <div className="am-priest-mini">
                                 <div className="am-priest-img-container">
@@ -106,23 +128,30 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
                             </div>
                         </div>
 
-                        {/* RIGHT SIDE: FORM */}
                         <div className="am-form-side">
                             <header className="am-form-header">
                                 <h3>Seek Auspicious Time</h3>
                             </header>
 
                             <div className="am-field">
-                                <label>Sacred Occasion</label>
-                                <select className="am-input" value={eventId} onChange={e => setEventId(e.target.value)}>
+                                <label className={errors.eventId ? 'error-label' : ''}>Sacred Occasion</label>
+                                <select 
+                                    className={`am-input ${errors.eventId ? 'error-border' : ''}`} 
+                                    value={eventId} 
+                                    onChange={e => {setEventId(e.target.value); setErrors({...errors, eventId: false})}}
+                                >
                                     <option value="">Select Ritual...</option>
                                     {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
                                 </select>
                             </div>
 
                             <div className="am-field">
-                                <label>Birth Star (Nakshatram)</label>
-                                <select className="am-input" value={nakshatram} onChange={e => setNakshatram(e.target.value)}>
+                                <label className={errors.nakshatram ? 'error-label' : ''}>Birth Star (Nakshatram)</label>
+                                <select 
+                                    className={`am-input ${errors.nakshatram ? 'error-border' : ''}`} 
+                                    value={nakshatram} 
+                                    onChange={e => {setNakshatram(e.target.value); setErrors({...errors, nakshatram: false})}}
+                                >
                                     <option value="">Choose your Nakshatram...</option>
                                     {nakshatramList.map(n => <option key={n.id} value={n.name}>{n.name}</option>)}
                                 </select>
@@ -151,31 +180,47 @@ const AskForMuhurtam = ({ priest, customer, setCustomer, nakshatramList, onClose
                     </div>
                 )}
 
-                {/* RESTORED: BIRTH DETAILS MODAL */}
                 {showBirthDetailsPopup && (
                     <div className="am-modal-overlay-inner">
-                        <div className="am-modal-inner">
+                        {/* Added shake animation to inner popup */}
+                        <div className={`am-modal-inner ${Object.keys(birthErrors).length > 0 ? 'animate-shake' : ''}`}>
                             <div className="am-modal-inner-header">
                                 <h3>Birth Chart Details</h3>
                                 <p>Used strictly for Nakshatram calculation.</p>
                             </div>
                             <div className="am-modal-inner-grid">
                                 <div className="am-field">
-                                    <label>Date of Birth</label>
-                                    <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} className="am-input" />
+                                    <label className={birthErrors.birthDate ? 'error-label' : ''}>Date of Birth</label>
+                                    <input 
+                                        type="date" 
+                                        value={birthDate} 
+                                        onChange={e => {setBirthDate(e.target.value); setBirthErrors({...birthErrors, birthDate: false})}} 
+                                        className={`am-input ${birthErrors.birthDate ? 'error-border' : ''}`} 
+                                    />
                                 </div>
                                 <div className="am-field">
-                                    <label>Time of Birth</label>
-                                    <input type="time" value={birthTime} onChange={e => setBirthTime(e.target.value)} className="am-input" />
+                                    <label className={birthErrors.birthTime ? 'error-label' : ''}>Time of Birth</label>
+                                    <input 
+                                        type="time" 
+                                        value={birthTime} 
+                                        onChange={e => {setBirthTime(e.target.value); setBirthErrors({...birthErrors, birthTime: false})}} 
+                                        className={`am-input ${birthErrors.birthTime ? 'error-border' : ''}`} 
+                                    />
                                 </div>
                                 <div className="am-field full-span">
-                                    <label>Place of Birth</label>
-                                    <input type="text" placeholder="City, State, Country" value={birthPlace} onChange={e => setBirthPlace(e.target.value)} className="am-input" />
+                                    <label className={birthErrors.birthPlace ? 'error-label' : ''}>Place of Birth</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="City, State, Country" 
+                                        value={birthPlace} 
+                                        onChange={e => {setBirthPlace(e.target.value); setBirthErrors({...birthErrors, birthPlace: false})}} 
+                                        className={`am-input ${birthErrors.birthPlace ? 'error-border' : ''}`} 
+                                    />
                                 </div>
                             </div>
                             <div className="am-modal-inner-footer">
                                 <button className="am-btn-save-inner" onClick={handleSaveBirthDetails}>Save Details</button>
-                                <button className="am-btn-back-inner" onClick={() => setShowBirthDetailsPopup(false)}>Go Back</button>
+                                <button className="am-btn-back-inner" onClick={() => {setShowBirthDetailsPopup(false); setBirthErrors({});}}>Go Back</button>
                             </div>
                         </div>
                     </div>

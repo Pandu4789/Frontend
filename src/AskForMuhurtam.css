@@ -99,3 +99,38 @@
 .am-icon-circle-success { font-size: 4rem; color: #10b981; margin-bottom: 20px; }
 .am-success-view { padding: 60px; text-align: center; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: center;}
 .am-btn-finish { width: 180px; background: #E65C00; color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+/* ... keep all your existing CSS ... */
+
+/* ERROR VISIBILITY FIX */
+.error-label { 
+    color: #ff0000 !important; 
+}
+
+.error-border { 
+    border: 2px solid #ff0000 !important; 
+    background-color: #fff8f8 !important; 
+}
+
+/* SHAKE ANIMATION */
+@keyframes shake { 
+    0%, 100% { transform: translateX(0); } 
+    25% { transform: translateX(-8px); } 
+    75% { transform: translateX(8px); } 
+}
+
+.animate-shake { 
+    animation: shake 0.3s ease-in-out 0s 2; 
+}
+
+/* Success View Action Button Alignment */
+.am-btn-finish {
+    width: 200px;
+    background: #E65C00;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+}

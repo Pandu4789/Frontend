@@ -30,17 +30,40 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
     fetchEvents();
   }, []);
 
-  // RESTORED: Fetch Availability logic
+  // Updated logic to clear slots when date changes
   useEffect(() => {
     if (appointmentDate && priest?.id) {
+      setSelectedStartTime(''); // Clear previous selection
+      setAvailableTimeSlots([]); // Clear slots list while loading
+      
       const formattedDate = appointmentDate.toISOString().split('T')[0];
       axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${formattedDate}`)
         .then(res => setAvailableTimeSlots(res.data || []))
         .catch(() => setAvailableTimeSlots([]));
+    } else {
+      setAvailableTimeSlots([]);
+      setSelectedStartTime('');
     }
   }, [appointmentDate, priest]);
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!eventId) newErrors.eventId = true;
+    if (!appointmentDate) newErrors.date = true;
+    if (!selectedStartTime) newErrors.time = true;
+    if (!customer.addressLine1) newErrors.address = true;
+    if (!customer.city) newErrors.city = true;
+    if (!customer.zip) newErrors.zip = true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleBookNow = async () => {
+    if (!validateForm()) {
+      toast.error('Please fill in all required fields.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const combinedAddress = `${customer.addressLine1}, ${customer.city}, ${customer.zip}`;
@@ -57,12 +80,16 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
       };
       await axios.post('http://localhost:8080/api/booking', payload);
       setShowConfirmation(true);
-    } catch (error) { toast.error('Booking failed.'); } finally { setIsSubmitting(false); }
+    } catch (error) { 
+      toast.error('Booking failed.'); 
+    } finally { 
+      setIsSubmitting(false); 
+    }
   };
 
   return (
     <div className="bm-overlay">
-      <div className="bm-card">
+      <div className={`bm-card ${Object.keys(errors).length > 0 ? 'animate-shake' : ''}`}>
         <button className="bm-close" onClick={onClose}><FaTimes /></button>
 
         {showConfirmation ? (
@@ -73,7 +100,6 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
           </div>
         ) : (
           <div className="bm-split-container">
-            {/* LEFT SIDE: MATCHED TO HOROSCOPE MODAL */}
             <div className="bm-summary-side">
               <div className="bm-priest-mini">
                 <div className="bm-priest-img-container">
@@ -99,37 +125,46 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
               </div>
             </div>
 
-            {/* RIGHT SIDE: FORM */}
             <div className="bm-form-side">
               <header className="bm-form-header">
                 <h3>Schedule Your Pooja</h3>
               </header>
 
               <div className="bm-field">
-                <label><FaInfoCircle /> Select Ritual</label>
-                <select className="bm-input" value={eventId} onChange={e => setEventId(e.target.value)}>
+                <label className={errors.eventId ? 'error-label' : ''}><FaInfoCircle /> Select Ritual</label>
+                <select 
+                    className={`bm-input ${errors.eventId ? 'error-border' : ''}`} 
+                    value={eventId} 
+                    onChange={e => {setEventId(e.target.value); setErrors({...errors, eventId: false})}}
+                >
                   <option value="">Choose Ritual...</option>
                   {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
                 </select>
               </div>
 
               <div className="bm-field">
-                <label><FaCalendarAlt /> Preferred Date</label>
-                <DatePicker selected={appointmentDate} onChange={d => setAppointmentDate(d)} className="bm-input" placeholderText="Select Date" />
+                <label className={errors.date ? 'error-label' : ''}><FaCalendarAlt /> Preferred Date</label>
+                <div className={errors.date ? 'error-border' : ''}>
+                    <DatePicker 
+                        selected={appointmentDate} 
+                        onChange={d => {setAppointmentDate(d); setErrors({...errors, date: false})}} 
+                        className="bm-input" 
+                        placeholderText="Select Date" 
+                    />
+                </div>
               </div>
 
-              {/* RESTORED: Time Slots Grid */}
               {appointmentDate && (
                 <div className="bm-field">
-                  <label><FaClock /> Available Slots</label>
+                  <label className={errors.time ? 'error-label' : ''}><FaClock /> Available Slots</label>
                   <div className="bm-time-pills">
                     {availableTimeSlots.length > 0 ? (
                       availableTimeSlots.map(slot => (
                         <button 
                           key={slot} 
                           type="button"
-                          className={`bm-pill ${selectedStartTime === slot ? 'active' : ''}`}
-                          onClick={() => setSelectedStartTime(slot)}
+                          className={`bm-pill ${selectedStartTime === slot ? 'active' : ''} ${errors.time ? 'error-pill' : ''}`}
+                          onClick={() => {setSelectedStartTime(slot); setErrors({...errors, time: false})}}
                         >
                           {slot}
                         </button>
@@ -142,12 +177,27 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
               )}
 
               <div className="bm-field">
-                <label><FaMapMarkerAlt /> Ritual Location</label>
+                <label className={errors.address || errors.city || errors.zip ? 'error-label' : ''}><FaMapMarkerAlt /> Ritual Location</label>
                 <div className="bm-grid-layout">
-                    <input className="bm-input" placeholder="Street Address" value={customer.addressLine1 || ''} onChange={e => setCustomer({...customer, addressLine1: e.target.value})} />
+                    <input 
+                        className={`bm-input ${errors.address ? 'error-border' : ''}`} 
+                        placeholder="Street Address" 
+                        value={customer.addressLine1 || ''} 
+                        onChange={e => {setCustomer({...customer, addressLine1: e.target.value}); setErrors({...errors, address: false})}} 
+                    />
                     <div className="bm-sub-grid">
-                        <input className="bm-input" placeholder="City" value={customer.city || ''} onChange={e => setCustomer({...customer, city: e.target.value})} />
-                        <input className="bm-input" placeholder="Zip" value={customer.zip || ''} onChange={e => setCustomer({...customer, zip: e.target.value})} />
+                        <input 
+                            className={`bm-input ${errors.city ? 'error-border' : ''}`} 
+                            placeholder="City" 
+                            value={customer.city || ''} 
+                            onChange={e => {setCustomer({...customer, city: e.target.value}); setErrors({...errors, city: false})}} 
+                        />
+                        <input 
+                            className={`bm-input ${errors.zip ? 'error-border' : ''}`} 
+                            placeholder="Zip" 
+                            value={customer.zip || ''} 
+                            onChange={e => {setCustomer({...customer, zip: e.target.value}); setErrors({...errors, zip: false})}} 
+                        />
                     </div>
                 </div>
               </div>

@@ -72,6 +72,39 @@
 }
 .bm-input:focus { outline: none; border-color: #E65C00; background: white; }
 
+/* ... keep your existing CSS ... */
+
+/* ERROR VISIBILITY FIX */
+.error-label { 
+    color: #ff0000 !important; 
+}
+
+.error-border { 
+    border: 2px solid #ff0000 !important; 
+    border-radius: 12px; /* matches bm-input */
+    background-color: #fff8f8 !important; 
+}
+
+.bm-input.error-border {
+    border: 2px solid #ff0000 !important;
+}
+
+.error-pill {
+    border-color: #ff0000 !important;
+    background-color: #fff8f8 !important;
+}
+
+/* SHAKE ANIMATION */
+@keyframes shake { 
+    0%, 100% { transform: translateX(0); } 
+    25% { transform: translateX(-8px); } 
+    75% { transform: translateX(8px); } 
+}
+
+.animate-shake { 
+    animation: shake 0.3s ease-in-out 0s 2; 
+}
+
 /* TIME PILLS GRID */
 .bm-time-pills {
     display: grid;
