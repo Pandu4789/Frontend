@@ -1,420 +1,174 @@
-/* Color variables from your existing components */
-:root {
-  --primaryDark: #4A2000;
-  --textLight: #FFD700;
-  --textAccent: #F5F5DC;
-  --activeBgDark: #6F3000;
-  --navbarBg: #4A2000;
-  --navbarTextLight: #FFD700;
-  --mainContentBg: #FDF5E6; /* Overall page background */
-  --profileHeadingColor: #B74F2F; /* Headings, primary elements */
-  --cardBgLight: #FEF3E4; /* Light card backgrounds */
-  --cardBorderLight: #DDD; /* Light borders */
-  --cardShadowSubtle: rgba(0, 0, 0, 0.08); /* Softer, layered shadows */
-  --cardShadowMedium: rgba(0, 0, 0, 0.15); /* For hover/depth */
-  --cardShadowStrong: rgba(0, 0, 0, 0.25); /* For strong shadows */
-
-  /* Button Colors */
-  --primaryButtonBg: var(--profileHeadingColor);
-  --primaryButtonHoverBg: #D46C4A;
-  --secondaryButtonBg: #E0E0E0;
-  --secondaryButtonHoverBg: #CCC;
-  --buttonTextColor: #FFF;
-  --secondaryButtonTextColor: #555;
-
-  /* Service Tag Colors */
-  --serviceTagBg: var(--cardBgLight);
-  --serviceTagBorder: var(--profileHeadingColor);
-  --serviceTagText: var(--profileHeadingColor);
-  --serviceTagHoverBg: var(--profileHeadingColor);
-  --serviceTagHoverText: var(--textAccent);
+/* --- COMPACT PROFESSIONAL THEME --- */
+.pp-dashboard-wrapper {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 30px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1a1a1a;
 }
 
-/* --- Global Profile Wrapper --- */
-.pp-profile-wrapper {
-  max-width: 1000px; /* Adjust to your preferred max width for content */
-  margin: 40px auto; /* More vertical margin for breathing room */
-  padding: 30px; /* Slightly more internal padding */
-  background-color: var(--mainContentBg);
-  border-radius: 16px; /* Larger border-radius for softer look */
-  box-shadow: 0 10px 30px var(--cardShadowSubtle), 0 3px 6px rgba(0, 0, 0, 0.05); /* Layered shadow */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--primaryDark);
+.pp-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 60px;
+    align-items: flex-start;
 }
 
-/* --- Loading/Error State --- */
-.pp-profile-loading-error {
-  text-align: center;
-  font-size: 1.6rem; /* Slightly larger font size */
-  color: var(--profileHeadingColor);
-  padding: 60px 20px; /* More padding */
-  margin-top: 60px; /* More margin */
-  background-color: var(--mainContentBg);
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  font-weight: 600;
+/* --- LEFT SIDE: CONTENT --- */
+.pp-breadcrumb {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* --- Main Profile Layout (Flex for left/right columns) --- */
-.pp-profile-main {
-  display: flex;
-  gap: 50px; /* More space between left and right columns */
-  flex-wrap: wrap; /* Allows columns to stack on smaller screens */
-  justify-content: center; /* Center content when stacked */
-  align-items: flex-start; /* Align items to top, especially useful when stacked */
-}
-
-.pp-profile-left {
-  flex: 2; /* Takes 2 parts of available space */
-  min-width: 320px; /* Minimum width before wrapping */
-}
-
-.pp-profile-right {
-  flex: 1; /* Takes 1 part of available space */
-  display: flex;
-  justify-content: center; /* Center image */
-  align-items: flex-start; /* Align image to top */
-  min-width: 280px; /* Minimum width for image column */
-}
-
-/* --- Priest Image --- */
-.pp-priest-profile-image {
-  width: 100%;
-  max-width: 350px; /* Larger max size for the image */
-  height: 350px; /* Fixed height to ensure square aspect, adjust if images vary */
-  border-radius: 50%; /* Make it a perfect circle */
-  object-fit: cover;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
-  border: 5px solid var(--profileHeadingColor); /* Thicker, prominent border */
-  transition: transform 0.3s ease-out;
-}
-
-.pp-priest-profile-image:hover {
-  transform: scale(1.02); /* Subtle zoom on hover */
-}
-
-.pp-priest-profile-image-placeholder {
-  width: 100%;
-  max-width: 350px;
-  height: 350px; /* Fixed height for placeholder */
-  background-color: var(--textAccent);
-  border-radius: 50%; /* Make it a perfect circle */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: var(--primaryDark);
-  font-size: 1.4rem;
-  font-weight: 500;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 5px solid var(--profileHeadingColor);
-}
-
-.pp-priest-profile-image-placeholder .pp-placeholder-icon {
-  font-size: 100px; /* Larger icon in placeholder */
-  margin-bottom: 10px;
-  color: var(--primaryDark);
-}
-
-/* --- Priest Name --- */
-.pp-priest-name {
-  font-size: 3.5rem; /* Larger and more prominent */
-  color: var(--primaryDark);
-  text-align: center;
-  margin-bottom: 35px; /* More space below name */
-  font-weight: 800;
-  letter-spacing: -0.03em; /* Tighter letter spacing */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
-}
-
-/* --- Profile Sections --- */
-.pp-profile-section {
-  background-color: #fff;
-  padding: 30px; /* More internal padding */
-  border-radius: 12px; /* Consistent border-radius */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03); /* Layered shadow for sections */
-  margin-bottom: 25px;
-  border: 1px solid var(--cardBorderLight); /* Subtle border */
-}
-
-.pp-profile-section:last-of-type {
-  margin-bottom: 0;
-}
-
-.pp-profile-section h2 {
-  font-size: 1.8rem; /* Larger section titles */
-  color: var(--profileHeadingColor); /* Thematic color */
-  margin-bottom: 20px; /* More space below title */
-  border-bottom: 3px solid var(--profileHeadingColor); /* Thicker underline */
-  padding-bottom: 8px; /* More padding below underline */
-  display: inline-block;
-  font-weight: 700;
-}
-
-.pp-profile-section p {
-  font-size: 1.05rem; /* Slightly larger text for readability */
-  line-height: 1.7; /* Increased line height */
-  color: #444; /* Slightly darker grey for body text */
-}
-
-.pp-no-data-message {
-  font-style: italic;
-  color: #888;
-  font-size: 0.95rem;
-}
-
-/* --- Services Tags --- */
-.pp-services-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px; /* Slightly larger gap */
-}
-
-.pp-service-tag {
-  background-color: var(--serviceTagBg);
-  color: var(--serviceTagText);
-  padding: 10px 18px; /* Larger padding for tags */
-  border-radius: 25px; /* More rounded pill shape */
-  font-size: 0.95rem; /* Slightly larger font */
-  font-weight: 600;
-  border: 1px solid var(--serviceTagBorder);
-  transition: all 0.3s ease; /* Smoother transitions */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-}
-
-.pp-service-tag:hover {
-  background-color: var(--serviceTagHoverBg);
-  color: var(--serviceTagHoverText);
-  transform: translateY(-3px) scale(1.02); /* More engaging hover */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* --- Contact Info --- */
-.pp-contact-info p {
-  font-size: 1.05rem; /* Consistent text size */
-  margin-bottom: 12px; /* More space between items */
-  color: var(--primaryDark);
-  display: flex;
-  align-items: center;
-  gap: 12px; /* More space between icon and text */
-}
-
-.pp-contact-info p:last-child {
-  margin-bottom: 0;
-}
-
-.pp-contact-icon {
-  font-size: 1.4rem; /* Larger icon size */
-  color: var(--profileHeadingColor); /* Thematic color for icons */
-}
-
-.pp-contact-info p .pp-contact-detail {
-  color: #555;
-}
-
-/* --- Action Buttons --- */
-.pp-profile-actions {
-  display: flex;
-  gap: 25px; /* More space between buttons */
-  margin-top: 40px; /* More space above buttons */
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.pp-muhurtam-btn,
-.pp-book-btn {
-  padding: 18px 35px; /* Larger buttons */
-  border: none;
-  border-radius: 35px; /* More rounded pill shape */
-  font-size: 1.2rem; /* Larger font size */
-  font-weight: 700; /* Bolder text */
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 200px; /* Ensure buttons have a consistent minimum width */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Button shadow */
-}
-
-.pp-muhurtam-btn {
-  background-color: var(--secondaryButtonBg);
-  color: var(--secondaryButtonTextColor);
-  border: 1px solid var(--secondaryButtonBg);
-}
-
-.pp-muhurtam-btn:hover {
-  background-color: var(--secondaryButtonHoverBg);
-  transform: translateY(-3px); /* More pronounced lift */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
-}
-
-.pp-book-btn {
-  background-color: var(--primaryButtonBg);
-  color: var(--buttonTextColor);
-}
-
-.pp-book-btn:hover {
-  background-color: var(--primaryButtonHoverBg);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
-/* --- Add these styles to PriestProfile.css --- */
-
-/* This makes all buttons in the actions section have a similar base style */
-.pp-profile-actions button {
-  flex-grow: 1; 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-/* Style for the new horoscope button */
-.pp-horoscope-btn {
-  background: var(--mainContentBg); /* A lighter, secondary color from your theme */
-  color: var(--priestButtonBg); /* Text color matches the primary button's background */
-  border: 2px solid var(--priestButtonBg);
-}
-
-.pp-horoscope-btn:hover {
-  background: var(--hover-bg); /* Use a hover color from your theme */
-  transform: translateY(-2px);
-}
-/* --- Responsive Adjustments --- */
-@media (max-width: 992px) { /* Adjust breakpoint for larger tablets/smaller desktops */
-  .pp-profile-wrapper {
-    max-width: 800px;
-    padding: 30px;
-    margin: 30px auto;
-  }
-  .pp-priest-name {
+.pp-hero-section h1 {
     font-size: 3rem;
-    margin-bottom: 30px;
-  }
-  .pp-profile-section h2 {
-    font-size: 1.6rem;
+    font-weight: 800;
+    color: #2d3436;
     margin-bottom: 15px;
-  }
-  .pp-profile-section p, .pp-contact-info p {
-    font-size: 1rem;
-  }
+    letter-spacing: -1px;
 }
 
-@media (max-width: 768px) { /* Main stacking breakpoint */
-  .pp-profile-wrapper {
-    padding: 25px;
-    margin: 25px auto;
-  }
+.pp-badges {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+}
 
-  .pp-profile-main {
-    flex-direction: column; /* Stack columns */
-    gap: 30px;
-  }
+.pp-badge-certified, .pp-badge-location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
 
-  .pp-profile-left,
-  .pp-profile-right {
-    min-width: unset; /* Reset min-width */
-    flex: none; /* Reset flex-grow */
-  }
+.pp-badge-certified { background: #e3f2fd; color: #1976d2; }
+.pp-badge-location { background: #f5f5f5; color: #666; }
 
-  .pp-priest-name {
-    font-size: 2.5rem;
-    margin-bottom: 25px;
-  }
+.pp-content-block {
+    margin-bottom: 45px;
+}
 
-  .pp-profile-section {
-    padding: 20px;
-    margin-bottom: 25px;
-  }
-
-  .pp-profile-section h2 {
+.pp-content-block h3 {
     font-size: 1.4rem;
-    margin-bottom: 12px;
-  }
-
-  .pp-profile-section p,
-  .pp-contact-info p,
-  .pp-service-tag {
-    font-size: 0.95rem;
-  }
-
-  .pp-priest-profile-image,
-  .pp-priest-profile-image-placeholder {
-    max-width: 280px; /* Adjust image size for stacked layout */
-    height: 280px;
-  }
-  .pp-priest-profile-image-placeholder .pp-placeholder-icon {
-    font-size: 70px;
-  }
-
-  .pp-profile-actions {
-    gap: 15px; /* Closer buttons when stacked */
-  }
-  .pp-muhurtam-btn,
-  .pp-book-btn {
-    padding: 15px 30px;
-    font-size: 1.1rem;
-    min-width: 160px;
-  }
+    color: #2d3436;
+    margin-bottom: 18px;
+    font-weight: 700;
 }
 
-@media (max-width: 480px) { /* Smaller mobile screens */
-  .pp-profile-wrapper {
-    padding: 15px;
-    margin: 15px auto;
-    border-radius: 10px;
-  }
+.pp-bio-text {
+    line-height: 1.8;
+    color: #4a4a4a;
+    font-size: 1.1rem;
+}
 
-  .pp-profile-main {
-    gap: 20px;
-  }
-
-  .pp-priest-name {
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-
-  .pp-profile-section {
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-
-  .pp-profile-section h2 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
-
-  .pp-profile-section p,
-  .pp-contact-info p,
-  .pp-service-tag {
-    font-size: 0.88rem; /* Slightly smaller text */
-    line-height: 1.5;
-  }
-
-  .pp-priest-profile-image,
-  .pp-priest-profile-image-placeholder {
-    max-width: 220px;
-    height: 220px;
-  }
-  .pp-priest-profile-image-placeholder .pp-placeholder-icon {
-    font-size: 50px;
-  }
-
-  .pp-profile-actions {
-    flex-direction: column; /* Stack buttons vertically */
+.pp-tag-container {
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
-    margin-top: 25px;
-  }
+}
 
-  .pp-muhurtam-btn,
-  .pp-book-btn {
-    width: 100%; /* Full width when stacked */
-    padding: 12px 20px;
-    font-size: 1rem;
-    min-width: unset; /* Allow to shrink with full width */
-  }
+.pp-pooja-tag, .pp-lang-tag {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.pp-pooja-tag { background: #FFF4E5; color: #B74F2F; border: 1px solid #FFE0C2; }
+.pp-lang-tag { background: #f1f2f6; color: #2f3542; display: flex; align-items: center; gap: 8px; }
+
+/* --- RIGHT SIDE: BOOKING CARD --- */
+.pp-sidebar-anchor {
+    position: sticky;
+    top: 40px;
+}
+
+.pp-booking-card {
+    background: #FFFFFF;
+    border: 1px solid #EAEAEA;
+    border-radius: 24px;
+    padding: 35px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    text-align: center;
+}
+
+.pp-image-frame img {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #FDF5E6;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+}
+
+.pp-img-fallback {
+    font-size: 150px;
+    color: #eee;
+    margin-bottom: 25px;
+}
+
+.pp-price-label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 25px;
+}
+
+.pp-cta-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.pp-btn-book, .pp-btn-muhurtam, .pp-btn-horoscope {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pp-btn-book { background: #B74F2F; color: white; }
+.pp-btn-book:hover { background: #963f25; transform: translateY(-2px); }
+
+.pp-btn-muhurtam { background: white; color: #B74F2F; border: 2px solid #B74F2F; }
+.pp-btn-muhurtam:hover { background: #FFF4E5; }
+
+.pp-btn-horoscope { background: #2D3436; color: #FFD700; }
+.pp-btn-horoscope:hover { background: #000; }
+
+.pp-contact-summary {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.pp-contact-summary p { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .pp-grid-layout { grid-template-columns: 1fr; }
+    .pp-sidebar-anchor { position: static; order: -1; }
+    .pp-hero-section h1 { font-size: 2.2rem; text-align: center; }
+    .pp-badges { justify-content: center; }
 }

@@ -1,342 +1,315 @@
-/* PoojaItems.css */
-
-.pooja-items-container {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 20px;
-    max-width: 900px;
-    margin: 30px auto;
-    background-color: #FDF5E6; /* Light background for the container */
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+/* --- UI COLORS & FONTS --- */
+.pg-page-wrapper {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1e293b;
 }
 
-.pooja-main-title {
+.pg-print-brand-header {
+    display: none;
+}
+
+/* --- HERO SECTION --- */
+.pg-hero {
+    background: linear-gradient(135deg, #FFCC70 0%, #E65C00 100%);
+    padding: 80px 20px;
     text-align: center;
-    color: #B74F2F; /* Deep orange/brown */
-    margin-bottom: 10px;
-    font-size: 2.2em;
-    font-weight: 700;
-}
-
-.pooja-main-description {
-    text-align: center;
-    color: #666;
-    margin-bottom: 30px;
-    font-size: 1.1em;
-}
-
-.event-select-dropdown {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    color: white;
+    clip-path: ellipse(150% 100% at 50% 0%);
     margin-bottom: 40px;
-    gap: 15px;
 }
 
-.select-label {
-    font-size: 1.1em;
-    color: #555;
-    font-weight: 600;
-}
-.items-list-columns-container {
-    display: flex;
-    gap: 25px; /* Space between the columns */
-    align-items: flex-start;
+.pg-hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
+.pg-hero p { font-size: 1.15rem; opacity: 0.9; font-weight: 500; }
+
+/* --- DASHBOARD LAYOUT --- */
+.pg-container {
+    max-width: 1200px;
+    margin: -60px auto 60px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    padding: 0 20px;
 }
 
-.items-column {
-    flex: 1; /* Each column will take up equal space */
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.items-column li {
-    font-size: 1em;
-    color: #444;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px; /* Space between items in a column */
-}
-.pooja-select {
-    padding: 10px 15px;
-    border: 2px solid #e0c8b2; /* Lighter orange/brown */
-    border-radius: 8px;
-    background-color: #fff;
-    font-size: 1em;
-    color: #333;
-    cursor: pointer;
-    outline: none;
-    transition: all 0.3s ease;
-    min-width: 250px;
-}
-
-.pooja-select:focus {
-    border-color: #B74F2F;
-    box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2);
-}
-
-/* Pooja Details Card */
-.pooja-details-card {
-    background-color: #fff;
-    border-radius: 12px;
-    border: 1px solid #e0c8b2;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    padding: 30px;
+/* --- SIDEBAR --- */
+.pg-sidebar {
+    background: white;
+    border-radius: 24px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    height: calc(100vh - 120px);
+    position: sticky;
+    top: 40px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    border: 1px solid #f1f5f9;
+    box-sizing: border-box;
 }
 
-.pooja-header-section {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px dashed #f0e6da; /* Dotted line separator */
+.pg-search-container { position: relative; margin-bottom: 25px; width: 100%;}
+.pg-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+.pg-search-container input {
+    width: 100%;
+    padding: 14px 14px 14px 44px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    outline: none;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    transition: 0.2s;
+    box-sizing: border-box;
 }
 
-.pooja-title-description {
-    flex-grow: 1;
-    margin-left: 0; /* Ensure text starts from the very left when icon is removed */
-}
+.pg-search-container input:focus { border-color: #E65C00; background: white; box-shadow: 0 0 0 4px rgba(230, 92, 0, 0.05); }
 
-.pooja-name {
-    font-size: 1.8em;
-    color: #8C472A; /* Slightly darker orange/brown */
-    margin-bottom: 8px;
-    font-weight: 700;
-}
+.pg-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 5px; }
 
-.pooja-description {
-    font-size: 1em;
-    color: #555;
-    line-height: 1.6;
-}
-
-.pooja-category-section {
-    background-color: #f0e6da; /* Background for category tag */
-    padding: 8px 15px;
-    border-radius: 20px;
-    display: inline-flex; /* To make it fit content */
-    align-items: center;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: #8C472A;
-    margin-bottom: 15px; /* Space below the tag */
-}
-
-.category-label {
-    margin-right: 8px;
-    opacity: 0.8;
-}
-
-.items-required-section {
-    background-color: #fdfaf7; /* Very light background for items section */
-    border: 1px solid #f0e6da;
-    border-radius: 10px;
-    padding: 20px;
-    /* This text-align might be overridden by flexbox but good to keep as a fallback */
+.pg-list-item {
+    padding: 14px 18px;
     text-align: left;
-}
-
-.section-header {
-    display: flex;
-    align-items: center; /* Vertically align icon and text */
-    gap: 12px;
-    margin-bottom: 15px;
-    /* FORCE LEFT ALIGNMENT */
-    justify-content: flex-start !important; /* Use !important as a temporary measure if needed */
-    width: 100%; /* Ensure it takes full width to respect flex-start */
-    box-sizing: border-box; /* Include padding/border in width calculation */
-    /* Optional: Uncomment for debugging to see its boundaries */
-    /* background-color: rgba(255, 0, 0, 0.1); */
-}
-
-.section-icon svg {
-    width: 24px;
-    height: 24px;
-    fill: #8C472A;
-}
-
-.section-title {
-    font-size: 1.1em;
-    color: #8C472A;
-    font-weight: 600;
-    margin: 0; /* Reset margin from h3 */
-    text-align: left !important; /* Force text alignment too */
-}
-
-.items-list {
-    list-style: none; /* Remove default list style */
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
-    gap: 10px 20px;
-}
-
-.items-list li {
-    font-size: 1em;
-    color: #444;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.item-icon svg {
-    width: 10px; /* Small dot icon */
-    height: 10px;
-    fill: #B74F2F; /* Icon color for list items */
-}
-
-.no-items-message {
-    color: #888;
-    font-style: italic;
-    grid-column: 1 / -1; /* Span across all columns */
-    text-align: center;
-    padding: 15px 0;
-}
-
-.pooja-footer-details {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-top: 20px;
-    border-top: 1px dashed #f0e6da;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    gap: 15px;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1em;
-    color: #444;
-}
-
-.detail-icon svg {
-    width: 20px;
-    height: 20px;
-    fill: #8C472A;
-}
-
-.detail-label {
-    font-weight: 600;
-    color: #666;
-}
-
-.detail-value {
-    color: #B74F2F; /* Highlight values */
-    font-weight: 600;
-}
-
-.print-list-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px 25px;
-    background-color: #B74F2F; /* Primary button color */
-    color: #fff;
+    background: transparent;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    align-self: center; /* Center button within flex container */
-    margin-top: 25px;
-    box-shadow: 0 4px 10px rgba(183, 79, 47, 0.3);
-}
-
-.print-list-btn:hover {
-    background-color: #8C472A; /* Darker on hover */
-    transform: translateY(-2px);
-}
-
-.print-list-btn svg {
-    fill: #fff;
-    width: 20px;
-    height: 20px;
-}
-
-.no-selection-message {
-    text-align: center;
-    padding: 50px 20px;
-    background-color: #fff;
-    border: 1px dashed #e0c8b2;
     border-radius: 12px;
-    color: #777;
-    font-size: 1.1em;
-    margin-top: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+    transition: 0.2s;
+    font-size: 0.9rem;
 }
 
-/* Toast Messages */
-.pooja-toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: 500;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    animation: fadeInOut 3s forwards;
+.pg-list-item:hover { background: #fff7ed; color: #E65C00; }
+.pg-list-item.active { background: #E65C00; color: white; box-shadow: 0 4px 12px rgba(230, 92, 0, 0.2); }
+
+/* --- CONTENT CARD --- */
+.pg-card {
+    background: white;
+    border-radius: 28px;
+    padding: 45px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+    border: 1px solid #f1f5f9;
 }
 
-.pooja-toast.success {
-    background-color: #4CAF50; /* Green for success */
+.pg-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 20px; }
+.pg-title-box { display: flex; align-items: center; gap: 15px; }
+.pg-leaf-icon { color: #10b981; font-size: 2rem; }
+.pg-card-header h2 { font-size: 2.2rem; color: #0f172a; font-weight: 800; letter-spacing: -0.5px; }
+
+.pg-tag {
+    background: #f1f5f9;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
 }
 
-.pooja-toast.warning {
-    background-color: #ff9800; /* Orange for warning */
+.pg-description-box {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #64748b;
+    padding-bottom: 35px;
+    border-bottom: 1px dashed #e2e8f0;
+    margin-bottom: 35px;
 }
 
-.pooja-toast.error {
-    background-color: #f44336; /* Red for error */
+/* --- ITEMS GRID --- */
+.pg-section-title { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; color: #E65C00; font-weight: 800; font-size: 1.2rem; }
+
+.pg-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+.pg-item-row {
+    background: #f8fafc;
+    padding: 18px 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f1f5f9;
+    transition: 0.2s;
 }
 
-@keyframes fadeInOut {
-    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+.pg-item-row:hover { transform: translateY(-2px); border-color: #E65C00; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+.pg-item-name { font-weight: 700; color: #1e293b; }
+.pg-item-qty { color: #E65C00; font-weight: 800; font-size: 0.95rem; background: #fff7ed; padding: 4px 10px; border-radius: 8px; }
+
+/* --- FOOTER --- */
+.pg-card-footer {
+    margin-top: 45px;
+    padding-top: 35px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .pooja-items-container {
-        padding: 15px;
-        margin: 20px auto;
+.pg-price-info .label { color: #94a3b8; font-size: 0.9rem; font-weight: 600; }
+.pg-price-info .value { color: #0f172a; font-weight: 800; font-size: 1.4rem; display: block; margin-top: 4px; }
+
+.pg-print-btn {
+    background: #0f172a;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+}
+
+.pg-print-btn:hover { background: #E65C00; transform: translateY(-2px); }
+
+/* --- EMPTY STATES --- */
+.pg-welcome-state { text-align: center; padding: 120px 20px; color: #94a3b8; }
+.pg-welcome-icon { font-size: 4rem; color: #e2e8f0; margin-bottom: 20px; }
+.pg-welcome-state h2 { color: #475569; margin-bottom: 10px; }
+
+.pg-loader { height: 100vh; display: flex; align-items: center; justify-content: center; gap: 15px; color: #E65C00; font-weight: 700; }
+.pg-spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@media (max-width: 950px) {
+    .pg-container { grid-template-columns: 1fr; }
+    .pg-sidebar { height: auto; position: static; }
+}
+
+/* =========================================
+   PROFESSIONAL PRINT VIEW
+   ========================================= */
+@media print {
+    /* 1. Global Reset & Shade Removal */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    .pooja-header-section {
-        flex-direction: column;
-        align-items: flex-start; /* Align content to the left when stacked */
-        text-align: left;
+    .pg-page-wrapper, body, .pg-container, .pg-card {
+        background-color: white !important;
+        background: white !important;
+        box-shadow: none !important;
+        border: none !important; /* Removes the outer border around the card */
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
-    .pooja-footer-details {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start; /* Align items to the left when stacked */
+    /* 2. Hide Web UI Elements */
+    .pg-hero, .pg-sidebar, .pg-print-btn, .pg-meta-tags, .pg-price-info, .pg-description-box,
+    nav, .navbar, .hamburger-icon, .sidebar-toggle, footer, .pg-section-title, 
+    .pg-card-header, .pg-card-footer {
+        display: none !important;
     }
 
-    .pooja-select {
-        min-width: unset;
+    /* 3. Header Styling */
+    .pg-print-brand-header {
+        display: block !important;
+        text-align: center;
+        border-bottom: 2px solid #E65C00;
+        padding-bottom: 8px;
+        margin: 0 0 10px 0 !important;
+    }
+
+    .print-header-center { display: flex; flex-direction: column; align-items: center; }
+    .print-header-top { display: flex; align-items: center; gap: 10px; }
+    .print-logo-img { width: 40px !important; height: 40px !important; }
+    .print-brand-text { font-size: 1.6rem !important; font-weight: 800; }
+    .p-black { color: #000 !important; }
+    .p-orange { color: #E65C00 !important; }
+    .print-tagline { font-size: 0.8rem; color: #666; margin: 2px 0; }
+
+    /* 4. Ritual Meta & Description */
+    .print-ritual-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+    }
+    .print-ritual-header-row h2 { font-size: 1.2rem !important; margin: 0; font-weight: 700; }
+    .print-stats-inline { display: flex; gap: 15px; font-size: 0.85rem; color: #000; }
+    .print-ritual-description { 
+        margin-top: 5px; 
+        font-size: 0.85rem; 
+        line-height: 1.3; 
+        border-top: 1px dashed #eee; 
+        padding-top: 5px; 
+    }
+
+    /* 5. CHECKLIST GRID (2 Columns) */
+    .pg-items-section {
+        border: none !important; /* Removes any border surrounding the items list */
+        padding: 0 !important;
+    }
+
+    .pg-items-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 25px;
+        margin-top: 15px;
+        width: 100% !important;
+    }
+
+    .pg-item-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 5px 8px !important;
+        border-bottom: 1px solid #f0f0f0 !important; /* Underline for each item */
+        background: transparent !important;
+        break-inside: avoid;
+    }
+
+    .pg-item-name::before {
+        content: "";
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1.2px solid #000;
+        margin-right: 8px;
+        vertical-align: middle;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .pg-item-name {
+        font-size: 0.85rem !important;
+        color: #000 !important;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pg-item-qty {
+        font-size: 0.8rem !important;
+        font-weight: 700 !important;
+        color: #E65C00 !important;
+        white-space: nowrap;
+        margin-left: 10px;
+    }
+
+    /* 6. DECORATIVE END OF LIST STAR */
+    .pg-items-section::after {
+        content: "— ★ —";
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        font-size: 1.2rem;
+        color: #E65C00;
+        letter-spacing: 5px;
         width: 100%;
     }
 
-    .event-select-dropdown {
-        flex-direction: column;
-    }
-
-    .items-list {
-        grid-template-columns: 1fr; /* Single column on smaller screens */
+    @page {
+        margin: 0.6in;
     }
 }

@@ -1,196 +1,265 @@
-/* Filename: src/YourBookings.css - FINAL REDESIGNED VERSION */
-.your-bookings-page {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 16px;
-    font-family: 'Inter', sans-serif;
-}
-
-/* NEW: Header for title and back button */
-.your-bookings-header {
+/* --- VIEWPORT & GRADIENT BACKGROUND --- */
+.yb-viewport {
+    /* Matches the energy of your login page */
+    background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%);
+    min-height: 100vh;
+    padding: 60px 20px;
+    font-family: 'Inter', system-ui, sans-serif;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
-.your-bookings-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--theme-primary);
-    margin: 0;
-}
-
-.back-to-dashboard-btn {
-    background-color: transparent;
-    color: var(--theme-heading);
-    border: 2px solid var(--theme-heading);
-    padding: 8px 16px;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-}
-.back-to-dashboard-btn:hover {
-    background-color: var(--theme-heading);
-    color: white;
-}
-
-
-/* --- Tabs --- */
-.bookings-tabs {
-    display: flex;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 24px;
-}
-.tab-btn {
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-light);
-    background-color: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.tab-btn.active {
-    color: var(--theme-heading);
-    border-bottom-color: var(--theme-heading);
-}
-.notification-badge {
-    background-color: var(--danger-color);
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 12px;
-    margin-left: 5px;
-}
-
-/* --- List Container --- */
-.bookings-list {
-    display: grid;
-    gap: 20px;
-}
-
-/* --- Standard Booking Card --- */
-.booking-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-}
-.booking-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: var(--hover-bg);
-}
-.booking-card-body {
-    padding: 24px;
-    display: grid;
-    gap: 15px;
-}
-.booking-type {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--theme-heading);
-    margin: 0;
-}
-.booking-status-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-.booking-status-badge.confirmed,
-.booking-status-badge.accepted {
-    background-color: #e9f7ef;
-    color: #28a745;
-}
-.booking-status-badge.pending {
-    background-color: #fff3cd;
-    color: #856404;
-}
-.booking-status-badge.rejected {
-    background-color: #f8d7da;
-    color: var(--danger-color);
-}
-.booking-status-badge.viewed-by-priest {
-    background-color: #e7f3ff;
-    color: #007bff;
-}
-.status-icon.confirmed, .status-icon.viewed { color: #28a745; }
-.status-icon.pending { color: #fd7e14; }
-.status-icon.rejected { color: var(--danger-color); }
-.status-icon.default { color: #6c757d; }
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text-dark);
-}
-.detail-icon {
-    color: var(--theme-heading);
-    font-size: 1.2rem;
-}
-
-/* --- NEW: Compact Card for Muhurtam Requests --- */
-.request-card-simple {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-.request-card-simple:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-.request-card-simple .request-info {
+/* --- GLASS CARD SHELL --- */
+.yb-app-shell {
+    max-width: 850px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(12px);
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
-    gap: 5px;
-}
-.request-card-simple .booking-type {
-    font-size: 1.2rem; /* Slightly smaller title */
-}
-.request-card-simple .booking-priest {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-dark);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
+    overflow: hidden;
+    min-height: 85vh;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.no-bookings-card, .loading-text {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.1rem;
-    color: var(--text-light);
-    background-color: var(--card-bg);
-    border: 1px dashed var(--border-color);
-    border-radius: 12px;
+/* --- HEADER --- */
+.yb-main-header { padding: 45px 50px 30px; }
+.yb-title-stack { display: flex; align-items: center; gap: 25px; }
+
+.yb-minimal-back {
+    background: #fff3e0;
+    border: none;
+    width: 48px; height: 48px;
+    border-radius: 16px;
+    cursor: pointer;
+    color: #e65100;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
 }
+
+.yb-minimal-back:hover { 
+    background: #e65100; 
+    color: white; 
+    transform: translateX(-4px); 
+}
+
+.yb-header-text h1 { font-size: 2.4rem; font-weight: 900; color: #1a1a1a; margin: 0; letter-spacing: -1px; }
+.yb-header-text p { font-size: 1.05rem; color: #666; margin-top: 6px; }
+
+/* --- NAVIGATION TOGGLE --- */
+.yb-nav-container { padding: 0 50px 35px; }
+.yb-segmented-control {
+    background: #f1f1f1;
+    padding: 6px;
+    border-radius: 20px;
+    display: flex;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.yb-segmented-control button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 14px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #777;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.yb-segmented-control button.active {
+    background: #ffffff;
+    color: #e65100;
+    box-shadow: 0 10px 20px rgba(230, 81, 0, 0.18);
+}
+
+/* --- SCROLL AREA & CARDS --- */
+.yb-scroll-container { 
+    flex: 1; 
+    padding: 0 50px 40px; 
+    overflow-y: auto;
+}
+
+.yb-feed { display: flex; flex-direction: column; gap: 25px; }
+
+.yb-ritual-card {
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 24px;
+    display: flex;
+    overflow: hidden;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.yb-ritual-card:hover { 
+    transform: translateY(-8px) scale(1.01); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+    border-color: #ff8c00;
+}
+
+/* SIDEBAR STRIPS */
+.yb-status-sidebar { width: 12px; flex-shrink: 0; }
+.status-confirmed { background: #2e7d32; }
+.status-pending { background: #ffa000; }
+.status-rejected { background: #d32f2f; }
+.status-viewed { background: #1976d2; }
+
+.yb-card-content { flex: 1; padding: 30px; }
+
+.yb-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.yb-ritual-id { font-size: 0.85rem; font-weight: 800; color: #bbb; letter-spacing: 1px; font-family: monospace; }
+
+/* BADGES */
+.yb-status-badge {
+    padding: 8px 16px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.8px;
+}
+
+.yb-ritual-title { font-size: 1.6rem; font-weight: 900; color: #222; margin: 0 0 25px; }
+
+/* DATA STACK (REDUCED CONGESTION) */
+.yb-data-stack { 
+    display: flex; flex-direction: column; gap: 15px; 
+    background: #f9fafb; padding: 22px; border-radius: 20px;
+    border: 1px solid #f0f0f0;
+}
+.yb-data-row { display: flex; align-items: center; gap: 25px; }
+.yb-label { font-size: 0.75rem; font-weight: 900; color: #e65100; width: 110px; letter-spacing: 1.2px; text-transform: uppercase; }
+.yb-value { font-size: 1.1rem; font-weight: 700; color: #333; }
+
+/* FOOTER */
+.yb-card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1.5px dashed #eee; padding-top: 25px; margin-top: 25px;
+}
+
+.yb-location-tag {
+    font-size: 0.9rem; font-weight: 600; color: #666;
+    display: flex; align-items: center; gap: 12px;
+}
+
+.yb-btn-details {
+    background: #fff3e0;
+    border: 1.5px solid #e65100;
+    color: #e65100;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.yb-btn-details:hover {
+    background: #e65100;
+    color: white;
+    box-shadow: 0 8px 15px rgba(230, 81, 0, 0.25);
+}
+
+/* --- DRAWER OVERLAY --- */
+.yb-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.yb-drawer {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    height: 100%;
+    box-shadow: -20px 0 50px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    animation: slideRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.yb-drawer-header {
+    padding: 45px 40px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.yb-drawer-header h2 { color: #1a1a1a; font-weight: 900; font-size: 1.8rem; margin: 0; }
+
+.yb-close-btn {
+    background: #f5f5f5; border: none; font-size: 1.8rem;
+    width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+    color: #666; transition: 0.2s;
+}
+.yb-close-btn:hover { background: #eee; color: #000; }
+
+/* --- DRAWER BODY & CONTACT CARDS --- */
+.yb-drawer-body { padding: 40px; flex: 1; overflow-y: auto; }
+
+.yb-drawer-status {
+    padding: 18px; border-radius: 16px; text-align: center;
+    font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 40px; font-size: 1rem;
+}
+
+.yb-drawer-section { margin-bottom: 35px; }
+.yb-drawer-section h3 { 
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.85rem; font-weight: 900; color: #e65100;
+    text-transform: uppercase; margin-bottom: 18px; letter-spacing: 1.5px;
+}
+
+/* Contact Item Styling */
+.yb-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+    padding: 15px;
+    background: #fff8f0;
+    border-radius: 12px;
+    border: 1px solid #ffe0b2;
+}
+
+.yb-contact-icon { color: #e65100; font-size: 1.1rem; }
+.yb-contact-item span { font-weight: 700; color: #333; font-size: 1rem; }
+
+.yb-drawer-info p { margin: 10px 0; color: #444; font-size: 1.1rem; line-height: 1.6; }
+.yb-drawer-address { font-weight: 700; color: #1a1a1a; line-height: 1.6; background: #f5f5f5; padding: 15px; border-radius: 12px; }
+
+/* --- FOOTER & PAGINATION --- */
+.yb-drawer-footer { padding: 30px 40px; border-top: 1px solid #f0f0f0; }
+
+.yb-btn-close-full {
+    width: 100%; background: #e65100; color: white;
+    border: none; padding: 18px; border-radius: 16px;
+    font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.3s;
+}
+
+.yb-pagination {
+    padding: 30px 50px; display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #f0f0f0; background: #fff;
+}
+
+.yb-pagination button {
+    background: #fff; border: 2px solid #f0f0f0;
+    padding: 12px 26px; border-radius: 14px;
+    font-weight: 900; color: #1a1a1a; cursor: pointer; transition: 0.2s;
+}
+.yb-pagination button:hover:not(:disabled) { border-color: #e65100; color: #e65100; background: #fff8f0; }
+.yb-pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.yb-page-info { font-weight: 800; color: #666; font-size: 1rem; }

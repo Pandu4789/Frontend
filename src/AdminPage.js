@@ -1,13 +1,12 @@
-// Filename: AdminPage.js - FULLY REDESIGNED
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaUserTie, FaUsers, FaCalendarCheck, FaPray, FaCalendarAlt,
-  FaQuestionCircle, FaShoppingBasket, FaGift, FaBookOpen, FaClock, FaSignOutAlt, FaOm
+  FaQuestionCircle, FaShoppingBasket, FaGift, FaBookOpen, FaClock, FaSignOutAlt, FaOm, FaBell
 } from 'react-icons/fa';
-import './AdminPage.css'; // We will create this new CSS file
+import './AdminPage.css';
 
-// Import your management components
+// --- Management Component Imports ---
 import ManagePriests from "./admin/ManagePriests";
 import ManageCustomers from "./admin/ManageCustomers";
 import ManageAppointments from "./admin/ManageAppointments";
@@ -21,7 +20,6 @@ import ManageDailyTimes from "./admin/ManageDailyTimes";
 import ManagePanchangam from "./admin/ManagePanchangam";
 
 const AdminPage = () => {
-  // ✅ Navigation is now driven by this array, making it easy to add/remove items
   const navLinks = [
     { key: "priests", label: "Priests", icon: <FaUserTie /> },
     { key: "customers", label: "Customers", icon: <FaUsers /> },
@@ -36,17 +34,18 @@ const AdminPage = () => {
     { key: "daily-times", label: "Daily Times", icon: <FaClock /> },
   ];
 
-  const [activeTab, setActiveTab] = useState(navLinks[0].key); // Default to the first item
+  const [activeTab, setActiveTab] = useState(navLinks[0].key);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // We can add a confirmation modal here later if needed
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    localStorage.clear();
     navigate("/login");
   };
 
-  const renderComponent = () => {
+  const activeLabel = navLinks.find(link => link.key === activeTab)?.label || 'Dashboard';
+
+  // Helper function to render the correct sub-component
+  const renderTabContent = () => {
     switch (activeTab) {
       case "priests": return <ManagePriests />;
       case "customers": return <ManageCustomers />;
@@ -62,9 +61,6 @@ const AdminPage = () => {
       default: return <ManagePriests />;
     }
   };
-  
-  // Find the label of the current active tab to display in the header
-  const activeLabel = navLinks.find(link => link.key === activeTab)?.label || 'Dashboard';
 
   return (
     <div className="admin-dashboard">
@@ -72,8 +68,9 @@ const AdminPage = () => {
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <FaOm className="sidebar-logo-icon" />
-          <h1 className="sidebar-title">PRIESTify Admin</h1>
+          <h1 className="sidebar-title">PRIESTify</h1>
         </div>
+        
         <nav className="sidebar-nav">
           {navLinks.map(link => (
             <button
@@ -82,25 +79,40 @@ const AdminPage = () => {
               onClick={() => setActiveTab(link.key)}
             >
               <span className="sidebar-icon">{link.icon}</span>
-              {link.label}
+              <span className="sidebar-label-text">{link.label}</span>
             </button>
           ))}
         </nav>
+
         <div className="sidebar-footer">
-            <button className="sidebar-link logout" onClick={handleLogout}>
-                <span className="sidebar-icon"><FaSignOutAlt /></span>
-                Logout
-            </button>
+          <button className="sidebar-link logout" onClick={handleLogout}>
+            <span className="sidebar-icon"><FaSignOutAlt /></span>
+            <span className="sidebar-label-text">Logout</span>
+          </button>
         </div>
       </aside>
 
       {/* --- Main Content Area --- */}
       <main className="admin-main-content">
         <header className="content-header">
-          <h2>{activeLabel}</h2>
+          <div className="header-title-box">
+            <p className="breadcrumb-text">Admin Management Portal</p>
+            <h2>{activeLabel}</h2>
+          </div>
+          
+          <div className="header-profile-actions">
+             <button className="icon-action-btn">
+                <FaBell />
+             </button>
+             <div className="admin-user-pill">
+                <div className="admin-avatar">A</div>
+                <span className="admin-name">Super Admin</span>
+             </div>
+          </div>
         </header>
-        <div className="content-card">
-          {renderComponent()}
+
+        <div className="content-card-wrapper">
+          {renderTabContent()}
         </div>
       </main>
     </div>

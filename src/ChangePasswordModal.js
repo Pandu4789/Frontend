@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaLock, FaEye, FaEyeSlash, FaSpinner, FaCheckCircle, FaCircle } from 'react-icons/fa';
@@ -13,7 +13,6 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [showCurrent, setShowCurrent] = useState(false);
     const [showNew, setShowNew] = useState(false);
     
-    // Track specific requirements
     const [checks, setChecks] = useState({
         length: false,
         number: false,
@@ -43,7 +42,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             return;
         }
         if (!Object.values(checks).every(Boolean)) {
-            setError("Please meet all password requirements.");
+            setError("Please meet all requirements.");
             return;
         }
 
@@ -70,11 +69,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
         <div className="cp-modal-overlay" onClick={onClose}>
             <div className="cp-modal-card" onClick={e => e.stopPropagation()}>
                 <div className="cp-modal-header">
-                    <div className="cp-icon-circle">
-                        <FaLock />
-                    </div>
+                    <div className="cp-icon-circle"><FaLock /></div>
                     <h2>Security Update</h2>
-                    <p>Update your password to keep your account safe.</p>
+                    <p>Keep your account safe with a strong password.</p>
                     <button onClick={onClose} className="cp-close-btn">&times;</button>
                 </div>
 
@@ -89,7 +86,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                 onChange={handleChange} 
                                 placeholder="Enter current password"
                             />
-                            <span onClick={() => setShowCurrent(!showCurrent)}>
+                            <span className="cp-toggle" onClick={() => setShowCurrent(!showCurrent)}>
                                 {showCurrent ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
@@ -105,15 +102,14 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                 onChange={handleChange}
                                 placeholder="Enter new password"
                             />
-                            <span onClick={() => setShowNew(!showNew)}>
+                            <span className="cp-toggle" onClick={() => setShowNew(!showNew)}>
                                 {showNew ? <FaEyeSlash /> : <FaEye />}
                             </span>
                         </div>
                         
-                        {/* Requirement Tracker */}
                         <div className="cp-requirements">
                             <div className={checks.length ? 'met' : ''}>
-                                {checks.length ? <FaCheckCircle /> : <FaCircle />} 8+ Characters
+                                {checks.length ? <FaCheckCircle /> : <FaCircle />} 8+ Chars
                             </div>
                             <div className={checks.upper ? 'met' : ''}>
                                 {checks.upper ? <FaCheckCircle /> : <FaCircle />} Uppercase
@@ -122,7 +118,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                 {checks.number ? <FaCheckCircle /> : <FaCircle />} Number
                             </div>
                             <div className={checks.special ? 'met' : ''}>
-                                {checks.special ? <FaCheckCircle /> : <FaCircle />} Special Char
+                                {checks.special ? <FaCheckCircle /> : <FaCircle />} Special
                             </div>
                         </div>
                     </div>

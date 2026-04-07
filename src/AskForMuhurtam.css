@@ -1,218 +1,231 @@
-/* --- Muhurtam Modal Styles (AskForMuhurtam.css) --- */
-
-.modal-overlay {
+/* --- OVERLAY & BLUR --- */
+.am-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    padding: 20px;
-    overflow-y: auto;
+    z-index: 5000;
 }
 
-/* Style for nested popups (Birth Details, Confirmation) */
-.modal-overlay.inner-popup {
-    z-index: 1010; /* Ensure it's on top of the main modal */
+/* --- CARD STRUCTURE --- */
+.am-card {
+    background: white;
+    width: 850px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
 }
 
-.modal-content {
-    background-color: #fff;
-    padding: 35px;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: fadeInScale 0.3s ease-out forwards;
+.am-split-container {
+    display: flex;
+    height: 660px;
 }
 
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+/* --- CLOSE BUTTON --- */
+.am-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    z-index: 100;
+    transition: 0.2s;
 }
 
-.modal-content h2 {
-    font-size: 1.8em;
-    color: #8C472A;
-    text-align: center;
-    margin: 0 0 25px 0;
-    font-weight: 700;
-    border-bottom: 2px solid #f0e6da;
-    padding-bottom: 15px;
+.am-close:hover { background: #e2e8f0; color: #1e293b; transform: rotate(90deg); }
+
+/* --- LEFT SIDE: SUMMARY --- */
+.am-summary-side {
+    flex: 0.8;
+    background: #23272a;
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.modal-content h3 {
-    font-size: 1.3em;
-    color: #B74F2F;
-    margin-bottom: 15px;
-    font-weight: 600;
-    text-align: left;
+.am-priest-mini { display: flex; align-items: center; gap: 15px; }
+.am-priest-mini img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #B74F2F; object-fit: cover; }
+.am-mini-meta h4 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+.am-mini-meta span { font-size: 0.85rem; color: #aab8c2; display: block; margin-top: 2px; }
+
+.am-trust-badges { display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
+.am-trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 500; color: #fff; }
+.icon-green { color: #10b981 !important; font-size: 1.1rem; }
+
+/* --- RIGHT SIDE: FORM --- */
+.am-form-side { 
+    flex: 1.2; 
+    padding: 40px; 
+    overflow-y: auto; 
+    box-sizing: border-box; 
 }
 
-.modal-content label {
-    display: block;
-    margin-bottom: 15px;
-    font-size: 0.95em;
-    color: #555;
-    font-weight: 500;
-}
+.am-form-header h3 { font-size: 1.6rem; font-weight: 800; color: #1e293b; margin: 0 0 25px 0; }
 
-.modal-content input[type="text"],
-.modal-content input[type="tel"],
-.modal-content input[type="email"],
-.modal-content input[type="datetime-local"],
-.modal-content input[type="date"], /* ADDED */
-.modal-content input[type="time"], /* ADDED */
-.modal-content select,
-.modal-content textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #e0c8b2;
-    border-radius: 8px;
-    font-size: 1em;
-    color: #333;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.am-field { margin-bottom: 20px; }
+.am-field label { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: #B74F2F; text-transform: uppercase; margin-bottom: 8px; }
+
+.am-input, .am-textarea {
+    width: 100%; 
+    padding: 12px 14px; 
+    border-radius: 10px; 
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc; 
+    font-size: 0.95rem; 
     box-sizing: border-box;
 }
 
-.modal-content input:focus,
-.modal-content select:focus,
-.modal-content textarea:focus {
-    border-color: #B74F2F;
-    box-shadow: 0 0 0 3px rgba(183, 79, 47, 0.2);
-    outline: none;
-}
+.am-textarea { height: 90px; resize: none; }
+.am-input:focus, .am-textarea:focus { outline: none; border-color: #B74F2F; background: white; box-shadow: 0 0 0 4px rgba(183, 79, 47, 0.1); }
 
-.modal-content textarea {
-    resize: vertical;
-    min-height: 80px;
-}
+/* --- ERROR & SHAKE --- */
+.error-label { color: #ef4444 !important; }
+.error-border { border-color: #ef4444 !important; background-color: #fffafb !important; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.animate-shake { animation: shake 0.3s ease-in-out 0s 2; }
 
-/* Sections for grouping content */
-.form-section {
-    background-color: #fdfaf7;
-    border: 1px solid #f0e6da;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 20px 0;
-}
+/* --- BUTTONS --- */
+.am-actions { display: flex; gap: 12px; margin-top: 30px; }
+.am-btn-submit { flex: 2; background: #B74F2F; color: white; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.am-btn-cancel { flex: 1; background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; color: #64748b; font-weight: 600; cursor: pointer; }
 
-/* NEW: Style for the "Don't know Nakshatram?" link */
-.small-link {
-    color: #B74F2F;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 0.9em;
-    text-align: right;
-    margin-top: -10px;
-    margin-bottom: 15px;
-    transition: color 0.2s ease;
-}
-
-.small-link:hover {
-    color: #8C472A;
-}
-
-/* Address Grid (from previous component) */
-.address-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-/* Full-width items in the grid */
-.address-grid .full-width {
-    grid-column: 1 / -1;
-}
-
-.address-grid label {
-    margin-bottom: 0; /* Remove double margin inside grid */
-}
-
-/* Modal Actions (Buttons) */
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
-
-.modal-actions button {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1em;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-width: 120px;
-}
-
-/* Send Request button */
-.modal-actions button:first-child {
-    background-color: #B74F2F;
-    color: #fff;
-}
-
-.modal-actions button:first-child:hover {
-    background-color: #8C472A;
-    transform: translateY(-2px);
-}
-
-/* Cancel button */
-.modal-actions .cancel-button {
-    background-color: #ccc;
-    color: #555;
-}
-
-.modal-actions .cancel-button:hover {
-    background-color: #bbb;
-}
-
-/* Confirmation Box Styles */
-.confirmation-box {
+/* --- SUCCESS VIEW (COMPACTED TO FIX OVERFLOW) --- */
+.am-success-view {
+    padding: 30px 40px; /* Reduced vertical padding */
     text-align: center;
-    padding: 20px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 660px; /* Force internal container to match modal height */
+    box-sizing: border-box;
+    overflow-y: auto; /* Fallback for very small screens */
 }
 
-.confirmation-box h3 {
-    color: #8C472A;
-    font-size: 1.5em;
-    margin-bottom: 20px;
+.am-icon-circle { 
+    font-size: 3.5rem; /* Scaled down */
+    color: #10b981; 
+    margin-bottom: 15px; 
 }
 
-.confirmation-box p {
-    font-size: 1em;
-    color: #555;
-    line-height: 1.6;
+.am-success-view h2 {
+    font-size: 1.5rem; /* Scaled down */
+    color: #1e293b;
+    margin: 0;
+    font-weight: 800;
+}
+
+.am-success-tagline {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    margin-bottom: 20px; /* Reduced margin */
+}
+
+/* COMPACT RECEIPT CARD */
+.am-receipt-card {
+    width: 100%;
+    max-width: 400px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px 20px; /* Tighter padding */
+    margin-bottom: 25px; /* Reduced margin */
+    box-sizing: border-box;
+}
+
+.am-receipt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0; /* Tighter rows */
+    border-bottom: 1px dashed #cbd5e1;
+}
+
+.am-receipt-row:last-child { border-bottom: none; }
+.am-receipt-row span { color: #64748b; font-size: 0.85rem; text-align: left; }
+.am-receipt-row strong { color: #1e293b; font-weight: 700; font-size: 0.9rem; text-align: right; }
+
+/* COMPACT NEXT STEPS */
+.am-next-steps {
+    text-align: left;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 25px;
+}
+
+.am-next-steps h4 {
+    font-size: 0.9rem;
+    color: #1e293b;
+    margin-bottom: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.am-step {
+    display: flex;
+    gap: 12px;
     margin-bottom: 10px;
 }
 
-.confirmation-box strong {
+.am-step-number {
+    background: #f1f5f9;
     color: #B74F2F;
+    width: 20px; /* Scaled down */
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
 }
 
-/* OK button in confirmation */
-.ok-button {
-    background-color: #B74F2F;
-    color: #fff;
-    margin-top: 15px;
+.am-step p {
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.4;
 }
-.ok-button:hover {
-    background-color: #8C472A;
+
+/* ACTION BUTTON */
+.am-btn-finish {
+    width: 100%;
+    max-width: 400px;
+    background: #B74F2F;
+    color: white;
+    padding: 14px; /* Slimmer button */
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: auto; /* Pushes button to bottom if space allows */
 }
+
+.am-btn-finish:hover { background: #963f25; }
+
+/* --- ANIMATIONS --- */
+.animate-pop { animation: pop 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards; }
+.animate-slide-up { animation: slideUp 0.5s ease-out 0.2s forwards; opacity: 0; }
+.animate-fade-in { animation: fadeIn 0.5s ease-out 0.4s forwards; opacity: 0; }
+
+@keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

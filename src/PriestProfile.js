@@ -7,8 +7,8 @@ import './PriestProfile.css';
 import BookingModal from './BookingModal';
 import AskForMuhurtam from './AskForMuhurtam';
 import LoginPromptModal from './LoginPromptModal';
-import HoroscopeModal from './HoroscopeModal'; // ✅ 1. Import the new modal component
-import { FaPhoneAlt, FaUserCircle, FaEnvelope, FaMapMarkerAlt, FaStar } from 'react-icons/fa'; // ✅ 2. Import a new icon
+import HoroscopeModal from './HoroscopeModal';
+import { FaPhoneAlt, FaUserCircle, FaEnvelope, FaMapMarkerAlt, FaStar, FaGlobe, FaAward, FaCalendarCheck } from 'react-icons/fa';
 
 const PriestProfile = () => {
     const [priest, setPriest] = useState(null);
@@ -17,40 +17,20 @@ const PriestProfile = () => {
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showMuhurtamModal, setShowMuhurtamModal] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-    const [showHoroscopeModal, setShowHoroscopeModal] = useState(false); // ✅ 3. Add state for the new modal
+    const [showHoroscopeModal, setShowHoroscopeModal] = useState(false);
     const [customer, setCustomer] = useState({ name: '', phone: '', address: '', note: '' });
     const [nakshatramList, setNakshatramList] = useState([]);
 
-    const { id: priestId } = useParams(); // Renamed for clarity
-
-    const formatAddress = (priestData) => {
-        if (!priestData) return 'N/A';
-        const addressLines = [];
-        if (priestData.addressLine1) addressLines.push(priestData.addressLine1);
-        if (priestData.addressLine2) addressLines.push(priestData.addressLine2);
-        const cityState = [];
-        if (priestData.city) cityState.push(priestData.city);
-        if (priestData.state) cityState.push(priestData.state);
-        if (cityState.length > 0) addressLines.push(cityState.join(', '));
-        if (priestData.zipCode) addressLines.push(priestData.zipCode);
-        if (priestData.country) addressLines.push(priestData.country);
-        if (addressLines.length === 0) return 'N/A';
-        return <>{addressLines.map((line, index) => (<React.Fragment key={index}>{line}{index < addressLines.length - 1 && <br />}</React.Fragment>))}</>;
-    };
+    const { id: priestId } = useParams();
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                // This logic assumes your API returns the `offersHoroscopeReading` boolean field
                 const priestRes = await axios.get(`http://localhost:8080/api/auth/priests/${priestId}`);
-                const basicPriest = priestRes.data;
-
-                const profileRes = await axios.get(`http://localhost:8080/api/profile?email=${basicPriest.email}`);
-                const profileData = profileRes.data;
+                const profileRes = await axios.get(`http://localhost:8080/api/profile?email=${priestRes.data.email}`);
                 
-                const fullPriest = { ...basicPriest, ...profileData, poojas: profileData.services, languages: profileData.languages };
-                setPriest(fullPriest);
+                setPriest({ ...priestRes.data, ...profileRes.data, poojas: profileRes.data.services, languages: profileRes.data.languages });
 
                 const nakshatraRes = await axios.get('http://localhost:8080/api/nakshatram');
                 setNakshatramList(nakshatraRes.data);
@@ -58,109 +38,122 @@ const PriestProfile = () => {
                 const email = localStorage.getItem('userEmail');
                 if (email) {
                     const customerRes = await axios.get(`http://localhost:8080/api/profile?email=${email}`);
-                    const data = customerRes.data;
-                    setCustomer({ name: `${data.firstName || ''} ${data.lastName || ''}`, email: data.email || '', phone: data.phone || '', address: data.address || '', note: '' });
+                    setCustomer({ 
+                        name: `${customerRes.data.firstName || ''} ${customerRes.data.lastName || ''}`, 
+                        email: customerRes.data.email || '', 
+                        phone: customerRes.data.phone || '', 
+                        address: customerRes.data.address || '', 
+                        note: '' 
+                    });
                 }
             } catch (err) {
-                console.error('Error fetching data:', err);
-                setError('Failed to load priest profile.');
-                toast.error('Error loading data');
+                setError('Profile unavailable.');
+                toast.error('Connection error');
             } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [priestId]);
 
-    // ✅ 4. A unified handler to check for login before opening any modal
     const handleActionClick = (action) => {
-        const isLoggedIn = !!localStorage.getItem('userEmail');
-        if (!isLoggedIn) {
+        if (!localStorage.getItem('userEmail')) {
             setShowLoginPrompt(true);
         } else {
-            action(); // Perform the requested action (e.g., open a modal)
+            action();
         }
     };
 
-    if (loading) return <div className="pp-profile-loading-error">Loading priest profile...</div>;
-    if (error || !priest) return <div className="pp-profile-loading-error">{error || "Priest not found."}</div>;
+    if (loading) return <div className="pp-status-msg">Refining Profile Details...</div>;
+    if (error || !priest) return <div className="pp-status-msg">{error}</div>;
 
     return (
-        <div className="pp-profile-wrapper">
-            <div className="pp-profile-main">
-                <div className="pp-profile-left">
-                    <h1 className="pp-priest-name">{priest.firstName} {priest.lastName}</h1>
-                    <div className="pp-profile-section">
-                        <h2>About</h2>
-                        <p>{priest.bio || "No bio available."}</p>
-                    </div>
-                    <div className="pp-profile-section">
-                        <h2>Services</h2>
-                        <div className="pp-services-grid">
-                            {priest.poojas && priest.poojas.length > 0 ? (
-                                priest.poojas.map((pooja, index) => (<span key={index} className="pp-service-tag">{pooja}</span>))
-                            ) : (
-                                <p className="pp-no-data-message">No services listed.</p>
-                            )}
+        <div className="pp-dashboard-wrapper">
+            <div className="pp-grid-layout">
+                
+                {/* LEFT: INFORMATION STACK */}
+                <div className="pp-main-info">
+                    <div className="pp-breadcrumb">Priests › {priest.firstName} {priest.lastName}</div>
+                    
+                    <header className="pp-hero-section">
+                        <h1>{priest.firstName} {priest.lastName}</h1>
+                        <div className="pp-badges">
+                            <span className="pp-badge-certified"><FaAward /> Verified Priest</span>
+                            <span className="pp-badge-location"><FaMapMarkerAlt /> {priest.city}, {priest.state}</span>
                         </div>
-                    </div>
-                    <div className="pp-profile-section">
-                        <h2>Languages</h2>
-                        <div className="pp-services-grid">
-                           {priest.languages && priest.languages.length > 0 ? (
-                                priest.languages.map((language, index) => (<span key={index} className="pp-service-tag">{language}</span>))
-                            ) : (
-                                <p className="pp-no-data-message">No languages listed.</p>
-                            )}
-                        </div>
-                    </div>
-                    <div className="pp-profile-section">
-                        <h2>Contact Info</h2>
-                        <div className="pp-contact-info">
-                            <p><FaPhoneAlt className="pp-contact-icon" /> <span className="pp-contact-detail">{priest.phone || 'N/A'}</span></p>
-                            <p><FaEnvelope className="pp-contact-icon" /> <span className="pp-contact-detail">{priest.email || 'N/A'}</span></p>
-                            <p><FaMapMarkerAlt className="pp-contact-icon" /> <span className="pp-contact-detail">{formatAddress(priest)}</span></p>
-                        </div>
-                    </div>
+                    </header>
 
-                    <div className="pp-profile-actions">
-                        <button className="pp-book-btn" onClick={() => handleActionClick(() => setShowBookingModal(true))}>
-                            Book Now
-                        </button>
-                        <button className="pp-muhurtam-btn" onClick={() => handleActionClick(() => setShowMuhurtamModal(true))}>
-                            Ask for Muhurtam
-                        </button>
-                        
-                        {/* ✅ 5. The new conditional button */}
-                        {priest.offersHoroscopeReading && (
-                            <button 
-                                className="pp-horoscope-btn" 
-                                onClick={() => handleActionClick(() => setShowHoroscopeModal(true))}
-                            >
-                                <FaStar /> Request Horoscope
+                    <section className="pp-content-block">
+                        <h3>About the Priest</h3>
+                        <p className="pp-bio-text">{priest.bio || "Authentic Vedic scholar providing ritual services with deep spiritual insight."}</p>
+                    </section>
+
+                    <section className="pp-content-block">
+                        <h3>Services</h3>
+                        <div className="pp-tag-container">
+                            {priest.poojas?.map((p, i) => <span key={i} className="pp-pooja-tag">{p}</span>)}
+                        </div>
+                    </section>
+
+                    <section className="pp-content-block">
+                        <h3>Languages</h3>
+                        <div className="pp-tag-container">
+                            {priest.languages?.map((l, i) => <span key={i} className="pp-lang-tag"><FaGlobe /> {l}</span>)}
+                        </div>
+                    </section>
+                </div>
+
+                {/* RIGHT: STICKY BOOKING SIDEBAR */}
+                <aside className="pp-sidebar-anchor">
+                    <div className="pp-booking-card">
+                        <div className="pp-image-frame">
+                            {priest.imageUrl ? (
+                                <img src={priest.imageUrl} alt="Priest" />
+                            ) : (
+                                <div className="pp-img-fallback"><FaUserCircle /></div>
+                            )}
+                        </div>
+
+                        <div className="pp-pricing-preview">
+                            <span className="pp-price-label">Available for Bookings</span>
+                        </div>
+
+                        <div className="pp-cta-group">
+                            <button className="pp-btn-book" onClick={() => handleActionClick(() => setShowBookingModal(true))}>
+                                <FaCalendarCheck /> Book Service Now
                             </button>
-                        )}
-                    </div>
-                </div>
+                            
+                            <button className="pp-btn-muhurtam" onClick={() => handleActionClick(() => setShowMuhurtamModal(true))}>
+                                Ask for Muhurtam
+                            </button>
 
-                <div className="pp-profile-right">
-                    {priest.imageUrl ? (
-                        <img src={priest.imageUrl} alt={`${priest.firstName} ${priest.lastName}`} className="pp-priest-profile-image" />
-                    ) : (
-                        <div className="pp-priest-profile-image-placeholder">
-                            <FaUserCircle className="pp-placeholder-icon" />
-                            <span>No Image Available</span>
+                            {priest.offersHoroscopeReading && (
+                                <button className="pp-btn-horoscope" onClick={() => handleActionClick(() => setShowHoroscopeModal(true))}>
+                                    <FaStar /> Horoscope Analysis
+                                </button>
+                            )}
                         </div>
-                    )}
-                </div>
+
+                        <div className="pp-contact-summary">
+                            <p><FaPhoneAlt /> {priest.phone || 'Phone hidden'}</p>
+                            <p><FaEnvelope /> {priest.email}</p>
+                        </div>
+                    </div>
+                </aside>
             </div>
 
-            {/* Modals are now rendered at the bottom */}
-            {showBookingModal && ( <BookingModal priest={priest} customer={customer} setCustomer={setCustomer} onClose={() => setShowBookingModal(false)} /> )}
-            {showMuhurtamModal && ( <AskForMuhurtam priest={priest} customer={customer} setCustomer={setCustomer} nakshatramList={nakshatramList} onClose={() => setShowMuhurtamModal(false)} /> )}
-            {showLoginPrompt && ( <LoginPromptModal onClose={() => setShowLoginPrompt(false)} /> )}
-            {showHoroscopeModal && ( <HoroscopeModal priest={priest} onClose={() => setShowHoroscopeModal(false)} /> )}
+            {/* Modals */}
+            {showBookingModal && (
+  <BookingModal 
+    priest={priest} 
+    customer={customer} 
+    setCustomer={setCustomer}  // <--- ENSURE THIS LINE EXISTS
+    onClose={() => setShowBookingModal(false)} 
+  />
+)}
+            {showMuhurtamModal && <AskForMuhurtam priest={priest} customer={customer} nakshatramList={nakshatramList} onClose={() => setShowMuhurtamModal(false)} />}
+            {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />}
+            {showHoroscopeModal && <HoroscopeModal priest={priest} onClose={() => setShowHoroscopeModal(false)} />}
         </div>
     );
 };

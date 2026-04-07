@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import { FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import './ConfirmationModal.css';
 
 const ConfirmationModal = ({
@@ -12,25 +11,27 @@ const ConfirmationModal = ({
   confirmText = "Confirm",
   cancelText = "Cancel"
 }) => {
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="confirmation-modal-content" onClick={e => e.stopPropagation()}>
-        <div className="confirmation-modal-header">
-          <FaExclamationTriangle className="confirmation-icon" />
-          <h2 className="confirmation-title">{title}</h2>
-        </div>
-        <div className="confirmation-modal-body">
+    <div className="cp-modal-overlay" onClick={onClose}>
+      <div className="cp-modal-card confirm-mini" onClick={e => e.stopPropagation()}>
+        <div className="cp-modal-header">
+          <div className="cp-icon-circle warning">
+            <FaExclamationTriangle />
+          </div>
+          <h2>{title}</h2>
           <p>{message}</p>
+          <button onClick={onClose} className="cp-close-btn">
+            <FaTimes />
+          </button>
         </div>
-        <div className="confirmation-modal-actions">
-          <button className="btn btn-secondary" onClick={onClose}>
+
+        <div className="cp-actions">
+          <button type="button" className="cp-btn-cancel" onClick={onClose}>
             {cancelText}
           </button>
-          <button className="btn btn-danger" onClick={onConfirm}>
+          <button type="button" className="cp-btn-submit danger" onClick={onConfirm}>
             {confirmText}
           </button>
         </div>

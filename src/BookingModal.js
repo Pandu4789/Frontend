@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaCheckCircle, FaTimes, FaInfoCircle } from 'react-icons/fa';
 import './BookingModal.css';
 
 const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
@@ -14,25 +14,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [selectedStartTime, setSelectedStartTime] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const navigate = useNavigate();
-   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-   const [availableDates, setAvailableDates] = useState(new Set());
-
-
-  // Current date is June 9, 2025. Available dates are in the future.
-
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -40,314 +22,225 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
         const res = await axios.get('http://localhost:8080/api/events');
         setEvents(res.data);
       } catch (error) {
-        console.error('Failed to fetch events:', error);
-        toast.error('Failed to load events list.');
+        toast.error('Failed to load rituals.');
       }
     };
     fetchEvents();
   }, []);
-useEffect(() => {
-  console.log("Priest object:", priest);
-  if (priest?.id) {
-    console.log("Priest ID:", priest.id);
-  } else {
-    console.warn("No priest ID found.");
-  }
-}, [priest]);
-useEffect(() => {
-  if (appointmentDate) {
-    fetchAvailability(appointmentDate);
-  }
-}, [appointmentDate]);
 
-const fetchAvailability = async (date) => {
-  if (!priest || !priest.id) return;
-
-  const formattedDate = date.toISOString().split('T')[0];
-  try {
-const response = await axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${formattedDate}`, {
-      params: {
-        priestId: priest.id,
-        date: formattedDate,
-      }
-    });
-    // Assume backend returns: ["10:00", "11:00", "13:00"]
-    setAvailableTimeSlots(response.data || []);
-  } catch (error) {
-    console.error('Failed to fetch availability:', error);
-    toast.error('Could not load available time slots.');
-    setAvailableTimeSlots([]);
-            fetchAvailability(date); // ← This triggers availability check for selected date
-
-  }
-};
-useEffect(() => {
-  if (!priest || !priest.id) return;
-
-  const preloadAvailableDates = async () => {
-    try {
-      const today = new Date();
-      const daysToCheck = 30; // or however many days you want to check
-      const datesSet = new Set();
-
-      for (let i = 0; i < daysToCheck; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        const dateString = date.toISOString().split('T')[0];
-
-        const res = await axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${dateString}`);
-        if ((res.data || []).length > 0) {
-          datesSet.add(dateString);
-        }
-      }
-
-      setAvailableDates(datesSet);
-    } catch (error) {
-      console.error("Error preloading availability:", error);
+  useEffect(() => {
+    if (appointmentDate && priest?.id) {
+      const formattedDate = appointmentDate.toISOString().split('T')[0];
+      axios.get(`http://localhost:8080/api/availability/priest/${priest.id}/date/${formattedDate}`)
+        .then(res => setAvailableTimeSlots(res.data || []))
+        .catch(() => setAvailableTimeSlots([]));
     }
+  }, [appointmentDate, priest]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!eventId) newErrors.eventId = true;
+    if (!appointmentDate) newErrors.date = true;
+    if (!selectedStartTime) newErrors.time = true;
+    if (!customer.addressLine1) newErrors.address = true;
+    if (!customer.city) newErrors.city = true;
+    if (!customer.zip) newErrors.zip = true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  preloadAvailableDates();
-  // eslint-disable-next-line
-}, [priest]);
-
-
-
   const handleBookNow = async () => {
-    if (!customer.name || !customer.phone || !customer.addressLine1 || !customer.city || !customer.state || !customer.zip) {
-      toast.error('Please fill in your Name, Phone, and complete Address details.');
+    if (!validateForm()) {
+      toast.error('Please fill in all highlighted fields.');
       return;
     }
-    if (!eventId) {
-      toast.error('Please select an event.');
-      return;
-    }
-    if (!appointmentDate || !selectedStartTime) {
-      toast.error('Please select a valid appointment date and time slot.');
-      return;
-    }
-    if (!priest || !priest.id) {
-      toast.error('Priest information is missing.');
-      return;
-    }
-     const customerId = localStorage.getItem('userId');
-            if (!customerId) {
-                toast.error("Could not find customer ID. Please log in again.");
-                return;
-            }
-
     try {
-      const addressParts = [
-        customer.addressLine1,
-        customer.addressLine2, 
-        customer.city,
-        customer.state,
-        customer.zip,
-      ];
-
-      // This filters out any empty/null parts (like addressLine2) and joins the rest with ", "
-      const combinedAddress = addressParts.filter(part => part).join(', ');
-
+      const combinedAddress = [customer.addressLine1, customer.city, customer.state, customer.zip].filter(Boolean).join(', ');
       const payload = {
-        eventId: eventId,
+        eventId,
         name: customer.name,
         phone: customer.phone,
         email: customer.email,
-        note: customer.note || '',
         address: combinedAddress,
         date: appointmentDate.toISOString().split('T')[0],
         start: selectedStartTime,
-        end: "TBD",
         priestId: priest.id,
-        userId: customerId|| null // Assuming customer has an id field
+        userId: localStorage.getItem('userId')
       };
-      console.log('Booking payload:', payload);
       await axios.post('http://localhost:8080/api/booking', payload);
-      toast.success('Booking request sent successfully!');
       setShowConfirmation(true);
-    } catch (error)
-    {
-      console.error('Failed to send booking request:', error);
-      toast.error('Failed to send booking request.');
+    } catch (error) {
+      toast.error('Booking failed. Please try again.');
     }
   };
 
- const isDateAvailable = (date) => {
-  const dateString = date.toISOString().split('T')[0];
-  return availableDates.has(dateString);
-};
-
-
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="bm-overlay">
+      <div className={`bm-card ${showConfirmation ? 'bm-confirm-mode' : ''} ${Object.keys(errors).length > 0 ? 'animate-shake' : ''}`}>
+        <button className="bm-close" onClick={onClose}><FaTimes /></button>
+
         {showConfirmation ? (
-          <div className="confirmation-box">
-  <h3>
-    Thank you for booking <strong>{priest?.firstName} {priest?.lastName || 'the priest'}</strong> for the event{' '}
-    <strong>{selectedEventName || 'this event'}</strong>.
-  </h3>
-  <p>
-    You will be notified once <strong>{priest?.firstName || 'the priest'}</strong> accepts your request.
-  </p>
-  <p>
-    A confirmation will be sent to your Email at{' '}
-    <strong>{customer.email}</strong>.
-  </p>
-  <p>
-    Meanwhile, you can know all about your pooja from the{' '}
-    <a href="/pooja-items" className="pooja-link">Pooja Items</a> page.
-  </p>
-  <button onClick={onClose} className="ok-button">OK</button>
-</div>
-
-        ) : (
-          <>
-            <h2>Book Appointment with {priest?.firstName || 'Priest'}</h2>
-
-            {/* Step 1: Event Selection */}
-            <div className="form-section">
-              <h3>Select Event</h3>
-              <label>
-                Event Name:
-                <select
-                  value={eventId}
-                  onChange={e => {
-                    const selectedId = e.target.value;
-                    setEventId(selectedId);
-                    const selectedEvent = events.find(event => event.id === parseInt(selectedId));
-                    setSelectedEventName(selectedEvent ? selectedEvent.name : '');
-                  }}
-                >
-                  <option value="">-- Select Event --</option>
-                  {events.map(event => (
-                    <option key={event.id} value={event.id}>
-                      {event.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+          <div className="bm-success-view">
+            <div className="bm-success-header">
+                <div className="bm-icon-circle animate-pop">
+                    <FaCheckCircle />
+                </div>
+                <h2 className="animate-fade-in">Request Sent!</h2>
+                <p className="bm-success-tagline">Your ritual is now in the priest's queue.</p>
             </div>
 
-            {/* Step 2: Date and Time Selection */}
-            <div className="form-section">
-    <h3>Select Date & Time</h3>
-    <label>
-        <span>
-            Appointment Date:
-        </span>
-        <DatePicker
-            selected={appointmentDate}
-            // MODIFIED: onChange now calls a new function
-            onChange={(date) => {
-                setAppointmentDate(date);
-                setIsDatePickerOpen(false); // This manually closes the calendar
-            }}
-            filterDate={isDateAvailable}
-            dateFormat="yyyy/MM/dd"
-            placeholderText="Select an available date"
-            minDate={new Date()}
-            className="react-datepicker-input"
-            // --- NEW PROPS FOR MANUAL CONTROL ---
-            open={isDatePickerOpen}
-            onSelect={() => setIsDatePickerOpen(false)} 
-            onFocus={() => setIsDatePickerOpen(true)}
-            onClick={() => setIsDatePickerOpen(true)}
-            onClickOutside={() => setIsDatePickerOpen(false)}
-        />
-    </label>
-                {appointmentDate && availableTimeSlots.length > 0 && (
-                    <div className="time-slot-selection">
-                        <label>Available Time Slots:</label>
-                        <div className="time-slot-grid">
-                            {availableTimeSlots.map(slot => (
-                                <button
-                                    key={slot}
-                                    className={`time-slot-button ${selectedStartTime === slot ? 'selected' : ''}`}
-                                    onClick={() => setSelectedStartTime(slot)}
-                                >
-                                    {slot}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                {appointmentDate && availableTimeSlots.length === 0 && (
-                    <p className="no-slots-message">No available slots for the selected date.</p>
-                )}
-            </div>
-            
-            {/* Step 3: Address Information Block (Moved Here) */}
-            <div className="form-section">
-                <h3>Your Address</h3>
-                <div className="address-grid">
-                    <label>
-                        Address Line 1:
-                        <input
-                            type="text"
-                            placeholder="Street Address"
-                            value={customer.addressLine1 || ''}
-                            onChange={e => setCustomer(prev => ({ ...prev, addressLine1: e.target.value }))}
-                        />
-                    </label>
-                    <label>
-                        Address Line 2 (Optional):
-                        <input
-                            type="text"
-                            placeholder="Apartment, suite, etc."
-                            value={customer.addressLine2 || ''}
-                            onChange={e => setCustomer(prev => ({ ...prev, addressLine2: e.target.value }))}
-                        />
-                    </label>
-                    <label>
-                        City:
-                        <input
-                            type="text"
-                            placeholder="e.g., Irving"
-                            value={customer.city || ''}
-                            onChange={e => setCustomer(prev => ({ ...prev, city: e.target.value }))}
-                        />
-                    </label>
-                    <label>
-                        State:
-                        <input
-                            type="text"
-                            placeholder="e.g., Texas"
-                            value={customer.state || ''}
-                            onChange={e => setCustomer(prev => ({ ...prev, state: e.target.value }))}
-                        />
-                    </label>
-                    <label>
-                        Zip Code:
-                        <input
-                            type="text"
-                            placeholder="e.g., 75038"
-                            value={customer.zip || ''}
-                            onChange={e => setCustomer(prev => ({ ...prev, zip: e.target.value }))}
-                        />
-                    </label>
+            <div className="bm-receipt-card animate-slide-up">
+                <div className="bm-receipt-row">
+                    <span>Ritual</span>
+                    <strong>{selectedEventName}</strong>
+                </div>
+                <div className="bm-receipt-row">
+                    <span>Priest</span>
+                    <strong>{priest.firstName} {priest.lastName}</strong>
+                </div>
+                <div className="bm-receipt-row">
+                    <span>Proposed Time</span>
+                    <strong>{appointmentDate?.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {selectedStartTime}</strong>
                 </div>
             </div>
 
-            {/* Step 4: Note Field */}
-            <div className="form-section">
-              <h3>Additional Information</h3>
-              <label>
-                Note:
-                <textarea
-                  placeholder="Optional note for the priest"
-                  value={customer.note || ''}
-                  onChange={e => setCustomer(prev => ({ ...prev, note: e.target.value }))}
-                  rows="3"
-                />
-              </label>
+            <div className="bm-next-steps animate-fade-in">
+                <h4>What happens next?</h4>
+                <div className="bm-step">
+                    <div className="bm-step-number">1</div>
+                    <p><strong>{priest.firstName}</strong> will review your address and timing.</p>
+                </div>
+                <div className="bm-step">
+                    <div className="bm-step-number">2</div>
+                    <p>You will receive an <strong>Email & SMS</strong> once the booking is confirmed.</p>
+                </div>
             </div>
 
-            <div className="modal-actions">
-              <button onClick={handleBookNow}>Book Now</button>
-              <button onClick={onClose} className="cancel-button">Cancel</button>
+            <div className="bm-success-actions">
+                <button onClick={onClose} className="bm-btn-finish">Return to Profile</button>
+                <p className="bm-support-text">Need to change something? Contact the priest directly.</p>
             </div>
-          </>
+          </div>
+        ) : (
+          <div className="bm-split-container">
+            <div className="bm-summary-side">
+                <div className="bm-priest-mini">
+                    <img src={priest.imageUrl || '/placeholder.png'} alt="Priest" />
+                    <div className="bm-mini-meta">
+                        <h4>{priest.firstName} {priest.lastName}</h4>
+                        <span>{priest.city}, {priest.state}</span>
+                    </div>
+                </div>
+                <div className="bm-trust-badges">
+                    <div className="bm-trust-item"><FaCheckCircle className="icon-green" /> Verified Professional</div>
+                    <div className="bm-trust-item"><FaInfoCircle className="icon-green" /> Secure Booking</div>
+                </div>
+            </div>
+
+            <div className="bm-form-side">
+                <div className="bm-form-header">
+                    <h3>Schedule Your Pooja</h3>
+                </div>
+                
+                <div className="bm-field">
+                    <label className={errors.eventId ? 'error-label' : ''}><FaInfoCircle /> Choose Ritual</label>
+                    <select 
+                        className={`bm-input ${errors.eventId ? 'error-border' : ''}`} 
+                        value={eventId} 
+                        onChange={e => {
+                            const val = e.target.value;
+                            setEventId(val);
+                            setSelectedEventName(events.find(ev => ev.id === parseInt(val))?.name || '');
+                            setErrors(prev => ({...prev, eventId: false}));
+                        }}
+                    >
+                        <option value="">Select a Pooja Ritual...</option>
+                        {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
+                    </select>
+                </div>
+
+                <div className="bm-field">
+                    <label className={errors.date ? 'error-label' : ''}><FaCalendarAlt /> Preferred Date</label>
+                    <div className={errors.date ? 'error-border-picker' : ''}>
+                        <DatePicker 
+                            selected={appointmentDate} 
+                            onChange={d => {
+                              setAppointmentDate(d); 
+                              setErrors(prev => ({...prev, date: false}));
+                            }} 
+                            minDate={new Date()} 
+                            placeholderText="Select Date"
+                            className="bm-input"
+                        />
+                    </div>
+                </div>
+
+                {appointmentDate && (
+                    <div className="bm-field">
+                        <label className={errors.time ? 'error-label' : ''}><FaClock /> Available Slots</label>
+                        <div className="bm-time-pills">
+                            {availableTimeSlots.length > 0 ? (
+                                availableTimeSlots.map(slot => (
+                                    <button 
+                                        key={slot} 
+                                        type="button"
+                                        className={`bm-pill ${selectedStartTime === slot ? 'active' : ''} ${errors.time ? 'error-pill' : ''}`} 
+                                        onClick={() => {
+                                          setSelectedStartTime(slot); 
+                                          setErrors(prev => ({...prev, time: false}));
+                                        }}
+                                    >
+                                        {slot}
+                                    </button>
+                                ))
+                            ) : (
+                                <p className="bm-no-slots">No slots available for this date.</p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <div className="bm-field">
+                    <label className={errors.address || errors.city || errors.zip ? 'error-label' : ''}><FaMapMarkerAlt /> Ritual Location</label>
+                    <div className="bm-grid-layout">
+                        <input 
+                            className={`bm-input ${errors.address ? 'error-border' : ''}`} 
+                            placeholder="Street Address" 
+                            value={customer.addressLine1 || ''}
+                            onChange={e => {
+                              setCustomer(prev => ({...prev, addressLine1: e.target.value})); 
+                              setErrors(prev => ({...prev, address: false}));
+                            }} 
+                        />
+                        <div className="bm-sub-grid">
+                            <input 
+                                className={`bm-input ${errors.city ? 'error-border' : ''}`} 
+                                placeholder="City" 
+                                value={customer.city || ''}
+                                onChange={e => {
+                                  setCustomer(prev => ({...prev, city: e.target.value})); 
+                                  setErrors(prev => ({...prev, city: false}));
+                                }} 
+                            />
+                            <input 
+                                className={`bm-input ${errors.zip ? 'error-border' : ''}`} 
+                                placeholder="Zip" 
+                                value={customer.zip || ''}
+                                onChange={e => {
+                                  setCustomer(prev => ({...prev, zip: e.target.value})); 
+                                  setErrors(prev => ({...prev, zip: false}));
+                                }} 
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <footer className="bm-actions">
+                    <button className="bm-btn-cancel" onClick={onClose}>Cancel</button>
+                    <button className="bm-btn-submit" onClick={handleBookNow}>Confirm Booking</button>
+                </footer>
+            </div>
+          </div>
         )}
       </div>
     </div>

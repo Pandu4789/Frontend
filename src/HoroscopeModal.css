@@ -1,0 +1,152 @@
+/* --- OVERLAY --- */
+.hm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+}
+
+/* --- CARD STRUCTURE --- */
+.hm-card {
+    background: white;
+    width: 850px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4);
+}
+
+.hm-split-container {
+    display: flex;
+    height: 550px;
+}
+
+/* --- CLOSE BUTTON --- */
+.hm-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    z-index: 100;
+}
+
+/* --- LEFT SIDE: SUMMARY --- */
+.hm-summary-side {
+    flex: 0.8;
+    background: #23272a; /* Same Charcoal as Booking/Muhurtam */
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hm-priest-mini { display: flex; align-items: center; gap: 15px; }
+.hm-priest-mini img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid #B74F2F; object-fit: cover; }
+.hm-mini-meta h4 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+.hm-mini-meta span { font-size: 0.85rem; color: #aab8c2; }
+
+.hm-trust-badges { display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
+.hm-trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #fff; }
+.icon-green { color: #10b981 !important; }
+
+/* --- RIGHT SIDE: FORM/INFO --- */
+.hm-form-side {
+    flex: 1.2;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.hm-form-header h3 { font-size: 1.6rem; font-weight: 800; color: #1e293b; margin: 0 0 25px 0; }
+
+.hm-main-text {
+    line-height: 1.6;
+    color: #475569;
+    font-size: 1rem;
+    margin-bottom: 25px;
+}
+
+/* --- CONTACT NOTE CARD --- */
+.hm-contact-note {
+    background-color: #fdf5e6;
+    border-left: 4px solid #b74f2f;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.hm-note-icon { color: #b74f2f; font-size: 1.4rem; margin-top: 3px; }
+.hm-note-title { font-weight: 800; font-size: 0.95rem; color: #1e293b; margin-bottom: 4px !important; }
+.hm-note-desc { font-size: 0.85rem; color: #64748b; margin-bottom: 10px !important; }
+
+.hm-phone-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #b74f2f;
+    font-size: 1.1rem;
+}
+
+.hm-coming-soon {
+    margin-top: auto;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px dashed #e2e8f0;
+}
+
+.hm-status-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.hm-coming-soon p { font-size: 0.8rem; color: #94a3b8; margin: 0; }
+
+/* --- ACTIONS --- */
+.hm-actions { display: flex; gap: 12px; margin-top: 30px; }
+
+.hm-btn-submit { 
+    flex: 2; 
+    background: #B74F2F; 
+    color: white; 
+    border: none; 
+    padding: 15px; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    cursor: not-allowed; 
+    opacity: 0.5;
+}
+
+.hm-btn-cancel { 
+    flex: 1; 
+    background: white; 
+    border: 1.5px solid #e2e8f0; 
+    border-radius: 12px; 
+    color: #64748b; 
+    font-weight: 600; 
+    cursor: pointer; 
+}
