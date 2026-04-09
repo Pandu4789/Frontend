@@ -60,30 +60,36 @@ const YourBookings = () => {
         fetchUserBookings();
     }, []);
 
+    // --- LOGIC HELPERS ---
     const isPast = (dateStr) => dateStr && isBefore(new Date(dateStr), startOfDay(new Date()));
 
     const getStatusMeta = (item) => {
         const rawStatus = (item.status || '').toUpperCase();
         const isExpired = activeTab === 'bookings' && isPast(item.date);
 
+        // 1. If date passed and it was still PENDING or NO STATUS
         if (isExpired && (!rawStatus || rawStatus === 'PENDING' || rawStatus === 'ACKNOWLEDGED')) {
             return { cls: 'expired', icon: <FaBan />, label: 'No Longer Available' };
         }
 
+        // 2. Standard Statuses
         if (rawStatus.includes('ACCEPT')) return { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Accepted' };
         if (rawStatus.includes('REJECT')) return { cls: 'rejected', icon: <FaTimesCircle />, label: 'Rejected' };
         
-        // Use 'viewed' class for blue styling
+        // 3. Acknowledged (Uses 'viewed' cls for consistent blue styling)
         if (item.viewed && !rawStatus) return { cls: 'viewed', icon: <FaInfoCircle />, label: 'Acknowledged' };
+        
         return { cls: 'pending', icon: <FaExclamationCircle />, label: 'Pending' };
     };
 
+    // --- COUNT LOGIC ---
     const counts = useMemo(() => {
         const data = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
         if (activeTab === 'bookings') {
             return {
                 all: data.length,
                 upcoming: data.filter(item => !isPast(item.date)).length,
+                // Only active pending (Not past date)
                 pending: data.filter(item => !isPast(item.date) && (!item.status || item.status === 'PENDING') && !item.viewed).length,
                 accepted: data.filter(item => item.status?.toUpperCase().includes('ACCEPT')).length,
                 rejected: data.filter(item => item.status?.toUpperCase().includes('REJECT')).length,
@@ -93,11 +99,12 @@ const YourBookings = () => {
             return {
                 all: data.length,
                 pending: data.filter(item => !item.viewed).length,
-                acknowledged: data.filter(item => item.viewed).length // Sync key name
+                acknowledged: data.filter(item => item.viewed).length 
             };
         }
     }, [activeTab, appointmentBookings, muhurtamRequests]);
 
+    // --- FILTER LOGIC ---
     const filteredData = useMemo(() => {
         const rawData = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
         if (statusFilter === 'ALL') return rawData;
@@ -110,8 +117,11 @@ const YourBookings = () => {
 
         return rawData.filter(item => {
             const status = (item.status || '').toUpperCase();
+            // Pending filter excludes expired
             if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !item.viewed && !isPast(item.date);
+            // Acknowledged filter
             if (statusFilter === 'ACKNOWLEDGED') return item.viewed === true && (status === '' || status === 'ACKNOWLEDGED');
+            
             return status.includes(statusFilter);
         });
     }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter]);

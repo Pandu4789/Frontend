@@ -20,7 +20,11 @@ const CustomerNavbar = ({ onLogout }) => {
   const [bookingExpanded, setBookingExpanded] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-  const [stats, setStats] = useState({ ritual: { upcoming: 0, accepted: 0, rejected: 0 }, muhurtam: { upcoming: 0 } });
+  
+  const [stats, setStats] = useState({ 
+    ritual: { all: 0, upcoming: 0, accepted: 0, rejected: 0, pending: 0 }, 
+    muhurtam: { all: 0, pending: 0, acknowledged: 0 } 
+  });
 
   const sidebarRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -30,25 +34,45 @@ const CustomerNavbar = ({ onLogout }) => {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    fetch(`${API_BASE}/api/booking/customer/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        const now = new Date();
-        const ritualData = data.filter(b => !b.isMuhurtam);
-        const muhurtamData = data.filter(b => b.isMuhurtam);
+    const fetchStats = async () => {
+      try {
+        const [bookingRes, muhurtamRes] = await Promise.all([
+          fetch(`${API_BASE}/api/booking/customer/${userId}`).then(res => res.json()),
+          fetch(`${API_BASE}/api/muhurtam/customer/${userId}`).then(res => res.json())
+        ]);
+
+        const todayStart = new Date().setHours(0, 0, 0, 0);
+
+        const isPastDate = (dateStr) => {
+            if (!dateStr) return false;
+            return new Date(dateStr).setHours(0, 0, 0, 0) < todayStart;
+        };
 
         setStats({
           ritual: {
-            upcoming: ritualData.filter(b => new Date(b.date || b.datetime) >= now).length,
-            accepted: ritualData.filter(b => b.status === 'ACCEPTED').length,
-            rejected: ritualData.filter(b => b.status === 'REJECTED').length,
+            all: bookingRes.length,
+            upcoming: bookingRes.filter(b => !isPastDate(b.date)).length,
+            accepted: bookingRes.filter(b => b.status?.toUpperCase().includes('ACCEPT')).length,
+            rejected: bookingRes.filter(b => b.status?.toUpperCase().includes('REJECT')).length,
+            // Only count as pending if NOT expired and NO status
+            pending: bookingRes.filter(b => 
+                (!b.status || b.status.toUpperCase() === 'PENDING') && 
+                !b.viewed && 
+                !isPastDate(b.date)
+            ).length,
           },
           muhurtam: {
-            upcoming: muhurtamData.filter(b => new Date(b.date || b.datetime) >= now).length
+            all: muhurtamRes.length,
+            pending: muhurtamRes.filter(m => !m.viewed).length,
+            acknowledged: muhurtamRes.filter(m => m.viewed).length
           }
         });
-      })
-      .catch(() => {});
+      } catch (err) {
+        console.error("Sidebar stats fetch failed", err);
+      }
+    };
+
+    fetchStats();
   }, [location.pathname]);
 
   useEffect(() => {
@@ -64,7 +88,7 @@ const CustomerNavbar = ({ onLogout }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [isSidebarOpen, dropdownOpen]);
 
-  const handleNavigation = (path, filter = null) => {
+  const handleNavigation = (path, filter = 'ALL') => {
     navigate(`/${path}`, { state: { filter } });
     setIsSidebarOpen(false);
     setDropdownOpen(false);
@@ -151,24 +175,37 @@ const CustomerNavbar = ({ onLogout }) => {
 
           {bookingExpanded && (
             <div className="sidebar-v2-nested">
+              {/* RITUALS SECTION */}
               <div className="nested-group">
-                <div className="nested-title"><FaCalendarCheck /> Rituals</div>
+                <div className="nested-title"><FaCalendarCheck /> Ritual Bookings</div>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ALL')}>
+                   All Rituals <span className="v2-badge blue">{stats.ritual.all}</span>
+                </div>
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'UPCOMING')}>
                    Upcoming <span className="v2-badge blue">{stats.ritual.upcoming}</span>
+                </div>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING')}>
+                   Pending <span className="v2-badge gold">{stats.ritual.pending}</span>
                 </div>
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACCEPTED')}>
                    Accepted <span className="v2-badge green">{stats.ritual.accepted}</span>
                 </div>
-                {/* RESTORED REJECTED */}
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'REJECTED')}>
                    Rejected <span className="v2-badge red">{stats.ritual.rejected}</span>
                 </div>
               </div>
 
+              {/* MUHURTAMS SECTION */}
               <div className="nested-group">
-                <div className="nested-title"><FaClock /> Muhurtams</div>
+                <div className="nested-title"><FaClock /> Muhurtam Requests</div>
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'MUHURTAM')}>
-                   Active <span className="v2-badge gold">{stats.muhurtam.upcoming}</span>
+                   All Requests <span className="v2-badge blue">{stats.muhurtam.all}</span>
+                </div>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING')}>
+                   Pending <span className="v2-badge gold">{stats.muhurtam.pending}</span>
+                </div>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACKNOWLEDGED')}>
+                   Acknowledged <span className="v2-badge green">{stats.muhurtam.acknowledged}</span>
                 </div>
               </div>
             </div>
@@ -178,14 +215,13 @@ const CustomerNavbar = ({ onLogout }) => {
 
           <div className="sidebar-v2-footer">
             <div className="v2-nav-item" onClick={() => handleNavigation('profile')}><FaUserCircle className="v2-icon" /> Profile</div>
-            {/* RESTORED HELP */}
             <div className="v2-nav-item" onClick={() => handleNavigation('help')}><MdOutlineHelpOutline className="v2-icon" /> Help</div>
             <div className="v2-nav-item logout" onClick={() => setShowLogoutConfirm(true)}><MdOutlineLogout className="v2-icon" /> Logout</div>
           </div>
         </div>
       </aside>
 
-      <ConfirmationModal isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} onConfirm={onLogout} title="Logout" message="Are you sure?" />
+      <ConfirmationModal isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} onConfirm={onLogout} title="Logout" message="Are you sure you want to log out?" />
       <ChangePasswordModal isOpen={showChangePasswordModal} onClose={() => setShowChangePasswordModal(false)} />
     </>
   );
