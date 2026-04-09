@@ -263,3 +263,64 @@
 .yb-pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .yb-page-info { font-weight: 800; color: #666; font-size: 1rem; }
+/* --- FILTER ROW STYLES --- */
+.yb-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 0 5px;
+}
+
+.yb-filter-label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #999;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.yb-chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.yb-chips button {
+    border: 1px solid #e0e0e0;
+    background: white;
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.yb-chips button:hover {
+    border-color: #ff8c00;
+    color: #e65100;
+}
+
+.yb-chips button.chip-active {
+    background: #e65100;
+    border-color: #e65100;
+    color: white;
+    box-shadow: 0 4px 10px rgba(230, 81, 0, 0.2);
+}
+
+/* Empty State adjustment */
+.yb-empty-state {
+    padding: 80px 0;
+    text-align: center;
+    color: #bbb;
+}
+
+.yb-empty-state h3 {
+    margin-top: 20px;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
