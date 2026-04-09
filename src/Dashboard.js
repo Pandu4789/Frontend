@@ -103,7 +103,7 @@ const PriestDashboard = () => {
     const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
     
-    // FIX: Unified name for the ESLINT error
+    // ESLint Fix: Define pendingRequests correctly
     const pendingRequests = useMemo(() => {
         const pBookings = allAppointments.filter(b => b.status?.toUpperCase() === 'PENDING');
         return [...pBookings, ...muhurtamRequests];
@@ -122,6 +122,20 @@ const PriestDashboard = () => {
             const element = contentRef.current;
             const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    };
+
+    // Save functionality for Mantra Notes
+    const handleSaveKnowledgeBase = async (newContent) => {
+        try {
+            await axios.post(`${API_BASE}/api/knowledgebase`, {
+                priestId: priestId,
+                content: newContent
+            });
+            setKnowledgeBaseContent(newContent);
+            toast.success("Mantra Notes updated successfully");
+        } catch (error) {
+            toast.error("Failed to save notes");
         }
     };
 
@@ -159,7 +173,7 @@ const PriestDashboard = () => {
 
                         <div className="db-content-card profile-card">
                             <h3>Public Profile Link</h3>
-                            <p className="side-p">Share with customers for direct bookings.</p>
+                            <p className="side-p">Share for direct bookings.</p>
                             <div className="mini-link-box">
                                 <input readOnly value={profileUrl} />
                                 <button onClick={handleCopy}><FaCopy /></button>
@@ -168,25 +182,25 @@ const PriestDashboard = () => {
                         </div>
                     </aside>
 
-                    {/* CENTER COLUMN: SCROLLABLE */}
+                    {/* CENTER COLUMN */}
                     <main className="db-column center-col">
                         <div className="db-tile-row">
                             <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
                                 <FaCalendarDay className="db-tile-icon" />
                                 <h3>Availability</h3>
-                                <p>Manage your schedule.</p>
+                                <p>Manage schedule.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
                                 <FaPlus className="db-tile-icon" />
                                 <h3>Manual Booking</h3>
-                                <p>Record an appointment.</p>
+                                <p>Record ritual.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className={`db-tile db-charcoal ${activeView === 'stats' ? 'tile-active' : ''}`} onClick={() => handleTabChange('stats')}>
                                 <FaChartBar className="db-tile-icon" />
                                 <h3>Earnings</h3>
-                                <p>Insights & Trends.</p>
+                                <p>Insights.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                         </div>
@@ -200,17 +214,17 @@ const PriestDashboard = () => {
                                 {activeView === 'today' && (
                                     todayBookings.length > 0 ? 
                                     todayBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
-                                    <div className="empty-state">No ritual tasks for today.</div>
+                                    <div className="empty-state">No tasks for today.</div>
                                 )}
                                 {activeView === 'upcoming' && (
                                     upcomingBookings.length > 0 ? 
                                     upcomingBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
-                                    <div className="empty-state">No future bookings confirmed.</div>
+                                    <div className="empty-state">No future bookings.</div>
                                 )}
                                 {activeView === 'pending' && (
                                     pendingRequests.length > 0 ? 
                                     pendingRequests.map(item => <DashboardCard key={item.id} item={item} type="request" onNavigate={() => navigate('/requests')} />) : 
-                                    <div className="empty-state">Action center is clear.</div>
+                                    <div className="empty-state">Actions clear.</div>
                                 )}
                                 
                                 {activeView === 'stats' && <PoojaStatsPage stats={stats} />}
@@ -218,7 +232,11 @@ const PriestDashboard = () => {
                                 {activeView === 'knowledge' && (
                                     <div className="rich-editor-container">
                                         <div className="editor-header-hint"><FaEdit /> Digital Mantra Bank</div>
-                                        <KnowledgeBase content={knowledgeBaseContent} onSave={(val) => setKnowledgeBaseContent(val)} />
+                                        <KnowledgeBase 
+                                            content={knowledgeBaseContent} 
+                                            onSave={handleSaveKnowledgeBase} 
+                                            priestId={priestId}
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -250,9 +268,9 @@ const PriestDashboard = () => {
 
                         <div className="db-content-card action-list">
                             <div className="db-card-head"><FaDharmachakra /> <h2>Tools</h2></div>
-                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Full Calendar</button>
-                            <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Manage Events</button>
-                            <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Mantra Notes</button>
+                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Calendar</button>
+                            <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Events</button>
+                            <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Notes</button>
                         </div>
                     </aside>
                 </div>
