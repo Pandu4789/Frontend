@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* --- ROOT & LAYOUT --- */
+/* --- ROOT & GLOBAL LAYOUT --- */
+* {
+    box-sizing: border-box;
+}
 .db-page-wrapper {
     background-color: #fffaf5;
     min-height: 100vh;
@@ -36,7 +39,7 @@
     display: grid;
     grid-template-columns: 320px 1fr 320px; 
     gap: 30px;
-    align-items: start; /* Prevents sidebars from stretching, allowing sticky to work */
+    align-items: start; /* Essential for sticky to work correctly */
 }
 
 /* Sidebars stay fixed while middle scrolls */
@@ -51,7 +54,7 @@
 
 .db-column { display: flex; flex-direction: column; gap: 25px; }
 
-/* --- TILES (180x180 Styled) --- */
+/* --- TILES (180x180 Styled Actions) --- */
 .db-tile-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
 .db-tile {
     width: 100%; height: 160px; padding: 20px; border-radius: 28px;
@@ -84,7 +87,7 @@
     padding-left: 15px;
 }
 
-/* Content Modes */
+/* Layout Modes */
 .view-content-wrapper.grid-mode {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -101,157 +104,187 @@
     animation: slideUp 0.5s ease-out forwards;
 }
 
-/* --- RITUAL CARDS --- */
-.db-ritual-card {
-    background: #fdfaf7; border-radius: 28px; padding: 25px;
-    border: 1px solid #fce8d5; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.db-ritual-card:hover { transform: translateX(8px); border-color: #e65100; background: white; box-shadow: 0 10px 25px rgba(230, 81, 0, 0.05); }
-.db-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-.db-card-header h4 { font-size: 1.15rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+/* --- RITUAL & REQUEST CARDS --- */
+.db-ritual-card, .db-request-card {
+    background: #fdfaf7;
+    border-radius: 28px;
+    padding: 25px;
+    border: 1px solid #fce8d5;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 100%;
+    margin-bottom: 25px; /* Adds the vertical gap between cards */
 
-.status-pill { padding: 5px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 900; color: white; text-transform: uppercase; }
+}
+.db-column.center-col {
+    min-width: 0;
+}
+.db-ritual-card:hover, .db-request-card:hover { 
+    transform: translateY(-10px) scale(1.03); /* Lifts up and enlarges slightly */
+    border-color: #e65100; 
+    background: white; 
+    box-shadow: 0 20px 40px rgba(230, 81, 0, 0.15); /* Adds a soft orange glow */
+    z-index: 10; /* Ensures the enlarged box stays on top of others */
+}
+
+.muh-card { border-left: 5px solid #3b82f6; }
+.app-card { border-left: 5px solid #e65100; }
+
+.db-card-header, .req-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.db-card-header h4, .req-body h4 { font-size: 1.15rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+
+.status-pill, .req-badge { padding: 5px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 900; color: white; text-transform: uppercase; }
 .status-confirmed, .status-accepted { background: #10b981; }
 .status-pending { background: #f59e0b; }
+.req-badge { background: #fff3e0; color: #e65100; }
 
-.db-card-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.db-info-item label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px; }
-.db-info-item p { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+.db-card-body-grid, .req-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.db-info-item label, .req-mini-item label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px; text-transform: uppercase; }
+.db-info-item p, .req-mini-item p { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; margin: 0; }
 
-/* --- PANCHANG CARD (Side Widget) --- */
-.db-panchang-card {
-    background: white; border-radius: 35px; padding: 30px;
-    box-shadow: 0 20px 45px rgba(230, 81, 0, 0.05); border: 1px solid #fce8d5;
+.req-details-trigger {
+    width: 100%;
+    padding: 12px;
+    background: #fffaf5;
+    border: 1px solid #fce8d5;
+    border-radius: 12px;
+    color: #e65100;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    transition: all 0.3s ease; /* Smooth hover transition */
 }
-.db-p-header h3 { font-weight: 800; color: #e65100; font-size: 1.3rem; margin: 0; }
-.db-p-header span { color: #94a3b8; font-size: 0.85rem; font-weight: 600; }
+.req-details-trigger:hover {
+    background: #e65100;
+    color: #fff;
+    transform: translateY(-2px); /* Lifts up slightly */
+    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2); /* Glow effect */
+}
 
-.db-sun-row { display: flex; justify-content: space-between; margin: 25px 0; }
-.db-p-unit label { display: block; font-size: 0.65rem; font-weight: 800; color: #94a3b8; }
-.db-p-unit strong { font-size: 1.2rem; font-weight: 900; color: #1a1a1a; }
+/* --- DETAILS OVERLAY (Premium Logic) --- */
+.req-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px); z-index: 2000;
+    display: flex; justify-content: center; align-items: center;
+    animation: fadeIn 0.3s ease;
+}
 
-.db-astro-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
-.db-astro-item { background: #fffaf5; padding: 15px; border-radius: 20px; border: 1px solid #fce8d5; text-align: center; }
-.db-astro-item label { font-size: 0.6rem; font-weight: 800; color: #e65100; }
-.db-astro-item p { font-weight: 900; font-size: 0.9rem; margin-top: 5px; }
+.req-overlay-content {
+    background: #fff; width: 95%; max-width: 500px; border-radius: 35px;
+    padding: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    position: relative; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 
-.db-kalam-box { background: #fffaf5; border-radius: 24px; padding: 22px; border: 1px solid #fce8d5; }
-.db-k-row label { color: #e65100; font-weight: 800; font-size: 0.7rem; }
-.db-k-row p { font-weight: 800; color: #1a1a1a; font-family: 'JetBrains Mono', monospace; font-size: 1rem; margin-top: 3px; }
+.close-overlay {
+    position: absolute; top: 25px; right: 25px; background: #f1f5f9;
+    border: none; width: 35px; height: 35px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
 
-/* --- PERFORMANCE & MINI STATS (Sticky Left) --- */
+.ov-label { font-size: 0.7rem; font-weight: 800; color: #e65100; letter-spacing: 1px; text-transform: uppercase; }
+.ov-title { margin: 5px 0 25px; font-weight: 900; font-size: 1.8rem; color: #1a1a1a; }
+.ov-section { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; }
+.ov-item { display: flex; align-items: center; gap: 10px; color: #64748b; font-weight: 600; font-size: 0.9rem; }
+
+.ov-details-box { background: #f8fafc; border-radius: 25px; padding: 25px; border: 1px solid #e2e8f0; }
+.ov-detail-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; /* Keeps label at top if text wraps */
+    gap: 20px;               /* Adds the horizontal gap you requested */
+    margin-bottom: 12px; 
+    border-bottom: 1px solid #f1f5f9; 
+    padding-bottom: 8px; 
+}
+.ov-detail-row:last-child { border: none; }
+.ov-detail-row label { color: #94a3b8; font-weight: 700; font-size: 0.8rem; }
+.ov-detail-row strong { 
+    color: #1a1a1a; 
+    font-weight: 800; 
+    text-align: right;       /* Aligns address text to the right */
+    max-width: 65%;          /* Prevents long addresses from squashing the label */
+    word-break: break-word;  /* Ensures long addresses don't overflow */
+}
+.ov-notes { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #e2e8f0; }
+.ov-notes label { display: block; font-weight: 800; font-size: 0.75rem; margin-bottom: 5px; color: #e65100; }
+.ov-notes p { font-style: italic; color: #475569; font-size: 0.9rem; line-height: 1.5; }
+
+.req-overlay-footer { display: flex; gap: 15px; margin-top: 35px; }
+.ov-btn { flex: 1; padding: 16px; border-radius: 18px; font-weight: 800; border: none; cursor: pointer; transition: 0.3s; }
+.ov-btn.accept { background: #e65100; color: #fff; box-shadow: 0 10px 20px rgba(230, 81, 0, 0.2); }
+.ov-btn.reject { background: #f1f5f9; color: #ef4444; }
+.ov-btn.view { background: #10b981; color: #fff; }
+
+.ov-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    filter: brightness(1.1);
+}
+
+/* --- MANTRA EDITOR / KNOWLEDGE BASE --- */
+.rich-editor-container {
+    background: #fff; border: 1px solid #f2f2f2; border-radius: 30px;
+    padding: 25px; position: relative; z-index: 5;
+}
+
+.rich-editor-container .ql-container { min-height: 350px; font-family: inherit; font-size: 1rem; }
+
+.editor-header-hint {
+    font-size: 0.75rem; font-weight: 800; color: #e65100;
+    text-transform: uppercase; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #fce8d5; padding-bottom: 10px;
+}
+
+/* --- SIDEBAR COMPONENTS & ACTIVE STATES --- */
+.db-content-card { background: white; border-radius: 35px; padding: 30px; border: 1px solid #f2f2f2; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+.db-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; color: #e65100; }
+.db-card-head h2 { font-size: 1.2rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+
 .priest-mini-stats { display: flex; gap: 15px; }
-.m-stat { 
-    flex: 1; padding: 18px; background: #fffaf5; border-radius: 22px; 
-    border: 1px solid #fce8d5; cursor: pointer; transition: 0.2s;
-}
-.m-stat:hover { border-color: #e65100; }
-.m-stat.m-active {
-    background: #fff3e0;
-    border-color: #e65100;
-    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.1);
-    transform: scale(1.03);
-}
+.m-stat { flex: 1; padding: 18px; background: #fffaf5; border-radius: 22px; border: 1px solid #fce8d5; cursor: pointer; transition: 0.2s; }
+.m-stat.m-active { background: #fff3e0; border-color: #e65100; box-shadow: 0 8px 20px rgba(230, 81, 0, 0.1); transform: scale(1.03); }
 .m-stat label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; }
-.m-stat strong { font-size: 1.4rem; font-weight: 900; }
+.m-stat strong { font-size: 1.4rem; font-weight: 900; color: #1a1a1a; }
 
-/* --- SHORTCUT LINKS (Sticky Right) --- */
 .s-link {
     width: 100%; text-align: left; background: #fffaf5; border: 1px solid #fce8d5;
     padding: 14px 20px; border-radius: 18px; margin-bottom: 12px; font-weight: 700;
     color: #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s;
 }
 .s-link:hover { border-color: #e65100; color: #e65100; transform: translateX(10px); }
-.s-link.s-active {
-    background: #e65100;
-    color: white;
-    border-color: #e65100;
-    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2);
-}
+.s-link.s-active { background: #e65100 !important; color: white !important; border-color: #e65100; box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2); }
 
-/* --- MANTRA EDITOR CONTAINER --- */
-.rich-editor-container {
-    background: #fff;
-    border: 1px solid #f2f2f2;
-    border-radius: 24px;
-    padding: 15px;
+/* --- PANCHANG CARD --- */
+.db-panchang-card {
+    background: white; border-radius: 35px; padding: 30px;
+    box-shadow: 0 20px 45px rgba(230, 81, 0, 0.05); border: 1px solid #fce8d5;
 }
-.editor-header-hint {
-    font-size: 0.7rem; font-weight: 800; color: #e65100;
-    text-transform: uppercase; margin-bottom: 15px;
-    display: flex; align-items: center; gap: 8px;
-}
+.db-p-header h3 { font-weight: 800; color: #e65100; font-size: 1.3rem; margin: 0; }
+.db-p-header span { color: #94a3b8; font-size: 0.85rem; font-weight: 600; }
+.db-sun-row { display: flex; justify-content: space-between; margin: 25px 0; }
+.db-astro-item { background: #fffaf5; padding: 15px; border-radius: 20px; border: 1px solid #fce8d5; text-align: center; }
 
-/* --- UTILS --- */
-.db-content-card { background: white; border-radius: 35px; padding: 30px; border: 1px solid #f2f2f2; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
-.db-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; color: #e65100; }
-.db-card-head h2 { font-size: 1.2rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+/* --- UTILS & ANIMATIONS --- */
 .txt-orange { color: #e65100; }
 .side-p { font-size: 0.8rem; color: #94a3b8; margin-top: -15px; margin-bottom: 15px; font-weight: 500; }
-
 .mini-link-box { display: flex; background: #f1f5f9; border-radius: 15px; overflow: hidden; margin-top: 10px; }
 .mini-link-box input { flex: 1; border: none; background: none; padding: 12px; font-size: 0.75rem; color: #64748b; }
 .mini-link-box button { background: #e65100; color: white; border: none; padding: 12px 18px; cursor: pointer; }
 
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { transform: translateY(50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
-@media (max-width: 1300px) {
-    .db-grid-layout { grid-template-columns: 280px 1fr 280px; }
-}
-
+@media (max-width: 1300px) { .db-grid-layout { grid-template-columns: 280px 1fr 280px; } }
 @media (max-width: 1100px) {
     .db-grid-layout { grid-template-columns: 1fr; margin-top: -40px; }
     .db-sticky-sidebar { position: static; max-height: none; }
-    .grid-mode { grid-template-columns: 1fr; }
+    .view-content-wrapper.grid-mode { grid-template-columns: 1fr; }
 }
-/* --- MANTRA EDITOR CONTAINER REFINEMENT --- */
-.rich-editor-container {
-    background: #fff;
-    border: 1px solid #f2f2f2;
-    border-radius: 24px;
-    padding: 20px;
-    position: relative;
-    z-index: 5; /* Ensures it stays above center-col background but under sidebar if needed */
-}
-
-.full-page-mode {
-    display: block;
-    width: 100%;
-}
-
-/* Fix for Quill/Editor overlapping or being unclickable */
-.rich-editor-container .ql-container {
-    min-height: 300px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 1rem;
-}
-
-.editor-header-hint {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #e65100;
-    text-transform: uppercase;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid #fce8d5;
-    padding-bottom: 10px;
-}
-
-/* Ensure sidebars don't cover the editor on medium screens */
-@media (max-width: 1100px) {
-    .db-sticky-sidebar {
-        position: static;
-        max-height: none;
-    }
+.mini-link-box button.copied {
+    background: #10b981 !important; 
+    color: white;
 }

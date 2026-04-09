@@ -7,7 +7,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import {
     FaCalendarCheck, FaCalendarAlt, FaBell, FaPlus, FaStickyNote,
     FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, 
-    FaCalendarDay, FaBullhorn, FaCopy, FaEye, FaStar, FaOm, FaClock, FaDharmachakra, FaEdit
+    FaCalendarDay, FaBullhorn, FaCopy, FaEye, FaStar, FaOm, FaClock, 
+    FaDharmachakra, FaEdit, FaCheck, FaTimes, FaInfoCircle, FaMapMarkerAlt,
+    FaUserTie, FaPhoneAlt, FaEnvelope
 } from 'react-icons/fa';
 
 import './Dashboard.css';
@@ -28,26 +30,23 @@ const formatTime12Hour = (timeString) => {
   return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
-const DashboardCard = ({ item, type, onNavigate }) => {
-    const isRequest = type === 'request';
-    return (
-        <div className={`db-ritual-card ${isRequest ? 'request-link' : ''}`} onClick={isRequest ? onNavigate : null}>
-            <div className="db-card-main">
-                <div className="db-card-header">
-                    <h4>{item.poojaType}</h4>
-                    {item.status && <span className={`status-pill status-${item.status.toLowerCase()}`}>{item.status}</span>}
-                </div>
-                <div className="db-card-body-grid">
-                    <div className="db-info-item"><label>CLIENT</label><p>{item.customerName}</p></div>
-                    <div className="db-info-item"><label>SCHEDULE</label><p>{item.date ? format(parseISO(item.date), 'MMM dd, yyyy') : 'TBD'}</p></div>
-                    <div className="db-info-item"><label>TIME</label><p>{item.startTime || 'Standard'}</p></div>
-                    <div className="db-info-item"><label>CONTACT</label><p>{item.contact}</p></div>
-                </div>
+// --- Standard Ritual Card for Today/Upcoming ---
+const DashboardCard = ({ item }) => (
+    <div className="db-ritual-card">
+        <div className="db-card-main">
+            <div className="db-card-header">
+                <h4>{item.poojaType}</h4>
+                <span className={`status-pill status-${item.status?.toLowerCase()}`}>{item.status}</span>
             </div>
-            {isRequest && <div className="db-card-footer"><span>View Request</span> <FaChevronRight /></div>}
+            <div className="db-card-body-grid">
+                <div className="db-info-item"><label>CLIENT</label><p>{item.customerName}</p></div>
+                <div className="db-info-item"><label>SCHEDULE</label><p>{item.date ? format(parseISO(item.date), 'MMM dd, yyyy') : 'TBD'}</p></div>
+                <div className="db-info-item"><label>TIME</label><p>{item.startTime || 'Standard'}</p></div>
+                <div className="db-info-item"><label>CONTACT</label><p>{item.contact}</p></div>
+            </div>
         </div>
-    );
-};
+    </div>
+);
 
 const PriestDashboard = () => {
     const navigate = useNavigate();
@@ -60,7 +59,7 @@ const PriestDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [todayTimings, setTodayTimings] = useState(null);
-    const [copySuccess, setCopySuccess] = useState('');
+    const [copySuccess, setCopySuccess] = useState(false);
 
     const [allAppointments, setAllAppointments] = useState([]);
     const [muhurtamRequests, setMuhurtamRequests] = useState([]);
@@ -68,52 +67,55 @@ const PriestDashboard = () => {
     const [templeEvents, setTempleEvents] = useState([]);
     const [knowledgeBaseContent, setKnowledgeBaseContent] = useState('');
 
-    useEffect(() => {
-        const todayStr = new Date().toISOString().split('T')[0];
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const [bookingRes, manualRes, muhurtamRes, eventsRes, kbRes, sunRes, dailyRes] = await Promise.all([
-                    axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
-                    axios.get(`${API_BASE}/api/appointments/priest/${priestId}`),
-                    axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`),
-                    axios.get(`${API_BASE}/api/events`),
-                    axios.get(`${API_BASE}/api/knowledgebase/${priestId}`),
-                    fetch(`${API_BASE}/api/sun?date=${todayStr}`).then(r => r.json()),
-                    fetch(`${API_BASE}/api/daily-times/by-date=${todayStr}`).then(r => r.json())
-                ]);
+    // Overlay State
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
-                const bookings = (bookingRes.data || []).map(b => ({ ...b, id: `b-${b.id}`, poojaType: b.eventName, customerName: b.name, contact: b.phone, date: b.date, startTime: b.start }));
-                const manual = (manualRes.data || []).map(m => ({ ...m, id: `m-${m.id}`, poojaType: m.eventName || m.events, customerName: m.name, contact: m.phone, date: m.start ? m.start.split('T')[0] : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed' }));
-                
-                setAllAppointments([...bookings, ...manual]);
-                setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ ...r, id: `muh-${r.id}`, poojaType: 'Muhurtam Request', customerName: r.name, contact: r.phone })));
-                setTempleEvents(eventsRes.data || []);
-                setKnowledgeBaseContent(kbRes.data || '');
-                setTodayTimings({ ...sunRes, ...dailyRes });
-            } catch (err) {
-                toast.error("Dashboard synchronization error.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    const fetchData = async () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        try {
+            const [bookingRes, manualRes, muhurtamRes, eventsRes, kbRes, sunRes, dailyRes] = await Promise.all([
+                axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
+                axios.get(`${API_BASE}/api/appointments/priest/${priestId}`),
+                axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`),
+                axios.get(`${API_BASE}/api/events`),
+                axios.get(`${API_BASE}/api/knowledgebase/${priestId}`),
+                fetch(`${API_BASE}/api/sun?date=${todayStr}`).then(r => r.json()),
+                fetch(`${API_BASE}/api/daily-times/by-date=${todayStr}`).then(r => r.json())
+            ]);
+
+            const bookings = (bookingRes.data || []).map(b => ({ ...b, id: b.id, type: 'BOOKING', poojaType: b.eventName, customerName: b.name, contact: b.phone, date: b.date, startTime: b.start }));
+            const manual = (manualRes.data || []).map(m => ({ ...m, id: m.id, type: 'MANUAL', poojaType: m.eventName || m.events, customerName: m.name, contact: m.phone, date: m.start ? m.start.split('T')[0] : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed' }));
+            
+            setAllAppointments([...bookings, ...manual]);
+            setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ ...r, id: r.id, type: 'MUHURTAM', poojaType: r.eventName || 'Muhurtam Request', customerName: r.name, contact: r.phone })));
+            setTempleEvents(eventsRes.data || []);
+            setKnowledgeBaseContent(kbRes.data || '');
+            setTodayTimings({ ...sunRes, ...dailyRes });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
         if(priestId) fetchData();
     }, [priestId]);
 
     const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
-    
-    // ESLint Fix: Define pendingRequests correctly
     const pendingRequests = useMemo(() => {
-        const pBookings = allAppointments.filter(b => b.status?.toUpperCase() === 'PENDING');
-        return [...pBookings, ...muhurtamRequests];
+        const pBookings = allAppointments.filter(b => b.status?.toUpperCase() === 'PENDING').map(b => ({ ...b, type: 'BOOKING' }));
+        const pMuhurtams = muhurtamRequests.filter(r => !r.viewed).map(r => ({ ...r, type: 'MUHURTAM' }));
+        return [...pBookings, ...pMuhurtams];
     }, [allAppointments, muhurtamRequests]);
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(profileUrl);
-        setCopySuccess('Copied!');
-        setTimeout(() => setCopySuccess(''), 2000);
-    };
+   const handleCopy = () => {
+    navigator.clipboard.writeText(profileUrl);
+    setCopySuccess(true); 
+    setTimeout(() => setCopySuccess(false), 2000);
+};
 
     const handleTabChange = (view) => {
         setActiveView(view);
@@ -125,17 +127,24 @@ const PriestDashboard = () => {
         }
     };
 
-    // Save functionality for Mantra Notes
-    const handleSaveKnowledgeBase = async (newContent) => {
+    const handleAction = async (actionType) => {
+        if (!selectedRequest) return;
+        setIsActionLoading(true);
         try {
-            await axios.post(`${API_BASE}/api/knowledgebase`, {
-                priestId: priestId,
-                content: newContent
-            });
-            setKnowledgeBaseContent(newContent);
-            toast.success("Mantra Notes updated successfully");
-        } catch (error) {
-            toast.error("Failed to save notes");
+            if (selectedRequest.type === 'MUHURTAM') {
+                await axios.put(`${API_BASE}/api/muhurtam/${selectedRequest.id}/viewed`, { viewed: true });
+                toast.info("Muhurtam inquiry marked as viewed.");
+            } else {
+                const endpoint = actionType === 'accept' ? 'accept' : 'reject';
+                await axios.put(`${API_BASE}/api/booking/${endpoint}/${selectedRequest.id}`);
+                actionType === 'accept' ? toast.success("Request Accepted") : toast.warn("Request Rejected");
+            }
+            setSelectedRequest(null);
+            fetchData();
+        } catch (err) {
+            toast.error("Action failed.");
+        } finally {
+            setIsActionLoading(false);
         }
     };
 
@@ -173,12 +182,12 @@ const PriestDashboard = () => {
 
                         <div className="db-content-card profile-card">
                             <h3>Public Profile Link</h3>
-                            <p className="side-p">Share for direct bookings.</p>
                             <div className="mini-link-box">
                                 <input readOnly value={profileUrl} />
-                                <button onClick={handleCopy}><FaCopy /></button>
+                                <button onClick={handleCopy} className={copySuccess ? "copied" : ""}>
+                                    {copySuccess ? <FaCheck /> : <FaCopy />}
+                                </button>
                             </div>
-                            {copySuccess && <span className="copy-notif">{copySuccess}</span>}
                         </div>
                     </aside>
 
@@ -210,21 +219,41 @@ const PriestDashboard = () => {
                                 <h2>{activeView.replace('-', ' ').toUpperCase()} VIEW</h2>
                             </div>
                             
-                            <div className={`view-content-wrapper ${['stats', 'events', 'knowledge'].includes(activeView) ? 'full-page-mode' : 'grid-mode'}`}>
+                            <div className={`view-content-wrapper ${['stats', 'events', 'knowledge', 'pending'].includes(activeView) ? 'full-page-mode' : 'grid-mode'}`}>
                                 {activeView === 'today' && (
                                     todayBookings.length > 0 ? 
                                     todayBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
-                                    <div className="empty-state">No tasks for today.</div>
+                                    <div className="empty-state">No ritual tasks for today.</div>
                                 )}
                                 {activeView === 'upcoming' && (
                                     upcomingBookings.length > 0 ? 
                                     upcomingBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
-                                    <div className="empty-state">No future bookings.</div>
+                                    <div className="empty-state">No future bookings confirmed.</div>
                                 )}
                                 {activeView === 'pending' && (
                                     pendingRequests.length > 0 ? 
-                                    pendingRequests.map(item => <DashboardCard key={item.id} item={item} type="request" onNavigate={() => navigate('/requests')} />) : 
-                                    <div className="empty-state">Actions clear.</div>
+                                    pendingRequests.map(item => (
+                                        <div key={`${item.type}-${item.id}`} className={`db-request-card ${item.type === 'MUHURTAM' ? 'muh-card' : 'app-card'}`}>
+                                            <div className="req-header">
+                                                <span className="req-badge">{item.type === 'MUHURTAM' ? 'Muhurtam Inquiry' : 'Booking Request'}</span>
+                                                <span className="req-id">REF: #{item.id}</span>
+                                            </div>
+                                            <div className="req-body">
+                                                <h4>{item.poojaType}</h4>
+                                                <div className="req-mini-grid">
+                                                    <div className="req-mini-item"><label>CLIENT</label><p>{item.customerName}</p></div>
+                                                    <div className="req-mini-item">
+                                                        <label>{item.type === 'MUHURTAM' ? 'NAKSHATRAM' : 'DATE'}</label>
+                                                        <p>{item.type === 'MUHURTAM' ? (item.nakshatram || 'N/A') : (item.date || 'TBD')}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button className="req-details-trigger" onClick={() => setSelectedRequest(item)}>
+                                                View Details & Action <FaChevronRight />
+                                            </button>
+                                        </div>
+                                    )) : 
+                                    <div className="empty-state">Action center is clear.</div>
                                 )}
                                 
                                 {activeView === 'stats' && <PoojaStatsPage stats={stats} />}
@@ -232,11 +261,7 @@ const PriestDashboard = () => {
                                 {activeView === 'knowledge' && (
                                     <div className="rich-editor-container">
                                         <div className="editor-header-hint"><FaEdit /> Digital Mantra Bank</div>
-                                        <KnowledgeBase 
-                                            content={knowledgeBaseContent} 
-                                            onSave={handleSaveKnowledgeBase} 
-                                            priestId={priestId}
-                                        />
+                                        <KnowledgeBase content={knowledgeBaseContent} onSave={() => fetchData()} priestId={priestId}/>
                                     </div>
                                 )}
                             </div>
@@ -268,15 +293,72 @@ const PriestDashboard = () => {
 
                         <div className="db-content-card action-list">
                             <div className="db-card-head"><FaDharmachakra /> <h2>Tools</h2></div>
-                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Calendar</button>
-                            <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Events</button>
-                            <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Notes</button>
+                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Full Calendar</button>
+                            <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Manage Events</button>
+                            <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Mantra Notes</button>
                         </div>
                     </aside>
                 </div>
             </div>
 
-            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={() => window.location.reload()} priest={{ id: priestId, firstName: userName }} />}
+            {/* --- REQUEST DETAILS OVERLAY --- */}
+            {selectedRequest && (
+                <div className="req-overlay" onClick={() => setSelectedRequest(null)}>
+                    <div className="req-overlay-content" onClick={e => e.stopPropagation()}>
+                        <div className="req-overlay-header">
+                            <div className="req-type-pill">{selectedRequest.type}</div>
+                            <button className="close-overlay" onClick={() => setSelectedRequest(null)}><FaTimes /></button>
+                        </div>
+                        
+                        <div className="req-overlay-body">
+                            <span className="ov-label">RITUAL REQUEST</span>
+                            <h2 className="ov-title">{selectedRequest.poojaType}</h2>
+                            
+                            <div className="ov-section">
+                                <div className="ov-item"><FaUserTie /> <span>{selectedRequest.customerName}</span></div>
+                                <div className="ov-item"><FaPhoneAlt /> <span>{selectedRequest.contact || 'N/A'}</span></div>
+                                <div className="ov-item"><FaEnvelope /> <span>{selectedRequest.email || 'N/A'}</span></div>
+                            </div>
+
+                            <div className="ov-details-box">
+                                {selectedRequest.type === 'MUHURTAM' ? (
+                                    <>
+                                        <div className="ov-detail-row"><label>Nakshatram</label> <strong>{selectedRequest.nakshatram || '---'}</strong></div>
+                                        <div className="ov-detail-row"><label>Birth Date</label> <strong>{selectedRequest.date || '---'}</strong></div>
+                                        <div className="ov-detail-row"><label>Birth Time</label> <strong>{selectedRequest.time || '---'}</strong></div>
+                                        <div className="ov-detail-row"><label>Place</label> <strong>{selectedRequest.place || '---'}</strong></div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="ov-detail-row"><label>Scheduled Date</label> <strong>{selectedRequest.date}</strong></div>
+                                        <div className="ov-detail-row"><label>Preferred Time</label> <strong>{selectedRequest.startTime}</strong></div>
+                                        <div className="ov-detail-row"><label>Address</label> <strong>{selectedRequest.address}</strong></div>
+                                    </>
+                                )}
+                                {selectedRequest.note && (
+                                    <div className="ov-notes">
+                                        <label>Special Instructions:</label>
+                                        <p>{selectedRequest.note}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="req-overlay-footer">
+                            {selectedRequest.type === 'MUHURTAM' ? (
+                                <button className="ov-btn view" onClick={() => handleAction('view')} disabled={isActionLoading}>Mark as Read & Archive</button>
+                            ) : (
+                                <>
+                                    <button className="ov-btn reject" onClick={() => handleAction('reject')} disabled={isActionLoading}>Decline Booking</button>
+                                    <button className="ov-btn accept" onClick={() => handleAction('accept')} disabled={isActionLoading}>Accept & Confirm</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={() => fetchData()} priest={{ id: priestId, firstName: userName }} />}
         </div>
     );
 };
