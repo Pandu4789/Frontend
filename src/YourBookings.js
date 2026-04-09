@@ -25,16 +25,18 @@ const YourBookings = () => {
     const [selectedItem, setSelectedItem] = useState(null); 
     const itemsPerPage = 6;
 
+    // --- SIDEBAR SYNC LOGIC ---
     useEffect(() => {
-        if (location.state?.filter) {
-            const sidebarFilter = location.state.filter;
-            if (sidebarFilter === 'MUHURTAM') {
-                setActiveTab('requests');
-                setStatusFilter('ALL');
-            } else {
-                setActiveTab('bookings');
-                setStatusFilter(sidebarFilter);
-            }
+        if (location.state) {
+            const { filter, tab } = location.state;
+            
+            // Switch tab (bookings or requests)
+            if (tab) setActiveTab(tab);
+            
+            // Apply status filter
+            if (filter) setStatusFilter(filter);
+            
+            setCurrentPage(1);
         }
     }, [location.state]);
 
@@ -61,14 +63,17 @@ const YourBookings = () => {
     }, []);
 
     // --- LOGIC HELPERS ---
-    const isPast = (dateStr) => dateStr && isBefore(new Date(dateStr), startOfDay(new Date()));
+    const isPast = (dateStr) => {
+        if (!dateStr) return false;
+        return isBefore(new Date(dateStr), startOfDay(new Date()));
+    };
 
     const getStatusMeta = (item) => {
         const rawStatus = (item.status || '').toUpperCase();
         const isExpired = activeTab === 'bookings' && isPast(item.date);
 
         // 1. If date passed and it was still PENDING or NO STATUS
-        if (isExpired && (!rawStatus || rawStatus === 'PENDING' || rawStatus === 'ACKNOWLEDGED')) {
+        if (isExpired && (!rawStatus || rawStatus === 'PENDING')) {
             return { cls: 'expired', icon: <FaBan />, label: 'No Longer Available' };
         }
 
@@ -89,11 +94,10 @@ const YourBookings = () => {
             return {
                 all: data.length,
                 upcoming: data.filter(item => !isPast(item.date)).length,
-                // Only active pending (Not past date)
-                pending: data.filter(item => !isPast(item.date) && (!item.status || item.status === 'PENDING') && !item.viewed).length,
+                pending: data.filter(item => !isPast(item.date) && (!item.status || item.status.toUpperCase() === 'PENDING') && !item.viewed).length,
                 accepted: data.filter(item => item.status?.toUpperCase().includes('ACCEPT')).length,
                 rejected: data.filter(item => item.status?.toUpperCase().includes('REJECT')).length,
-                expired: data.filter(item => isPast(item.date) && (!item.status || item.status === 'PENDING')).length
+                expired: data.filter(item => isPast(item.date) && (!item.status || item.status.toUpperCase() === 'PENDING')).length
             };
         } else {
             return {
@@ -117,11 +121,8 @@ const YourBookings = () => {
 
         return rawData.filter(item => {
             const status = (item.status || '').toUpperCase();
-            // Pending filter excludes expired
             if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !item.viewed && !isPast(item.date);
-            // Acknowledged filter
             if (statusFilter === 'ACKNOWLEDGED') return item.viewed === true && (status === '' || status === 'ACKNOWLEDGED');
-            
             return status.includes(statusFilter);
         });
     }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter]);

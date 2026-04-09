@@ -54,7 +54,6 @@ const CustomerNavbar = ({ onLogout }) => {
             upcoming: bookingRes.filter(b => !isPastDate(b.date)).length,
             accepted: bookingRes.filter(b => b.status?.toUpperCase().includes('ACCEPT')).length,
             rejected: bookingRes.filter(b => b.status?.toUpperCase().includes('REJECT')).length,
-            // Only count as pending if NOT expired and NO status
             pending: bookingRes.filter(b => 
                 (!b.status || b.status.toUpperCase() === 'PENDING') && 
                 !b.viewed && 
@@ -88,8 +87,9 @@ const CustomerNavbar = ({ onLogout }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [isSidebarOpen, dropdownOpen]);
 
-  const handleNavigation = (path, filter = 'ALL') => {
-    navigate(`/${path}`, { state: { filter } });
+  // Updated navigation helper to handle both filter and tab switching
+  const handleNavigation = (path, filter = 'ALL', tab = 'bookings') => {
+    navigate(`/${path}`, { state: { filter, tab } });
     setIsSidebarOpen(false);
     setDropdownOpen(false);
   };
@@ -178,33 +178,33 @@ const CustomerNavbar = ({ onLogout }) => {
               {/* RITUALS SECTION */}
               <div className="nested-group">
                 <div className="nested-title"><FaCalendarCheck /> Ritual Bookings</div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ALL')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ALL', 'bookings')}>
                    All Rituals <span className="v2-badge blue">{stats.ritual.all}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'UPCOMING')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'UPCOMING', 'bookings')}>
                    Upcoming <span className="v2-badge blue">{stats.ritual.upcoming}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING', 'bookings')}>
                    Pending <span className="v2-badge gold">{stats.ritual.pending}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACCEPTED')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACCEPTED', 'bookings')}>
                    Accepted <span className="v2-badge green">{stats.ritual.accepted}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'REJECTED')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'REJECTED', 'bookings')}>
                    Rejected <span className="v2-badge red">{stats.ritual.rejected}</span>
                 </div>
               </div>
 
-              {/* MUHURTAMS SECTION */}
+              {/* MUHURTAMS SECTION - Notice the 'requests' tab parameter */}
               <div className="nested-group">
                 <div className="nested-title"><FaClock /> Muhurtam Requests</div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'MUHURTAM')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'MUHURTAM', 'requests')}>
                    All Requests <span className="v2-badge blue">{stats.muhurtam.all}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'PENDING', 'requests')}>
                    Pending <span className="v2-badge gold">{stats.muhurtam.pending}</span>
                 </div>
-                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACKNOWLEDGED')}>
+                <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ACKNOWLEDGED', 'requests')}>
                    Acknowledged <span className="v2-badge green">{stats.muhurtam.acknowledged}</span>
                 </div>
               </div>
