@@ -5,38 +5,114 @@
     position: fixed;
     top: 0; left: 0; width: 100%;
     height: 70px;
-    z-index: 1001;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.navbar-content-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+.nav-hamburger {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: #2C3E50;
+    cursor: pointer;
+    margin-right: 20px;
     display: flex;
     align-items: center;
 }
 
-.navbar-content-wrapper { display: flex; align-items: center; width: 100%; padding: 0 24px; }
-.nav-hamburger { background: transparent; border: none; font-size: 24px; color: #2C3E50; cursor: pointer; margin-right: 20px; display: flex; align-items: center; }
-.nav-brand { display: flex; align-items: center; cursor: pointer; font-size: 22px; font-weight: 900; }
-.brand-priest { color: #2C3E50 !important; }
+.nav-brand {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.brand-text-container {
+    font-weight: 900;
+    font-size: 22px;
+    display: flex;
+    line-height: 1;
+}
+
+/* BRAND COLOR UPDATE: PRIEST IS BLACK */
+.brand-priest { color: #000000 !important; }
 .brand-ify { color: #E65C00 !important; }
-.nav-logo { height: 38px; margin-right: 12px; }
 
-.navbar-center-desktop { display: flex; gap: 10px; margin-left: auto; margin-right: 24px; }
-.navbar-button { display: flex; align-items: center; gap: 8px; background: transparent; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; color: #555; }
-.navbar-button.active-menu-item { background-color: rgba(230, 92, 0, 0.1); color: #E65C00; }
+.nav-logo {
+    height: 38px;
+    width: auto;
+    margin-right: 12px;
+}
 
-.nav-default-avatar { font-size: 32px; color: #E65C00; cursor: pointer; }
+.nav-right {
+    margin-left: auto;
+    position: relative;
+}
+
+.nav-default-avatar {
+    font-size: 32px;
+    color: #E65C00;
+    cursor: pointer;
+}
+
+/* --- PROFILE DROPDOWN --- */
+.profile-dropdown {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 2100;
+    width: 220px;
+    border: 1px solid #F0F0F0;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-menu { padding: 10px 0; }
+.dropdown-item {
+    padding: 12px 20px;
+    color: #2C3E50;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+.dropdown-item:hover { background-color: #F8F9FA; color: #E65C00; }
+.dropdown-icon { font-size: 18px; color: #A0A0A0; }
+.dropdown-divider { height: 1px; background-color: #F0F0F0; margin: 8px 0; }
+.dropdown-item.logout-item { color: #ef4444; }
 
 /* --- BACKDROP OVERLAY --- */
 .v2-sidebar-overlay {
     position: fixed;
-    top: 70px; /* Starts below navbar */
+    top: 70px;
     left: 0;
     width: 100%;
     height: calc(100vh - 70px);
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(2px);
-    z-index: 999; /* Just below sidebar */
-    transition: opacity 0.3s ease;
+    z-index: 1000;
 }
 
-/* --- SIDEBAR V2 --- */
+/* --- SIDEBAR --- */
 .priestify-sidebar-v2 {
     position: fixed;
     top: 70px;
@@ -44,35 +120,97 @@
     width: 280px;
     height: calc(100vh - 70px);
     background-color: #ffffff;
-    border-right: 1px solid #f0f0f0;
+    border-right: 1px solid #f1f5f9;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    z-index: 1500;
 }
 
 .priestify-sidebar-v2.closed { transform: translateX(-100%); }
 
-.sidebar-v2-inner { padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
-.v2-divider { height: 1px; background: #f0f0f0; margin: 15px 0; }
-
-.v2-nav-item {
-    display: flex; align-items: center; gap: 15px; padding: 12px 16px;
-    border-radius: 12px; color: #555; font-weight: 700; font-size: 15px;
-    cursor: pointer; transition: 0.2s; margin-bottom: 4px;
+.sidebar-v2-inner { 
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
+    box-sizing: border-box; 
+    overflow-y: auto;
 }
 
-.v2-nav-item:hover { background: #fffaf5; color: #E65C00; }
-.v2-nav-item.active { background: rgba(230, 92, 0, 0.08); color: #E65C00; }
-.v2-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+.sidebar-section-label {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px 12px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
 
-.upcoming-item { background: rgba(230, 92, 0, 0.04); }
-.v2-badge { margin-left: auto; background: #E65C00; color: white; padding: 2px 10px; border-radius: 20px; font-size: 12px; }
+.sidebar-v2-nested { display: flex; flex-direction: column; gap: 2px; }
+.nested-group { margin-bottom: 10px; }
 
-.sidebar-v2-footer { margin-top: auto; }
-.v2-nav-item.logout { color: #E74C3C; }
-.v2-nav-item.logout:hover { background: #FEF2F2; }
+.nested-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.8;
+}
+
+.nested-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px 8px 38px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.nested-item:hover { background-color: #f8fafc; color: #E65C00; }
+
+.v2-badge { font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; min-width: 18px; text-align: center; }
+.v2-badge.blue { background: #e0f2fe; color: #0369a1; }
+.v2-badge.green { background: #dcfce7; color: #15803d; }
+.v2-badge.red { background: #fee2e2; color: #b91c1c; }
+.v2-badge.gold { background: #fef9c3; color: #a16207; }
+
+.v2-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-bottom: 2px;
+}
+
+.v2-nav-item:hover, .v2-nav-item.active { background: rgba(230, 92, 0, 0.08); color: #E65C00; }
+
+.v2-divider { height: 1px; background: #f1f5f9; margin: 12px 0; }
+
+.sidebar-v2-footer { 
+    margin-top: auto; 
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.v2-nav-item.logout { color: #ef4444; }
 
 @media (max-width: 1024px) {
-    .navbar-center-desktop { display: none; }
     .nav-brand { position: absolute; left: 50%; transform: translateX(-50%); }
-    .priestify-sidebar-v2 { width: 300px; }
+    .priestify-sidebar-v2 { width: 280px; box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
 }
