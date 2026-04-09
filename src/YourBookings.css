@@ -324,3 +324,52 @@
     font-weight: 800;
     font-size: 1.2rem;
 }
+/* --- COMPLETED SERVICE STATE --- */
+.status-completed {
+    background: #607d8b; /* Professional Blue-Grey for completed history */
+}
+
+.border-completed {
+    border-color: #cfd8dc !important;
+    opacity: 0.8; /* Dims the card slightly */
+    filter: grayscale(20%);
+}
+
+.banner-completed {
+    background: #eceff1;
+    color: #455a64;
+}
+
+/* Adjust chip count style */
+.yb-chips button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+/* --- EXPIRED / UNAVAILABLE STATE --- */
+.status-expired {
+    background: #eceff1;
+    color: #90a4ae;
+}
+
+.border-expired {
+    border-color: #eee !important;
+    background: #fafafa !important;
+}
+
+.border-expired .yb-ritual-title, 
+.border-expired .yb-value {
+    color: #999 !important;
+}
+
+.banner-expired {
+    background: #f5f5f5;
+    color: #78909c;
+    border: 1px solid #cfd8dc;
+}
+
+.red-chip.chip-active {
+    background: #78909c !important;
+    border-color: #78909c !important;
+}
