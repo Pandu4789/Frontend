@@ -60,35 +60,31 @@ const YourBookings = () => {
         fetchUserBookings();
     }, []);
 
-    // --- LOGIC HELPERS ---
     const isPast = (dateStr) => dateStr && isBefore(new Date(dateStr), startOfDay(new Date()));
 
     const getStatusMeta = (item) => {
         const rawStatus = (item.status || '').toUpperCase();
         const isExpired = activeTab === 'bookings' && isPast(item.date);
 
-        // 1. If date passed and it was still PENDING or NO STATUS
-        if (isExpired && (!rawStatus || rawStatus === 'PENDING' || rawStatus === 'VIEWED')) {
+        if (isExpired && (!rawStatus || rawStatus === 'PENDING' || rawStatus === 'ACKNOWLEDGED')) {
             return { cls: 'expired', icon: <FaBan />, label: 'No Longer Available' };
         }
 
-        // 2. Standard Statuses (Regardless of date)
         if (rawStatus.includes('ACCEPT')) return { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Accepted' };
         if (rawStatus.includes('REJECT')) return { cls: 'rejected', icon: <FaTimesCircle />, label: 'Rejected' };
         
-        // 3. Current Pending/Viewed
-        if (item.viewed && !rawStatus) return { cls: 'viewed', icon: <FaInfoCircle />, label: 'Viewed' };
+        // Use 'viewed' class for blue styling
+        if (item.viewed && !rawStatus) return { cls: 'viewed', icon: <FaInfoCircle />, label: 'Acknowledged' };
         return { cls: 'pending', icon: <FaExclamationCircle />, label: 'Pending' };
     };
 
-    // --- COUNT LOGIC ---
     const counts = useMemo(() => {
         const data = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
         if (activeTab === 'bookings') {
             return {
                 all: data.length,
                 upcoming: data.filter(item => !isPast(item.date)).length,
-                pending: data.filter(item => !isPast(item.date) && (!item.status || item.status === 'PENDING')).length,
+                pending: data.filter(item => !isPast(item.date) && (!item.status || item.status === 'PENDING') && !item.viewed).length,
                 accepted: data.filter(item => item.status?.toUpperCase().includes('ACCEPT')).length,
                 rejected: data.filter(item => item.status?.toUpperCase().includes('REJECT')).length,
                 expired: data.filter(item => isPast(item.date) && (!item.status || item.status === 'PENDING')).length
@@ -97,12 +93,11 @@ const YourBookings = () => {
             return {
                 all: data.length,
                 pending: data.filter(item => !item.viewed).length,
-                viewed: data.filter(item => item.viewed).length
+                acknowledged: data.filter(item => item.viewed).length // Sync key name
             };
         }
     }, [activeTab, appointmentBookings, muhurtamRequests]);
 
-    // --- FILTER LOGIC ---
     const filteredData = useMemo(() => {
         const rawData = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
         if (statusFilter === 'ALL') return rawData;
@@ -115,8 +110,8 @@ const YourBookings = () => {
 
         return rawData.filter(item => {
             const status = (item.status || '').toUpperCase();
-            if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !isPast(item.date);
-            if (statusFilter === 'VIEWED') return item.viewed === true && (status === '' || status === 'VIEWED');
+            if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !item.viewed && !isPast(item.date);
+            if (statusFilter === 'ACKNOWLEDGED') return item.viewed === true && (status === '' || status === 'ACKNOWLEDGED');
             return status.includes(statusFilter);
         });
     }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter]);
@@ -165,7 +160,7 @@ const YourBookings = () => {
                             ) : (
                                 <>
                                     <button className={statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('PENDING')}>Pending ({counts.pending})</button>
-                                    <button className={statusFilter === 'VIEWED' ? 'chip-active' : ''} onClick={() => setStatusFilter('VIEWED')}>Viewed ({counts.viewed})</button>
+                                    <button className={statusFilter === 'ACKNOWLEDGED' ? 'chip-active' : ''} onClick={() => setStatusFilter('ACKNOWLEDGED')}>Acknowledged ({counts.acknowledged})</button>
                                 </>
                             )}
                         </div>
@@ -199,7 +194,7 @@ const YourBookings = () => {
                                                     <span className="yb-value">
                                                         {activeTab === 'requests' ? (item.nakshatram || `${item.date} | ${item.time}`) : 
                                                         (item.date && isValid(new Date(item.date)) ? format(new Date(item.date), 'MMMM dd, yyyy') : 'TBD')}
-                                                        {!activeTab === 'requests' && item.start ? ` @ ${item.start}` : ''}
+                                                        {activeTab === 'bookings' && item.start ? ` @ ${item.start}` : ''}
                                                     </span>
                                                 </div>
                                             </div>
@@ -246,7 +241,40 @@ const YourBookings = () => {
                                     <div className="yb-contact-item"><FaEnvelope className="yb-contact-icon" /> <span>{selectedItem.priestEmail || 'Not Provided'}</span></div>
                                 </div>
                             </section>
-                            {/* ... etc ... */}
+                            <section className="yb-drawer-section">
+                                <h3>{activeTab === 'requests' ? <FaBaby /> : <FaCalendarAlt />} Service Details</h3>
+                                <div className="yb-drawer-info">
+                                    <p><strong>Ritual:</strong> {selectedItem.eventName}</p>
+                                    {activeTab === 'requests' ? (
+                                        selectedItem.nakshatram ? (
+                                            <p><strong>Nakshatram:</strong> {selectedItem.nakshatram}</p>
+                                        ) : (
+                                            <>
+                                                <p><strong>Birth Date:</strong> {selectedItem.date}</p>
+                                                <p><strong>Birth Time:</strong> {selectedItem.time}</p>
+                                                <p><strong>Birth Place:</strong> {selectedItem.place || 'N/A'}</p>
+                                            </>
+                                        )
+                                    ) : (
+                                        <>
+                                            <p><strong>Date:</strong> {selectedItem.date && isValid(new Date(selectedItem.date)) ? format(new Date(selectedItem.date), 'PPPP') : 'To be determined'}</p>
+                                            <p><strong>Time:</strong> {selectedItem.start || 'To be determined'}</p>
+                                        </>
+                                    )}
+                                </div>
+                            </section>
+                            {activeTab === 'bookings' && selectedItem.address && (
+                                <section className="yb-drawer-section">
+                                    <h3><FaMapMarkerAlt /> Venue Location</h3>
+                                    <p className="yb-drawer-address">{selectedItem.address}</p>
+                                </section>
+                            )}
+                            {selectedItem.note && (
+                                <section className="yb-drawer-section">
+                                    <h3><FaInfoCircle /> Instructions</h3>
+                                    <p className="yb-drawer-note">"{selectedItem.note}"</p>
+                                </section>
+                            )}
                         </div>
                         <div className="yb-drawer-footer">
                             <button className="yb-btn-close-full" onClick={() => setSelectedItem(null)}>Close Summary</button>
