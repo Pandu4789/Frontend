@@ -1,685 +1,215 @@
-/* Filename: Dashboard.css */
-/* FINAL VERSION 2.0 - With all layout and color corrections */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-/* --- Thematic Color Palette --- */
-:root {
-    --theme-primary: #4A2000;
-    --theme-heading: #B74F2F;
-    --theme-accent: #FFD700;
-    --theme-bg: #FDF5E6;
-    --card-bg: #ffffff;
-    --hover-bg: #FEF3E4;
-    --border-color: #EEE0CB;
-    --text-dark: #3D2B1F;
-    --text-light: #7a7a7a;
-    --cta-gradient: linear-gradient(145deg, #B74F2F, #D46C4A);
-    --danger-color: #c0392b;
-    --shadow-color: rgba(0, 0, 0, 0.08);
+/* --- ROOT & LAYOUT --- */
+.db-page-wrapper {
+    background-color: #fffaf5;
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1a1a1a;
+    padding-bottom: 80px;
 }
 
-body {
-    background-color: var(--theme-bg);
-}
-
-/* Filename: Dashboard.css - ADD THESE STYLES TO THE BOTTOM */
-
-/* --- NEW Styles for Popup Modal --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 600px;
-    border: 1px solid var(--border-color);
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: var(--theme-primary);
-}
-.close-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text-light);
-}
-
-.modal-form .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-.modal-form input, .modal-form textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 1rem;
-    font-family: inherit;
-    background-color: var(--hover-bg);
-    box-sizing: border-box;
-}
-.modal-form .full-width {
-    grid-column: 1 / -1;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 30px;
-}
-.modal-actions button {
-    padding: 10px 24px;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
-.save-button {
-    background-color: var(--theme-heading);
-    color: white;
-}
-.cancel-button {
-    background-color: #f1f1f1;
-    color: var(--text-dark);
-    border: 1px solid #ccc;
-}
-
-.priest-dashboard-container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 16px;
-    font-family: 'Inter', sans-serif;
-    color: var(--text-dark);
-}
-
-.pd-dashboard-section {
-    background-color: var(--card-bg);
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    margin-bottom: 30px;
-    border: 1px solid var(--border-color);
-}
-
-/* --- Greeting & Summary Styles --- */
-.user-summary-section .user-greeting {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-    color: var(--theme-primary);
+/* --- HERO SECTION --- */
+.db-hero {
+    background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%);
+    padding: 60px 20px 140px;
     text-align: center;
+    color: white;
+    clip-path: ellipse(150% 100% at 50% 0%);
+    position: relative;
+    z-index: 1;
 }
 
-.stat-card-grid {
-    display: flex;
-    justify-content: center;
+.db-hero h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -1px; }
+.db-hero p { font-size: 1.1rem; opacity: 0.9; font-weight: 500; }
+
+/* --- STICKY GRID ARCHITECTURE --- */
+.db-main-container {
+    max-width: 1440px;
+    margin: -100px auto 0;
+    padding: 0 30px;
+    position: relative;
+    z-index: 10;
+}
+
+.db-grid-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr 320px; 
     gap: 30px;
-    flex-wrap: wrap;
+    align-items: start; /* Prevents sidebars from stretching, allowing sticky to work */
 }
 
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--theme-heading);
-}
-
-.stat-item .stat-icon {
-    font-size: 1.5rem;
-    color: var(--theme-primary);
-}
-
-.stat-icon.green { color: #28a745; }
-.stat-icon.blue { color: #007bff; }
-.stat-icon.orange { color: #fd7e14; }
-
-/* --- CTA Button Styles --- */
-.cta-section {
-    text-align: center;
-    background-color: var(--hover-bg);
-}
-
-.pd-section-title {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
-    color: var(--theme-heading);
-}
-
-.cta-section p {
-    margin: 0 auto 24px auto;
-    color: var(--text-dark);
-    max-width: 600px;
-    font-size: 1.1rem;
-}
-
-.cta-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.cta-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px 30px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 30px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-}
-
-.cta-button.primary {
-    background: var(--cta-gradient);
-    color: white;
-}
-
-.cta-button.primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-}
-
-.cta-button.secondary {
-    background: var(--card-bg);
-    color: var(--theme-heading);
-    border: 2px solid var(--theme-heading);
-}
-
-.cta-button.secondary:hover {
-    background-color: var(--hover-bg) !important;
-}
-
-.cta-button-icon {
-    transition: transform 0.2s;
-}
-
-.cta-button:hover .cta-button-icon {
-    transform: translateX(4px);
-}
-
-/* --- Quick Actions Section Styles --- */
-.quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-}
-
-.quick-action-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.quick-action-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px var(--shadow-color);
-    border-color: var(--theme-heading);
-    background-color: var(--hover-bg);
-}
-
-.quick-action-icon {
-    font-size: 2.5rem;
-    color: var(--theme-heading);
-    margin-bottom: 12px;
-}
-
-.quick-action-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    color: var(--theme-primary);
-}
-
-.quick-action-description {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* --- Dynamic Content Area --- */
-.dynamic-content-section .pd-section-title {
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-    text-align: center;
-    border-bottom: 2px solid var(--theme-accent);
-}
-
-.pd-card {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
+/* Sidebars stay fixed while middle scrolls */
+.db-sticky-sidebar {
+    position: sticky;
+    top: 90px; /* Lock position below the global navbar */
+    max-height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
+    gap: 25px;
 }
 
-.pd-card-body { flex-grow: 1; }
+.db-column { display: flex; flex-direction: column; gap: 25px; }
 
-/* --- 3-Column Grid for Bookings --- */
-.pd-list-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+/* --- TILES (180x180 Styled) --- */
+.db-tile-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+.db-tile {
+    width: 100%; height: 160px; padding: 20px; border-radius: 28px;
+    color: white; position: relative; cursor: pointer;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
 }
+.db-tile:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.4); }
+.db-tile.tile-active { border-color: white; transform: scale(1.02); box-shadow: 0 15px 35px rgba(230, 81, 0, 0.3); }
 
-.booking-card {
-    padding: 20px;
-    background-color: var(--hover-bg);
+.db-saffron { background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%); }
+.db-gold { background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); }
+.db-charcoal { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
+.db-tile-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.db-tile h3 { font-size: 0.95rem; font-weight: 800; text-transform: uppercase; margin: 0; }
+.db-tile p { font-size: 0.75rem; opacity: 0.8; margin: 6px 0 0; line-height: 1.3; }
+.db-tile-go { position: absolute; bottom: 18px; right: 18px; opacity: 0.6; font-size: 0.9rem; }
+
+/* --- CENTER VIEW CONTAINER --- */
+.priest-view-container {
+    background: white; border-radius: 35px; padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid #f2f2f2;
+    min-height: 600px;
 }
-
-.booking-card .pd-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: transparent;
-    padding: 0 0 10px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.booking-card .pd-card-body {
-    padding: 15px 0 0 0;
-}
-
-.pd-card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--theme-heading);
-}
-
-.pd-card-body p {
-    margin: 0 0 8px 0;
-    font-size: 1rem;
+.priest-view-header h2 { 
+    font-size: 1.2rem; font-weight: 800; color: #94a3b8; 
+    letter-spacing: 2px; margin-bottom: 35px; border-left: 5px solid #e65100;
+    padding-left: 15px;
 }
 
-.pd-card-body strong {
-    font-weight: 600;
-    color: var(--text-dark);
-    display: inline-block;
-    min-width: 80px;
-}
-
-.pd-status-badge {
-    padding: 5px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-}
-.status-confirmed { 
-    background-color: #28a745; /* A clear green for confirmed */
-}
-.status-upcoming { 
-    background-color: #007bff; /* A clear blue for upcoming */
-}
-.status-inprogress { 
-    background-color: var(--theme-accent); /* Thematic terracotta/orange-brown */
-}
-.status-rejected { 
-    background-color: var(--danger-color); /* A clear red for rejected */
-}
-.status-accepted {
-    background-color: #28a745; /* Teal for accepted */
-}
-.pd-status-badge.viewed {
-    background-color: #6c757d; /* Grey for viewed */
-}
-.pd-status-badge.pending {
-    background-color: #fd7e14; /* Orange for pending */
-}
-/* Filename: Dashboard.css - ADD THESE STYLES TO THE BOTTOM */
-
-/* --- Styles for Public Profile Link Section --- */
-.public-profile-section p {
-    margin-top: -5px;
-    margin-bottom: 20px;
-    color: var(--text-light);
-    font-size: 1rem;
-}
-
-.profile-link-container {
-    display: flex;
-    gap: 10px;
-}
-
-.profile-url-input {
-    flex-grow: 1;
-    padding: 12px;
-    font-size: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--hover-bg);
-    color: var(--text-dark);
-    font-family: monospace;
-}
-
-.copy-link-btn, .view-profile-btn {
-    padding: 0 20px;
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none; /* For the <a> tag */
-    transition: all 0.2s ease;
-}
-
-.copy-link-btn {
-    background-color: var(--theme-heading);
-    color: white;
-}
-.copy-link-btn:hover {
-    opacity: 0.9;
-}
-
-.view-profile-btn {
-    background-color: #f1f1f1;
-    color: var(--text-dark);
-    border: 1px solid #ccc;
-}
-.view-profile-btn:hover {
-    background-color: #e1e1e1;
-}
-/* --- Action Button Styles --- */
-.pd-card-actions {
-    padding: 15px 0 0 0;
-    margin-top: auto;
-    border-top: 1px solid var(--border-color);
-    text-align: right;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.pd-action-btn {
-    cursor: pointer;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
-    padding: 8px 14px;
-    transition: opacity 0.2s;
-}
-
-.pd-action-btn:hover { opacity: 0.85; }
-.pd-action-btn.primary { background-color: var(--theme-heading); color: white; }
-.pd-action-btn.danger { background-color: var(--danger-color); color: white; }
-.pd-action-btn.secondary.small {
-    font-size: 12px;
-    background: white;
-    color: var(--text-dark);
-    border: 1px solid var(--text-dark);
-    font-weight: 500;
-    padding: 7px 13px;
-}
-
-/* --- Manage Temple Events --- */
-.event-manage-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.event-manage-card {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--hover-bg);
-    padding: 20px;
-}
-
-.event-date-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--theme-primary);
-    color: var(--theme-accent);
-    border-radius: 8px;
-    padding: 10px;
-    width: 70px;
-    height: 70px;
-    margin-bottom: 15px;
-}
-
-.event-date-box .event-month {
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.event-date-box .event-day {
-    font-size: 1.8rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.event-details { flex: 1; }
-
-.event-details-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 8px;
-}
-
-.event-details-header .pd-card-title { color: var(--theme-primary); }
-
-.event-location {
-    font-style: italic;
-    color: var(--theme-heading);
-    margin-bottom: 10px;
-    font-weight: 500;
-}
-
-.event-description {
-    font-size: 1rem;
-    color: var(--text-dark);
-    line-height: 1.5;
-}
-
-.add-event-form {
-    padding: 20px;
-    background-color: var(--hover-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-top: 20px;
+/* Content Modes */
+.view-content-wrapper.grid-mode {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 25px;
 }
 
-.add-event-form input,
-.add-event-form textarea {
+.view-content-wrapper.full-page-mode {
+    display: block;
     width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 15px;
-    font-family: inherit;
-    box-sizing: border-box;
 }
 
-.add-event-form textarea { grid-column: 1 / -1; }
+.view-content-wrapper.full-page-mode > div {
+    width: 100% !important;
+    animation: slideUp 0.5s ease-out forwards;
+}
 
-.add-event-form button {
-    grid-column: 1 / -1;
-    justify-self: start;
-    padding: 10px 20px;
-    font-weight: 600;
-    background-color: var(--theme-heading);
+/* --- RITUAL CARDS --- */
+.db-ritual-card {
+    background: #fdfaf7; border-radius: 28px; padding: 25px;
+    border: 1px solid #fce8d5; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.db-ritual-card:hover { transform: translateX(8px); border-color: #e65100; background: white; box-shadow: 0 10px 25px rgba(230, 81, 0, 0.05); }
+.db-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.db-card-header h4 { font-size: 1.15rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+
+.status-pill { padding: 5px 12px; border-radius: 10px; font-size: 0.65rem; font-weight: 900; color: white; text-transform: uppercase; }
+.status-confirmed, .status-accepted { background: #10b981; }
+.status-pending { background: #f59e0b; }
+
+.db-card-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.db-info-item label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px; }
+.db-info-item p { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+
+/* --- PANCHANG CARD (Side Widget) --- */
+.db-panchang-card {
+    background: white; border-radius: 35px; padding: 30px;
+    box-shadow: 0 20px 45px rgba(230, 81, 0, 0.05); border: 1px solid #fce8d5;
+}
+.db-p-header h3 { font-weight: 800; color: #e65100; font-size: 1.3rem; margin: 0; }
+.db-p-header span { color: #94a3b8; font-size: 0.85rem; font-weight: 600; }
+
+.db-sun-row { display: flex; justify-content: space-between; margin: 25px 0; }
+.db-p-unit label { display: block; font-size: 0.65rem; font-weight: 800; color: #94a3b8; }
+.db-p-unit strong { font-size: 1.2rem; font-weight: 900; color: #1a1a1a; }
+
+.db-astro-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+.db-astro-item { background: #fffaf5; padding: 15px; border-radius: 20px; border: 1px solid #fce8d5; text-align: center; }
+.db-astro-item label { font-size: 0.6rem; font-weight: 800; color: #e65100; }
+.db-astro-item p { font-weight: 900; font-size: 0.9rem; margin-top: 5px; }
+
+.db-kalam-box { background: #fffaf5; border-radius: 24px; padding: 22px; border: 1px solid #fce8d5; }
+.db-k-row label { color: #e65100; font-weight: 800; font-size: 0.7rem; }
+.db-k-row p { font-weight: 800; color: #1a1a1a; font-family: 'JetBrains Mono', monospace; font-size: 1rem; margin-top: 3px; }
+
+/* --- PERFORMANCE & MINI STATS (Sticky Left) --- */
+.priest-mini-stats { display: flex; gap: 15px; }
+.m-stat { 
+    flex: 1; padding: 18px; background: #fffaf5; border-radius: 22px; 
+    border: 1px solid #fce8d5; cursor: pointer; transition: 0.2s;
+}
+.m-stat:hover { border-color: #e65100; }
+.m-stat.m-active {
+    background: #fff3e0;
+    border-color: #e65100;
+    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.1);
+    transform: scale(1.03);
+}
+.m-stat label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; }
+.m-stat strong { font-size: 1.4rem; font-weight: 900; }
+
+/* --- SHORTCUT LINKS (Sticky Right) --- */
+.s-link {
+    width: 100%; text-align: left; background: #fffaf5; border: 1px solid #fce8d5;
+    padding: 14px 20px; border-radius: 18px; margin-bottom: 12px; font-weight: 700;
+    color: #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s;
+}
+.s-link:hover { border-color: #e65100; color: #e65100; transform: translateX(10px); }
+.s-link.s-active {
+    background: #e65100;
     color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-color: #e65100;
+    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2);
 }
 
-/* --- General Utility & Stats --- */
-.pd-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+/* --- MANTRA EDITOR CONTAINER --- */
+.rich-editor-container {
+    background: #fff;
+    border: 1px solid #f2f2f2;
+    border-radius: 24px;
+    padding: 15px;
+}
+.editor-header-hint {
+    font-size: 0.7rem; font-weight: 800; color: #e65100;
+    text-transform: uppercase; margin-bottom: 15px;
+    display: flex; align-items: center; gap: 8px;
 }
 
-.pd-stats-section {
-    background-color: var(--hover-bg);
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+/* --- UTILS --- */
+.db-content-card { background: white; border-radius: 35px; padding: 30px; border: 1px solid #f2f2f2; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+.db-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; color: #e65100; }
+.db-card-head h2 { font-size: 1.2rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+.txt-orange { color: #e65100; }
+.side-p { font-size: 0.8rem; color: #94a3b8; margin-top: -15px; margin-bottom: 15px; font-weight: 500; }
+
+.mini-link-box { display: flex; background: #f1f5f9; border-radius: 15px; overflow: hidden; margin-top: 10px; }
+.mini-link-box input { flex: 1; border: none; background: none; padding: 12px; font-size: 0.75rem; color: #64748b; }
+.mini-link-box button { background: #e65100; color: white; border: none; padding: 12px 18px; cursor: pointer; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.pd-subsection-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: var(--theme-primary);
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.pd-section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* --- RESPONSIVE ADJUSTMENTS --- */
+@media (max-width: 1300px) {
+    .db-grid-layout { grid-template-columns: 280px 1fr 280px; }
 }
 
-.pd-stat-item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.pd-stat-item:last-child { border-bottom: none; }
-.pd-stat-item span:last-child { font-weight: 600; }
-
-.value-green { color: #28a745; }
-.value-orange { color: #fd7e14; }
-
-.pd-notes-textarea {
-    min-height: 150px;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    font-size: 14px;
-    background-color: var(--card-bg);
-}
-
-.pd-no-data {
-    text-align: center;
-    padding: 40px;
-    color: var(--text-light);
-    background-color: var(--hover-bg);
-    border-radius: 8px;
-}
-/* Filename: Dashboard.css - ADD THESE STYLES TO THE BOTTOM */
-
-.no-data-icon {
-   font: 2em sans-serif;
-    color: #28a745; /* A pleasant green color */
-
-}
-
-.request-card-link {
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.request-card-link:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-color: var(--theme-heading);
-}
-
-/* Add this to Dashboard.css */
-
-.request-card-link {
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-.request-card-link:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-color: var(--theme-heading);
-}
-
-.pd-card-body .detail-icon {
-    color: var(--theme-heading);
-    margin-right: 10px;
-    font-size: 1rem;
-}
-
-.pd-card-actions {
-    text-align: right;
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-}
-
-.view-details-prompt {
-    font-weight: 600;
-    color: var(--theme-heading);
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-/* --- Responsive Adjustments --- */
-@media (max-width: 1024px) {
-    .pd-list-container,
-    .event-manage-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .priest-dashboard-container { padding: 16px; }
-    .stat-card-grid { gap: 15px; }
-    .cta-buttons { flex-direction: column; align-items: center; }
-    .add-event-form { grid-template-columns: 1fr; }
-    .pd-list-container,
-    .event-manage-list {
-        grid-template-columns: 1fr;
-    }
+@media (max-width: 1100px) {
+    .db-grid-layout { grid-template-columns: 1fr; margin-top: -40px; }
+    .db-sticky-sidebar { position: static; max-height: none; }
+    .grid-mode { grid-template-columns: 1fr; }
 }

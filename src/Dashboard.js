@@ -1,295 +1,264 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, isToday, isAfter, startOfDay, parseISO, isWithinInterval, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
+import { format, isToday, isAfter, startOfDay, parseISO } from 'date-fns';
 import CountUp from 'react-countup';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
-    FaCalendarCheck, FaCalendarAlt, FaBell, FaDownload, FaPlus, FaStickyNote,
-    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, FaCalendarDay, FaBullhorn,FaCopy,FaEye, FaPhone , FaCalendarDay as FaEventIcon
+    FaCalendarCheck, FaCalendarAlt, FaBell, FaPlus, FaStickyNote,
+    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, 
+    FaCalendarDay, FaBullhorn, FaCopy, FaEye, FaStar, FaOm, FaClock, FaDharmachakra, FaEdit
 } from 'react-icons/fa';
 
 import './Dashboard.css';
 
-// Import all required components from their separate files
 import AppointmentModal from './AppointmentModal';
 import KnowledgeBase from './KnowledgeBase';
 import PoojaStatsPage from './PoojaStatsPage';
 import ManageEventsPage from './ManageEventsPage';
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
-// --- Helper function to parse price strings ---
-const parsePrice = (priceString) => {
-    if (!priceString || typeof priceString !== 'string') return 0;
-    const cleanedString = priceString.replace(/\$/g, '').trim();
-    if (cleanedString.includes('-')) {
-        const parts = cleanedString.split('-').map(part => parseFloat(part.trim()));
-        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-            return (parts[0] + parts[1]) / 2;
-        }
-    } else {
-        const price = parseFloat(cleanedString);
-        return isNaN(price) ? 0 : price;
-    }
-    return 0;
+const formatTime12Hour = (timeString) => {
+  if (!timeString || typeof timeString !== 'string') return null;
+  const [hours, minutes] = timeString.split(':');
+  const h = parseInt(hours, 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const formattedHours = h % 12 || 12;
+  return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
 };
- const PendingRequestCard = ({ item, onNavigate }) => {
+
+const DashboardCard = ({ item, type, onNavigate }) => {
+    const isRequest = type === 'request';
     return (
-        <div className="pd-card booking-card request-card-link" onClick={onNavigate}>
-            <div className="pd-card-header">
-                <h4 className="pd-card-title">{item.requestType}</h4>
+        <div className={`db-ritual-card ${isRequest ? 'request-link' : ''}`} onClick={isRequest ? onNavigate : null}>
+            <div className="db-card-main">
+                <div className="db-card-header">
+                    <h4>{item.poojaType}</h4>
+                    {item.status && <span className={`status-pill status-${item.status.toLowerCase()}`}>{item.status}</span>}
+                </div>
+                <div className="db-card-body-grid">
+                    <div className="db-info-item"><label>CLIENT</label><p>{item.customerName}</p></div>
+                    <div className="db-info-item"><label>SCHEDULE</label><p>{item.date ? format(parseISO(item.date), 'MMM dd, yyyy') : 'TBD'}</p></div>
+                    <div className="db-info-item"><label>TIME</label><p>{item.startTime || 'Standard'}</p></div>
+                    <div className="db-info-item"><label>CONTACT</label><p>{item.contact}</p></div>
+                </div>
             </div>
-            <div className="pd-card-body">
-                <p><strong>Event:</strong> {item.poojaType}</p>
-                <p><strong>Customer:</strong> {item.customerName}</p>
-                <p><strong>Contact:</strong> {item.contact}</p>
-                <p><strong>Notes:</strong> {item.note}</p>
-            </div>
-            <div className="pd-card-actions">
-                <span className="view-details-prompt">
-                    View Details <FaChevronRight />
-                </span>
-            </div>
+            {isRequest && <div className="db-card-footer"><span>View Request</span> <FaChevronRight /></div>}
         </div>
     );
 };
 
-const PendingRequestsView = ({ items, onNavigate, emptyMessage }) => {
-    if (!items || items.length === 0) {
-        return (
-            <div className="pd-no-data">
-                <FaCalendarCheck className="no-data-icon" />
-                <p>{emptyMessage}</p>
-            </div>
-        );
-    }
-    return (
-        <div>
-            <h3 className="pd-section-title">Pending Requests</h3>
-            <div className="pd-list-container">
-                {items.map(item => (
-                    <PendingRequestCard key={item.id} item={item} onNavigate={onNavigate} />
-                ))}
-            </div>
-        </div>
-    );
-};
-// --- A local sub-component, as it's used for multiple views ---
-const BookingsListView = ({ title, items, type, emptyMessage, onCardClick }) => {
-    if (!items || items.length === 0) {
-        if (emptyMessage) { return ( <div className="pd-no-data"> <FaCalendarCheck className="no-data-icon" /> <p>{emptyMessage}</p> </div> ); }
-        return <div className="pd-no-data"><p>No {type}s for this view.</p></div>;
-    }
-    return (
-        <div>
-            <h3 className="pd-section-title">{title}</h3>
-            <div className="pd-list-container">
-                {items.map(item => {
-                    const cardContent = (
-                        <div key={item.id} className={`pd-card booking-card ${type === 'request' ? 'request-card-link' : ''}`}>
-                            <div className="pd-card-header">
-                                <h4 className="pd-card-title">{item.poojaType}</h4>
-                                {item.status && <span className={`pd-status-badge status-${item.status.toLowerCase()}`}>{item.status}</span>}
-                            </div>
-                            <div className="pd-card-body">
-                                <p><strong>Customer:</strong> {item.customerName}</p>
-                                <p><strong>Contact:</strong> {item.contact}</p>
-                                <p><strong>Date:</strong> {item.date ? format(parseISO(item.date), 'EEE, MMM d, yyyy') : 'N/A'}</p>
-                                {item.startTime && <p><strong>Time:</strong> {item.startTime}</p>}
-                                <p><strong>Notes:</strong>{item.note}</p>
-                            </div>
-                            {/* REMOVED: Action buttons are no longer displayed here */}
-                        </div>
-                    );
-
-                    // If it's a request, wrap the card in a clickable div for navigation
-                    if (type === 'request') {
-                        return <div key={item.id} onClick={onCardClick}>{cardContent}</div>
-                    }
-                    return cardContent;
-                })}
-            </div>
-        </div>
-    );
-};
-
-// --- Main Dashboard Component ---
 const PriestDashboard = () => {
     const navigate = useNavigate();
     const contentRef = useRef(null);
+    const priestId = localStorage.getItem('userId');
+    const profileUrl = `${window.location.origin}/priests/${priestId}`;
     
-    // UI State
     const [activeView, setActiveView] = useState('today');
-    const [userName, setUserName] = useState("Priest");
+    const [userName, setUserName] = useState(localStorage.getItem('firstName') || "Priest");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [todayTimings, setTodayTimings] = useState(null);
     const [copySuccess, setCopySuccess] = useState('');
 
-    // Data State
     const [allAppointments, setAllAppointments] = useState([]);
     const [muhurtamRequests, setMuhurtamRequests] = useState([]);
-    const [stats, setStats] = useState({ week: 0, month: 0, year: 0, topPoojas: [], weekEarnings: 0, monthEarnings: 0, yearEarnings: 0 });
+    const [stats, setStats] = useState({ week: 0, month: 0, year: 0 });
     const [templeEvents, setTempleEvents] = useState([]);
-    const [knowledgeBaseContent, setKnowledgeBaseContent] = useState(`<h2>My Personal Notes</h2><p>Start writing here...</p>`);
-const priestId = localStorage.getItem('userId');
-     const profileUrl = `http://localhost:3000/priests/${priestId}`;
+    const [knowledgeBaseContent, setKnowledgeBaseContent] = useState('');
 
     useEffect(() => {
-        const priestId = localStorage.getItem('userId');
-        const storedFirstName = localStorage.getItem('firstName') || 'Priest';
-        setUserName(storedFirstName);
-        if (!priestId) {
-            toast.error("Priest ID not found. Please log in again.");
-            setIsLoading(false);
-            return;
-        }
-
-        const fetchAllData = async () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const fetchData = async () => {
             setIsLoading(true);
             try {
-                const [bookingRes, manualAppointmentRes, muhurtamRes, eventsRes, kbRes] = await Promise.all([
+                const [bookingRes, manualRes, muhurtamRes, eventsRes, kbRes, sunRes, dailyRes] = await Promise.all([
                     axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
                     axios.get(`${API_BASE}/api/appointments/priest/${priestId}`),
                     axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`),
                     axios.get(`${API_BASE}/api/events`),
-                    axios.get(`${API_BASE}/api/knowledgebase/${priestId}`)
+                    axios.get(`${API_BASE}/api/knowledgebase/${priestId}`),
+                    fetch(`${API_BASE}/api/sun?date=${todayStr}`).then(r => r.json()),
+                    fetch(`${API_BASE}/api/daily-times/by-date=${todayStr}`).then(r => r.json())
                 ]);
 
-                const priceMap = (eventsRes.data || []).reduce((map, event) => { map[event.name] = event.estimatedPrice; return map; }, {});
+                const bookings = (bookingRes.data || []).map(b => ({ ...b, id: `b-${b.id}`, poojaType: b.eventName, customerName: b.name, contact: b.phone, date: b.date, startTime: b.start }));
+                const manual = (manualRes.data || []).map(m => ({ ...m, id: `m-${m.id}`, poojaType: m.eventName || m.events, customerName: m.name, contact: m.phone, date: m.start ? m.start.split('T')[0] : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed' }));
                 
-                const customerBookings = (bookingRes.data || []).map(b => ({ id: `booking-${b.id}`, poojaType: b.eventName || 'Event Booking', customerName: b.name, contact: b.phone, date: b.date, startTime: b.start, status: b.status,note:b.note, price: parsePrice(priceMap[b.eventName]) }));
-                const manualAppointments = (manualAppointmentRes.data || []).map(m => ({ id: `manual-${m.id}`, poojaType: m.eventName || m.events || 'Manual Entry', customerName: m.name, contact: m.phone, date: m.start ? format(parseISO(m.start), 'yyyy-MM-dd') : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null,note:m.note, status: 'Confirmed', price: parsePrice(priceMap[m.eventName || m.events]) }));
-                
-                const combinedAppointments = [...customerBookings, ...manualAppointments];
-                setAllAppointments(combinedAppointments);
-                setMuhurtamRequests(muhurtamRes.data || []);
+                setAllAppointments([...bookings, ...manual]);
+                setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ ...r, id: `muh-${r.id}`, poojaType: 'Muhurtam Request', customerName: r.name, contact: r.phone })));
                 setTempleEvents(eventsRes.data || []);
-                setKnowledgeBaseContent(kbRes.data || `<h2>My Personal Notes</h2><p>Click 'Edit' to start.</p>`);
-
-                const allConfirmed = combinedAppointments.filter(b => b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED');
-                const now = new Date();
-                const poojasThisWeek = allConfirmed.filter(b => b.date && isWithinInterval(parseISO(b.date), { start: startOfWeek(now), end: endOfWeek(now) }));
-                const poojasThisMonth = allConfirmed.filter(b => b.date && parseISO(b.date).getMonth() === now.getMonth() && parseISO(b.date).getFullYear() === now.getFullYear());
-                const poojasThisYear = allConfirmed.filter(b => b.date && parseISO(b.date).getFullYear() === now.getFullYear());
-                const weekEarnings = poojasThisWeek.reduce((sum, b) => sum + (b.price || 0), 0);
-                const monthEarnings = poojasThisMonth.reduce((sum, b) => sum + (b.price || 0), 0);
-                const yearEarnings = poojasThisYear.reduce((sum, b) => sum + (b.price || 0), 0);
-                const poojaCounts = allConfirmed.reduce((acc, b) => { const name = b.poojaType || 'Unknown'; acc[name] = (acc[name] || 0) + 1; return acc; }, {});
-                const topPoojas = Object.entries(poojaCounts).sort(([,a],[,b]) => b-a).slice(0, 3).map(([name, count]) => ({ name, count }));
-
-                setStats({ week: poojasThisWeek.length, month: poojasThisMonth.length, year: poojasThisYear.length, topPoojas, weekEarnings, monthEarnings, yearEarnings });
-            } catch (error) {
-                toast.error("Failed to load dashboard data.");
-                console.error("Dashboard fetch error:", error);
+                setKnowledgeBaseContent(kbRes.data || '');
+                setTodayTimings({ ...sunRes, ...dailyRes });
+            } catch (err) {
+                toast.error("Dashboard synchronization error.");
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchAllData();
-    }, []);
+        if(priestId) fetchData();
+    }, [priestId]);
+
+    const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
+    const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
     
-    const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
-    const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(startOfDay(parseISO(b.date)), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
-    
+    // FIX: Unified name for the ESLINT error
     const pendingRequests = useMemo(() => {
-        const pendingBookings = allAppointments
-            .filter(b => b.status?.toUpperCase() === 'PENDING')
-            .map(b => ({ ...b, id: `booking-${b.id}`, requestType: 'Appointment Request' }));
-
-        const pendingMuhurtams = muhurtamRequests
-            .filter(r => !r.viewed)
-            .map(r => ({ ...r, id: `muhurtam-${r.id}`, poojaType: r.eventName || 'Muhurtam Inquiry', customerName: r.name, contact: r.phone, startTime: r.time, status: 'Pending', requestType: 'Muhurtam Request' }));
-
-        return [...pendingBookings, ...pendingMuhurtams];
+        const pBookings = allAppointments.filter(b => b.status?.toUpperCase() === 'PENDING');
+        return [...pBookings, ...muhurtamRequests];
     }, [allAppointments, muhurtamRequests]);
 
-    const handleSaveAppointment = () => { /* Logic to refresh data would go here */ };
-    const handleActionClick = (viewId) => { setActiveView(viewId); setTimeout(() => { contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100); };
-    const handleDownloadReport = () => { /* ... CSV download logic ... */ };
-
-    const quickActions = [
-        { id: 'today', name: "Today's Schedule", icon: <FaUserClock />, description: "View all appointments for today." },
-        { id: 'upcoming', name: 'Upcoming Bookings', icon: <FaRegCalendarAlt />, description: 'See all confirmed future bookings.' },
-        { id: 'pending', name: 'Pending Requests', icon: <FaListAlt />, description: 'Accept or decline new requests.' },
-        { id: 'stats', name: 'Pooja Statistics', icon: <FaChartBar />, description: 'Analyze your booking trends.' },
-        { id: 'events', name: 'Temple Events', icon: <FaBullhorn />, description: 'Announce or manage temple events.'},
-        { id: 'knowledge', name: 'Knowledge Base', icon: <FaStickyNote />, description: 'Access your personal notes & mantras.' },
-    ];
-    const handleCopyLink = () => {
-        navigator.clipboard.writeText(profileUrl).then(() => {
-            setCopySuccess('Copied!');
-            setTimeout(() => setCopySuccess(''), 2000); // Reset after 2 seconds
-        }, () => {
-            setCopySuccess('Failed to copy');
-        });
+    const handleCopy = () => {
+        navigator.clipboard.writeText(profileUrl);
+        setCopySuccess('Copied!');
+        setTimeout(() => setCopySuccess(''), 2000);
     };
 
-    const renderActiveView = () => {
-        switch (activeView) {
-            case 'today': return <BookingsListView title="Today's Appointments" items={todayBookings} type="booking"/>;
-            case 'upcoming': return <BookingsListView title="Upcoming Appointments" items={upcomingBookings} type="booking"/>;
-            case 'pending': return <PendingRequestsView items={pendingRequests} onNavigate={() => navigate('/requests')} emptyMessage="Hooray! You've viewed all requests." />;
-            case 'stats': return <PoojaStatsPage stats={stats} onExport={handleDownloadReport} />;
-            case 'events': return <ManageEventsPage events={templeEvents} onAddEvent={(newEvent) => setTempleEvents(prev => [{...newEvent, id: Date.now(), date: new Date(newEvent.date).toISOString()}, ...prev])}/>;
-            case 'knowledge': return <KnowledgeBase content={knowledgeBaseContent} onSave={setKnowledgeBaseContent} />;
-            default: return <BookingsListView title="Today's Appointments" items={todayBookings} type="booking"/>;
+    const handleTabChange = (view) => {
+        setActiveView(view);
+        if (contentRef.current) {
+            const yOffset = -100; 
+            const element = contentRef.current;
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
         }
     };
-    
-    if (isLoading) { return <div className="loading-container">Loading Dashboard...</div>; }
+
+    if (isLoading) return <div className="priest-loader">Synchronizing Divine Workspace...</div>;
 
     return (
-        <div className="priest-dashboard-container">
-            <ToastContainer position="bottom-right" autoClose={3000} theme="colored"/>
-            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={handleSaveAppointment} priest={{ id: localStorage.getItem('userId'), firstName: userName }} />}
+        <div className="db-page-wrapper">
+            <ToastContainer position="bottom-right" theme="colored"/>
             
-            <section className="pd-dashboard-section user-summary-section">
-                <h2 className="user-greeting">Namaste, {userName}!</h2>
-                <div className="stat-card-grid">
-                    <div className="stat-item"><FaCalendarCheck className="stat-icon green" /><span><CountUp end={todayBookings.length} /> Today's Bookings</span></div>
-                    <div className="stat-item"><FaCalendarAlt className="stat-icon blue" /><span><CountUp end={upcomingBookings.length} /> Upcoming Bookings</span></div>
-                    <div className="stat-item"><FaBell className="stat-icon orange" /><span><CountUp end={pendingRequests.length} /> Pending Requests</span></div>
+            <section className="db-hero">
+                <div className="db-hero-content">
+                    <h1>Namaste, {userName}</h1>
+                    <p>Professional Administrative Suite & Vedic Insights</p>
                 </div>
             </section>
-            <section className="pd-dashboard-section public-profile-section">
-                <h2 className="pd-section-title">Your Public Profile Link</h2>
-                <p>Share this link with customers so they can view your profile and book your services directly.</p>
-                <div className="profile-link-container">
-                    <input type="text" value={profileUrl} readOnly className="profile-url-input" />
-                    <button onClick={handleCopyLink} className="copy-link-btn">
-                        <FaCopy /> {copySuccess || 'Copy Link'}
-                    </button>
-                    <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="view-profile-btn">
-                        <FaEye /> View Profile
-                    </a>
-                </div>
-            </section>
-            <section className="pd-dashboard-section cta-section">
-                <h2 className="pd-section-title">Manage Your Schedule</h2>
-                <p>Control your availability to receive new bookings or add appointments manually.</p>
-                <div className="cta-buttons">
-                    <button className="cta-button primary" onClick={() => navigate('/availability-manager')}><FaCalendarDay /> Manage Availability <FaChevronRight className="cta-button-icon" /></button>
-                    <button className="cta-button secondary" onClick={() => setIsModalOpen(true)}><FaPlus /> Add Manual Booking</button>
-                </div>
-            </section>
-            
-            <section className="pd-dashboard-section quick-actions-section">
-                <h2 className="pd-section-title">Dashboard Actions</h2>
-                <div className="quick-actions-grid">
-                    {quickActions.map((action) => (
-                        <div key={action.id} className="quick-action-card" onClick={() => handleActionClick(action.id)}>
-                            <div className="quick-action-icon">{action.icon}</div>
-                            <h3 className="quick-action-title">{action.name}</h3>
-                            <p className="quick-action-description">{action.description}</p>
+
+            <div className="db-main-container">
+                <div className="db-grid-layout">
+                    
+                    {/* LEFT COLUMN: STICKY */}
+                    <aside className="db-column db-sticky-sidebar">
+                        <div className="db-content-card">
+                            <div className="db-card-head"><FaChartBar /> <h2>Performance</h2></div>
+                            <div className="priest-mini-stats">
+                                <div className={`m-stat ${activeView === 'today' ? 'm-active' : ''}`} onClick={() => handleTabChange('today')}>
+                                    <label>Today</label>
+                                    <strong>{todayBookings.length}</strong>
+                                </div>
+                                <div className={`m-stat ${activeView === 'pending' ? 'm-active' : ''}`} onClick={() => handleTabChange('pending')}>
+                                    <label>Requests</label>
+                                    <strong className="txt-orange">{pendingRequests.length}</strong>
+                                </div>
+                            </div>
                         </div>
-                    ))}
+
+                        <div className="db-content-card profile-card">
+                            <h3>Public Profile Link</h3>
+                            <p className="side-p">Share with customers for direct bookings.</p>
+                            <div className="mini-link-box">
+                                <input readOnly value={profileUrl} />
+                                <button onClick={handleCopy}><FaCopy /></button>
+                            </div>
+                            {copySuccess && <span className="copy-notif">{copySuccess}</span>}
+                        </div>
+                    </aside>
+
+                    {/* CENTER COLUMN: SCROLLABLE */}
+                    <main className="db-column center-col">
+                        <div className="db-tile-row">
+                            <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
+                                <FaCalendarDay className="db-tile-icon" />
+                                <h3>Availability</h3>
+                                <p>Manage your schedule.</p>
+                                <FaChevronRight className="db-tile-go" />
+                            </div>
+                            <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
+                                <FaPlus className="db-tile-icon" />
+                                <h3>Manual Booking</h3>
+                                <p>Record an appointment.</p>
+                                <FaChevronRight className="db-tile-go" />
+                            </div>
+                            <div className={`db-tile db-charcoal ${activeView === 'stats' ? 'tile-active' : ''}`} onClick={() => handleTabChange('stats')}>
+                                <FaChartBar className="db-tile-icon" />
+                                <h3>Earnings</h3>
+                                <p>Insights & Trends.</p>
+                                <FaChevronRight className="db-tile-go" />
+                            </div>
+                        </div>
+
+                        <div className="priest-view-container" ref={contentRef}>
+                            <div className="priest-view-header">
+                                <h2>{activeView.replace('-', ' ').toUpperCase()} VIEW</h2>
+                            </div>
+                            
+                            <div className={`view-content-wrapper ${['stats', 'events', 'knowledge'].includes(activeView) ? 'full-page-mode' : 'grid-mode'}`}>
+                                {activeView === 'today' && (
+                                    todayBookings.length > 0 ? 
+                                    todayBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
+                                    <div className="empty-state">No ritual tasks for today.</div>
+                                )}
+                                {activeView === 'upcoming' && (
+                                    upcomingBookings.length > 0 ? 
+                                    upcomingBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
+                                    <div className="empty-state">No future bookings confirmed.</div>
+                                )}
+                                {activeView === 'pending' && (
+                                    pendingRequests.length > 0 ? 
+                                    pendingRequests.map(item => <DashboardCard key={item.id} item={item} type="request" onNavigate={() => navigate('/requests')} />) : 
+                                    <div className="empty-state">Action center is clear.</div>
+                                )}
+                                
+                                {activeView === 'stats' && <PoojaStatsPage stats={stats} />}
+                                {activeView === 'events' && <ManageEventsPage events={templeEvents} />}
+                                {activeView === 'knowledge' && (
+                                    <div className="rich-editor-container">
+                                        <div className="editor-header-hint"><FaEdit /> Digital Mantra Bank</div>
+                                        <KnowledgeBase content={knowledgeBaseContent} onSave={(val) => setKnowledgeBaseContent(val)} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* RIGHT COLUMN: STICKY PANCHANG */}
+                    <aside className="db-column db-sticky-sidebar">
+                        <div className="db-panchang-card">
+                            <div className="db-p-header">
+                                <h3>Panchang Today</h3>
+                                <span>{format(new Date(), 'EEEE, MMM do')}</span>
+                            </div>
+                            <div className="db-p-body">
+                                <div className="db-sun-row">
+                                    <div className="db-p-unit"><label>SUNRISE</label><strong>{formatTime12Hour(todayTimings?.sunrise) || '07:09 AM'}</strong></div>
+                                    <div className="db-p-unit"><label>SUNSET</label><strong>{formatTime12Hour(todayTimings?.sunset) || '07:50 PM'}</strong></div>
+                                </div>
+                                <div className="db-astro-row">
+                                    <div className="db-astro-item"><label><FaStar /> NAKSHATRAM</label><p>{todayTimings?.nakshatram || "---"}</p></div>
+                                    <div className="db-astro-item"><label><FaOm /> TITHI</label><p>{todayTimings?.tithi || "---"}</p></div>
+                                </div>
+                                <div className="db-kalam-box">
+                                    <div className="db-k-row"><label>RAHU KALAM</label><p>{todayTimings?.rahukalamStart ? `${formatTime12Hour(todayTimings.rahukalamStart)} - ${formatTime12Hour(todayTimings.rahukalamEnd)}` : "--- : ---"}</p></div>
+                                    <div className="db-k-row"><label>YAMAGANDAM</label><p>{todayTimings?.yamagandamStart ? `${formatTime12Hour(todayTimings.yamagandamStart)} - ${formatTime12Hour(todayTimings.yamagandamEnd)}` : "--- : ---"}</p></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="db-content-card action-list">
+                            <div className="db-card-head"><FaDharmachakra /> <h2>Tools</h2></div>
+                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Full Calendar</button>
+                            <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Manage Events</button>
+                            <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Mantra Notes</button>
+                        </div>
+                    </aside>
                 </div>
-            </section>
-            
-            <section ref={contentRef} className="pd-dashboard-section dynamic-content-section">
-                 {renderActiveView()}
-            </section>
+            </div>
+
+            {isModalOpen && <AppointmentModal onClose={() => setIsModalOpen(false)} onSave={() => window.location.reload()} priest={{ id: priestId, firstName: userName }} />}
         </div>
     );
 };
