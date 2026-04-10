@@ -5,9 +5,9 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
     FaCalendarAlt, FaBell, FaPlus, FaStickyNote,
-    FaChartBar, FaRegCalendarAlt, FaChevronRight, 
-    FaCalendarDay, FaBullhorn, FaCopy, FaStar, FaOm, 
-    FaEdit, FaTimes, FaMapMarkerAlt, FaUserTie, FaPhoneAlt, 
+    FaChartBar, FaRegCalendarAlt, FaChevronRight,
+    FaCalendarDay, FaBullhorn, FaCopy, FaStar, FaOm,
+    FaEdit, FaTimes, FaMapMarkerAlt, FaUserTie, FaPhoneAlt,
     FaEnvelope, FaCheck, FaDharmachakra
 } from 'react-icons/fa';
 
@@ -21,12 +21,12 @@ import ManageEventsPage from './ManageEventsPage';
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
 const formatTime12Hour = (timeString) => {
-  if (!timeString || typeof timeString !== 'string') return null;
-  const [hours, minutes] = timeString.split(':');
-  const h = parseInt(hours, 10);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const formattedHours = h % 12 || 12;
-  return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
+    if (!timeString || typeof timeString !== 'string') return null;
+    const [hours, minutes] = timeString.split(':');
+    const h = parseInt(hours, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const formattedHours = h % 12 || 12;
+    return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
 const DashboardCard = ({ item }) => (
@@ -51,7 +51,7 @@ const PriestDashboard = () => {
     const contentRef = useRef(null);
     const priestId = localStorage.getItem('userId');
     const profileUrl = `${window.location.origin}/priests/${priestId}`;
-    
+
     const [activeView, setActiveView] = useState('today');
     const [userName, setUserName] = useState(localStorage.getItem('firstName') || "Priest");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,7 +83,7 @@ const PriestDashboard = () => {
 
             const bookings = (bookingRes.data || []).map(b => ({ ...b, id: b.id, type: 'BOOKING', poojaType: b.eventName, customerName: b.name, contact: b.phone, date: b.date, startTime: b.start }));
             const manual = (manualRes.data || []).map(m => ({ ...m, id: m.id, type: 'MANUAL', poojaType: m.eventName || m.events, customerName: m.name, contact: m.phone, date: m.start ? m.start.split('T')[0] : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed' }));
-            
+
             setAllAppointments([...bookings, ...manual]);
             setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ ...r, id: r.id, type: 'MUHURTAM', poojaType: r.eventName || 'Muhurtam Request', customerName: r.name, contact: r.phone })));
             setTempleEvents(eventsRes.data || []);
@@ -96,7 +96,7 @@ const PriestDashboard = () => {
         }
     };
 
-    useEffect(() => { if(priestId) fetchData(); }, [priestId]);
+    useEffect(() => { if (priestId) fetchData(); }, [priestId]);
 
     const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
@@ -106,16 +106,16 @@ const PriestDashboard = () => {
         return [...pBookings, ...pMuhurtams];
     }, [allAppointments, muhurtamRequests]);
 
-   const handleCopy = () => {
+    const handleCopy = () => {
         navigator.clipboard.writeText(profileUrl);
-        setCopySuccess(true); 
+        setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
     };
 
     const handleTabChange = (view) => {
         setActiveView(view);
         if (contentRef.current) {
-            const yOffset = -100; 
+            const yOffset = -100;
             const element = contentRef.current;
             const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
@@ -170,8 +170,8 @@ const PriestDashboard = () => {
 
     return (
         <div className="db-page-wrapper">
-            <ToastContainer position="bottom-right" theme="colored"/>
-            
+            <ToastContainer position="bottom-right" theme="colored" />
+
             <section className="db-hero">
                 <div className="db-hero-content">
                     <h1>Namaste, {userName}</h1>
@@ -212,16 +212,19 @@ const PriestDashboard = () => {
                             <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
                                 <FaCalendarDay className="db-tile-icon" />
                                 <h3>Availability</h3>
+                                <p>Set your working hours and dates.</p> {/* Add this line */}
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
                                 <FaPlus className="db-tile-icon" />
                                 <h3>Manual Booking</h3>
+                                <p>Add offline ritual appointments.</p> {/* Add this line */}
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className={`db-tile db-charcoal ${activeView === 'stats' ? 'tile-active' : ''}`} onClick={() => handleTabChange('stats')}>
                                 <FaChartBar className="db-tile-icon" />
                                 <h3>Earnings</h3>
+                                <p>Track your revenue and insights.</p> {/* Add this line */}
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                         </div>
@@ -230,25 +233,25 @@ const PriestDashboard = () => {
                             <div className="priest-view-header">
                                 <h2>{activeView.replace('-', ' ').toUpperCase()} VIEW</h2>
                             </div>
-                            
+
                             <div className={`view-content-wrapper ${['today', 'upcoming', 'pending'].includes(activeView) ? 'grid-mode' : 'full-page-mode'}`}>
                                 {activeView === 'upcoming' && (
-                                    upcomingBookings.length > 0 ? 
-                                    upcomingBookings.map(item => <ActionCard key={item.id} item={item} isPending={false} />) : 
-                                    <div className="empty-state">No future bookings confirmed.</div>
+                                    upcomingBookings.length > 0 ?
+                                        upcomingBookings.map(item => <ActionCard key={item.id} item={item} isPending={false} />) :
+                                        <div className="empty-state">No future bookings confirmed.</div>
                                 )}
                                 {activeView === 'pending' && (
-                                    pendingRequests.length > 0 ? 
-                                    pendingRequests.map(item => <ActionCard key={`${item.type}-${item.id}`} item={item} isPending={true} />) : 
-                                    <div className="empty-state">Action center is clear.</div>
+                                    pendingRequests.length > 0 ?
+                                        pendingRequests.map(item => <ActionCard key={`${item.type}-${item.id}`} item={item} isPending={true} />) :
+                                        <div className="empty-state">Action center is clear.</div>
                                 )}
-                                
+
                                 {activeView === 'stats' && <div className="full-width-view"><PoojaStatsPage stats={stats} /></div>}
                                 {activeView === 'events' && <div className="full-width-view"><ManageEventsPage events={templeEvents} /></div>}
                                 {activeView === 'knowledge' && (
                                     <div className="full-width-view rich-editor-container">
                                         <div className="editor-header-hint"><FaEdit /> Digital Mantra Bank</div>
-                                        <KnowledgeBase content={knowledgeBaseContent} onSave={() => fetchData()} priestId={priestId}/>
+                                        <KnowledgeBase content={knowledgeBaseContent} onSave={() => fetchData()} priestId={priestId} />
                                     </div>
                                 )}
                             </div>
