@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, isToday, isAfter, startOfDay, parseISO } from 'date-fns';
+import { format, isToday, isAfter, startOfDay, parseISO, isBefore } from 'date-fns';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
@@ -29,23 +29,6 @@ const formatTime12Hour = (timeString) => {
     return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
-const DashboardCard = ({ item }) => (
-    <div className="db-ritual-card">
-        <div className="db-card-main">
-            <div className="db-card-header">
-                <h4>{item.poojaType}</h4>
-                <span className={`status-pill status-accepted`}>Confirmed</span>
-            </div>
-            <div className="db-card-body-grid">
-                <div className="db-info-item"><label>CLIENT</label><p>{item.customerName}</p></div>
-                <div className="db-info-item"><label>SCHEDULE</label><p>{item.date ? format(parseISO(item.date), 'MMM dd, yyyy') : 'TBD'}</p></div>
-                <div className="db-info-item"><label>TIME</label><p>{item.startTime || 'Standard'}</p></div>
-                <div className="db-info-item"><label>CONTACT</label><p>{item.contact}</p></div>
-            </div>
-        </div>
-    </div>
-);
-
 const PriestDashboard = () => {
     const navigate = useNavigate();
     const contentRef = useRef(null);
@@ -69,7 +52,7 @@ const PriestDashboard = () => {
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     const fetchData = async () => {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = format(new Date(), 'yyyy-MM-dd');
         try {
             const [bookingRes, manualRes, muhurtamRes, eventsRes, kbRes, sunRes, dailyRes] = await Promise.all([
                 axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
@@ -81,16 +64,46 @@ const PriestDashboard = () => {
                 fetch(`${API_BASE}/api/daily-times/by-date=${todayStr}`).then(r => r.json())
             ]);
 
-            const bookings = (bookingRes.data || []).map(b => ({ ...b, id: b.id, type: 'BOOKING', poojaType: b.eventName, customerName: b.name, contact: b.phone, date: b.date, startTime: b.start }));
-            const manual = (manualRes.data || []).map(m => ({ ...m, id: m.id, type: 'MANUAL', poojaType: m.eventName || m.events, customerName: m.name, contact: m.phone, date: m.start ? m.start.split('T')[0] : null, startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, status: 'Confirmed' }));
+            const bookings = (bookingRes.data || []).map(b => ({ 
+                ...b, 
+                id: b.id, 
+                type: 'BOOKING', 
+                poojaType: b.eventName, 
+                customerName: b.name, 
+                contact: b.phone, 
+                email: b.email || 'N/A', 
+                date: b.date, 
+                startTime: b.start 
+            }));
+            
+            const manual = (manualRes.data || []).map(m => ({ 
+                ...m, 
+                id: m.id, 
+                type: 'MANUAL', 
+                poojaType: m.eventName || m.events, 
+                customerName: m.name, 
+                contact: m.phone, 
+                email: 'N/A', 
+                date: m.date || (m.start ? m.start.split('T')[0] : null), 
+                startTime: m.start ? format(parseISO(m.start), 'hh:mm a') : null, 
+                status: 'Confirmed' 
+            }));
 
             setAllAppointments([...bookings, ...manual]);
-            setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ ...r, id: r.id, type: 'MUHURTAM', poojaType: r.eventName || 'Muhurtam Request', customerName: r.name, contact: r.phone })));
+            setMuhurtamRequests((muhurtamRes.data || []).map(r => ({ 
+                ...r, 
+                id: r.id, 
+                type: 'MUHURTAM', 
+                poojaType: r.eventName || 'Muhurtam Request', 
+                customerName: r.name, 
+                contact: r.phone,
+                email: r.email || 'N/A'
+            })));
             setTempleEvents(eventsRes.data || []);
             setKnowledgeBaseContent(kbRes.data || '');
             setTodayTimings({ ...sunRes, ...dailyRes });
         } catch (err) {
-            console.error(err);
+            console.error("Fetch Error:", err);
         } finally {
             setIsLoading(false);
         }
@@ -98,8 +111,17 @@ const PriestDashboard = () => {
 
     useEffect(() => { if (priestId) fetchData(); }, [priestId]);
 
-    const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
+    const todayBookings = useMemo(() => {
+        return allAppointments.filter(b => {
+            if (!b.date) return false;
+            // Standardizing date format for parseISO
+            const cleanDate = b.date.includes('T') ? b.date.split('T')[0] : b.date;
+            return isToday(parseISO(cleanDate)) && b.status?.toUpperCase() !== 'REJECTED';
+        });
+    }, [allAppointments]);
+
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
+    
     const pendingRequests = useMemo(() => {
         const pBookings = allAppointments.filter(b => b.status?.toUpperCase() === 'PENDING').map(b => ({ ...b, type: 'BOOKING' }));
         const pMuhurtams = muhurtamRequests.filter(r => !r.viewed).map(r => ({ ...r, type: 'MUHURTAM' }));
@@ -124,6 +146,16 @@ const PriestDashboard = () => {
 
     const handleAction = async (actionType) => {
         if (!selectedRequest) return;
+        
+        // Expiration check only for Booking requests
+        if (selectedRequest.type === 'BOOKING') {
+            const requestDate = parseISO(selectedRequest.date);
+            if (isBefore(requestDate, startOfDay(new Date()))) {
+                toast.error("This ritual date has passed. Action no longer available.");
+                return;
+            }
+        }
+
         setIsActionLoading(true);
         try {
             if (selectedRequest.type === 'MUHURTAM') {
@@ -143,28 +175,37 @@ const PriestDashboard = () => {
         }
     };
 
-    const ActionCard = ({ item, isPending }) => (
-        <div className={`db-request-card ${item.type === 'MUHURTAM' ? 'muh-card' : 'app-card'}`}>
-            <div className="req-header">
-                <span className="req-badge">{item.type === 'MUHURTAM' ? 'Muhurtam Inquiry' : 'Booking Request'}</span>
-                {!isPending && <span className="status-pill status-accepted">Confirmed</span>}
-                <span className="req-id">REF: #{item.id}</span>
-            </div>
-            <div className="req-body">
-                <h4>{item.poojaType}</h4>
-                <div className="req-mini-grid">
-                    <div className="req-mini-item"><label>CLIENT</label><p>{item.customerName}</p></div>
-                    <div className="req-mini-item">
-                        <label>{item.type === 'MUHURTAM' ? 'NAKSHATRAM' : 'DATE'}</label>
-                        <p>{item.type === 'MUHURTAM' ? (item.nakshatram || 'N/A') : (item.date || 'TBD')}</p>
+    const ActionCard = ({ item, isPending }) => {
+        // Muhurtam requests never expire. Booking requests expire after the date.
+        const isExpired = item.type === 'BOOKING' && item.date && isBefore(parseISO(item.date), startOfDay(new Date()));
+
+        return (
+            <div className={`db-request-card ${item.type === 'MUHURTAM' ? 'muh-card' : 'app-card'} ${isExpired ? 'expired-gray' : ''}`}>
+                <div className="req-header">
+                    <span className="req-badge">{item.type === 'MUHURTAM' ? 'Muhurtam Inquiry' : 'Booking Request'}</span>
+                    {isExpired && <span className="status-pill status-expired">Expired</span>}
+                    {!isPending && !isExpired && <span className="status-pill status-accepted">Confirmed</span>}
+                    <span className="req-id">REF: #{item.id}</span>
+                </div>
+                <div className="req-body">
+                    <h4>{item.poojaType}</h4>
+                    <div className="req-mini-grid">
+                        <div className="req-mini-item"><label>CLIENT</label><p>{item.customerName}</p></div>
+                        <div className="req-mini-item">
+                            <label>{item.type === 'MUHURTAM' ? 'NAKSHATRAM' : 'DATE'}</label>
+                            <p>{item.type === 'MUHURTAM' ? (item.nakshatram || 'N/A') : (item.date || 'TBD')}</p>
+                        </div>
                     </div>
                 </div>
+                <button 
+                    className="req-details-trigger" 
+                    onClick={() => setSelectedRequest(item)}
+                >
+                    {(isPending && !isExpired) ? "View Details & Action" : "View Full Details"} <FaChevronRight />
+                </button>
             </div>
-            <button className="req-details-trigger" onClick={() => setSelectedRequest(item)}>
-                {isPending ? "View Details & Action" : "View Full Details"} <FaChevronRight />
-            </button>
-        </div>
-    );
+        );
+    };
 
     if (isLoading) return <div className="priest-loader">Synchronizing Divine Workspace...</div>;
 
@@ -212,19 +253,19 @@ const PriestDashboard = () => {
                             <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
                                 <FaCalendarDay className="db-tile-icon" />
                                 <h3>Availability</h3>
-                                <p>Set your working hours and dates.</p> {/* Add this line */}
+                                <p>Set your working hours and dates.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
                                 <FaPlus className="db-tile-icon" />
                                 <h3>Manual Booking</h3>
-                                <p>Add offline ritual appointments.</p> {/* Add this line */}
+                                <p>Add offline ritual appointments.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className={`db-tile db-charcoal ${activeView === 'stats' ? 'tile-active' : ''}`} onClick={() => handleTabChange('stats')}>
                                 <FaChartBar className="db-tile-icon" />
                                 <h3>Earnings</h3>
-                                <p>Track your revenue and insights.</p> {/* Add this line */}
+                                <p>Track your revenue and insights.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                         </div>
@@ -235,6 +276,11 @@ const PriestDashboard = () => {
                             </div>
 
                             <div className={`view-content-wrapper ${['today', 'upcoming', 'pending'].includes(activeView) ? 'grid-mode' : 'full-page-mode'}`}>
+                                {activeView === 'today' && (
+                                    todayBookings.length > 0 ?
+                                        todayBookings.map(item => <ActionCard key={item.id} item={item} isPending={false} />) :
+                                        <div className="empty-state">No ritual tasks for today.</div>
+                                )}
                                 {activeView === 'upcoming' && (
                                     upcomingBookings.length > 0 ?
                                         upcomingBookings.map(item => <ActionCard key={item.id} item={item} isPending={false} />) :
@@ -326,18 +372,25 @@ const PriestDashboard = () => {
                             </div>
                         </div>
                         <div className="req-overlay-footer">
-                            {selectedRequest.status?.toUpperCase() === 'PENDING' || !selectedRequest.status ? (
-                                selectedRequest.type === 'MUHURTAM' ? (
-                                    <button className="ov-btn view" onClick={() => handleAction('view')} disabled={isActionLoading}>Mark as Read & Archive</button>
-                                ) : (
-                                    <>
-                                        <button className="ov-btn reject" onClick={() => handleAction('reject')} disabled={isActionLoading}>Decline Booking</button>
-                                        <button className="ov-btn accept" onClick={() => handleAction('accept')} disabled={isActionLoading}>Accept & Confirm</button>
-                                    </>
-                                )
-                            ) : (
-                                <button className="ov-btn view" onClick={() => setSelectedRequest(null)}>Close View</button>
-                            )}
+                            {(() => {
+                                const isBooking = selectedRequest.type === 'BOOKING';
+                                const isExpired = isBooking && isBefore(parseISO(selectedRequest.date), startOfDay(new Date()));
+                                const isPending = selectedRequest.status?.toUpperCase() === 'PENDING' || !selectedRequest.status;
+
+                                if (isPending && !isExpired) {
+                                    if (selectedRequest.type === 'MUHURTAM') {
+                                        return <button className="ov-btn view" onClick={() => handleAction('view')} disabled={isActionLoading}>Mark as Read & Archive</button>;
+                                    } else {
+                                        return (
+                                            <>
+                                                <button className="ov-btn reject" onClick={() => handleAction('reject')} disabled={isActionLoading}>Decline Booking</button>
+                                                <button className="ov-btn accept" onClick={() => handleAction('accept')} disabled={isActionLoading}>Accept & Confirm</button>
+                                            </>
+                                        );
+                                    }
+                                }
+                                return <button className="ov-btn view" onClick={() => setSelectedRequest(null)}>Close View</button>;
+                            })()}
                         </div>
                     </div>
                 </div>
