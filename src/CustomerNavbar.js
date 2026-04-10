@@ -21,6 +21,9 @@ const CustomerNavbar = ({ onLogout }) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   
+  // Get User Details
+  const firstName = localStorage.getItem('firstName') || 'User';
+
   const [stats, setStats] = useState({ 
     ritual: { all: 0, upcoming: 0, accepted: 0, rejected: 0, pending: 0 }, 
     muhurtam: { all: 0, pending: 0, acknowledged: 0 } 
@@ -42,7 +45,6 @@ const CustomerNavbar = ({ onLogout }) => {
         ]);
 
         const todayStart = new Date().setHours(0, 0, 0, 0);
-
         const isPastDate = (dateStr) => {
             if (!dateStr) return false;
             return new Date(dateStr).setHours(0, 0, 0, 0) < todayStart;
@@ -87,7 +89,6 @@ const CustomerNavbar = ({ onLogout }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [isSidebarOpen, dropdownOpen]);
 
-  // Updated navigation helper to handle both filter and tab switching
   const handleNavigation = (path, filter = 'ALL', tab = 'bookings') => {
     navigate(`/${path}`, { state: { filter, tab } });
     setIsSidebarOpen(false);
@@ -123,6 +124,9 @@ const CustomerNavbar = ({ onLogout }) => {
           </div>
 
           <div className="nav-right">
+            {/* Added Namaste Greeting */}
+            <div className="nav-greeting-text">Namaste, <strong>{firstName}</strong></div>
+            
             <div 
               className="nav-profile-trigger" 
               onClick={() => setDropdownOpen(!dropdownOpen)} 
@@ -175,7 +179,6 @@ const CustomerNavbar = ({ onLogout }) => {
 
           {bookingExpanded && (
             <div className="sidebar-v2-nested">
-              {/* RITUALS SECTION */}
               <div className="nested-group">
                 <div className="nested-title"><FaCalendarCheck /> Ritual Bookings</div>
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'ALL', 'bookings')}>
@@ -195,7 +198,6 @@ const CustomerNavbar = ({ onLogout }) => {
                 </div>
               </div>
 
-              {/* MUHURTAMS SECTION - Notice the 'requests' tab parameter */}
               <div className="nested-group">
                 <div className="nested-title"><FaClock /> Muhurtam Requests</div>
                 <div className="nested-item" onClick={() => handleNavigation('your-bookings', 'MUHURTAM', 'requests')}>
