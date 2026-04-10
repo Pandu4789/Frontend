@@ -1,4 +1,3 @@
-// Filename: AppointmentModal.js
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -16,16 +15,17 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
         phone: '',
         address: '',
         note: '',
-        eventId: '', // store the event ID here
+        eventId: '',
         date: null,
     });
 
     const [selectedTime, setSelectedTime] = useState('');
     const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
     const [events, setEvents] = useState([]);
+    const [errors, setErrors] = useState([]); // Track which fields should shake
     const modalRef = useRef();
 
-   useEffect(() => {
+    useEffect(() => {
         if (formData.date && priest?.id) {
             const dateString = format(formData.date, 'yyyy-MM-dd');
             const fetchSlots = async () => {
@@ -35,15 +35,12 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
                     const response = await axios.get(`${API_BASE}/api/availability/priest/${priest.id}/date/${dateString}`);
                     setAvailableTimeSlots(response.data || []);
                 } catch (error) {
-                    toast.error("Could not fetch time slots for this date.");
+                    toast.error("Could not fetch time slots.");
                 }
             };
             fetchSlots();
-        } else {
-            setAvailableTimeSlots([]);
         }
     }, [formData.date, priest]);
-
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -57,67 +54,47 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
         fetchEvents();
     }, []);
 
-
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === 'Escape') onClose();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [onClose]);
-
-    const handleClickOutside = (event) => {
-        if (modalRef.current && !modalRef.current.contains(event.target)) {
-            onClose();
-        }
-    };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Remove error highlight when user starts typing
+        setErrors(prev => prev.filter(err => err !== name));
     };
 
-    const handleDateChange = (date) => {
-        setFormData(prev => ({ ...prev, date: date }));
+    const validateForm = () => {
+        const newErrors = [];
+        if (!formData.eventId) newErrors.push('eventId');
+        if (!formData.date) newErrors.push('date');
+        if (!selectedTime) newErrors.push('time');
+        if (!formData.name) newErrors.push('name');
+        if (!formData.phone) newErrors.push('phone');
+        if (!formData.address) newErrors.push('address');
+
+        setErrors(newErrors);
+        
+        if (newErrors.length > 0) {
+            // Clear errors after animation plays (0.5s)
+            setTimeout(() => setErrors([]), 500);
+            return false;
+        }
+        return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
 
         const priestId = localStorage.getItem('userId');
-        if (!priestId) {
-            toast.error("Priest ID not found.");
-            return;
-        }
-
-        if (!formData.date || !selectedTime) {
-            toast.error("Please select a date and time for the appointment.");
-            return;
-        }
-
-        const selectedEvent = events.find(event => event.id === parseInt(formData.eventId));
-        const eventName = selectedEvent ? selectedEvent.name : '';
-
-        if (!eventName) {
-            toast.error("Please select a valid event.");
-            return;
-        }
         const startTimeObject = parse(selectedTime, 'HH:mm', new Date());
         const endTimeString = format(addHours(startTimeObject, 1), 'HH:mm');
 
         const payload = {
-            name: formData.name,
-            phone: formData.phone,
-            address: formData.address,
-            note: formData.note,
-            eventId: formData.eventId, // actual string name
+            ...formData,
             date: format(formData.date, 'yyyy-MM-dd'),
             start: selectedTime,
             end: endTimeString,
             priestId: parseInt(priestId)
         };
-
-        console.log("Sending appointment payload:", payload);
 
         try {
             await axios.post(`${API_BASE}/api/appointments/priest/${priestId}`, payload);
@@ -126,95 +103,94 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
             onClose();
         } catch (error) {
             toast.error("Failed to create appointment.");
-            console.error("Create appointment error:", error);
         }
     };
 
     return (
-        <div className="modal-overlay" onMouseDown={handleClickOutside}>
+        <div className="modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
             <div className="modal-content" ref={modalRef}>
                 <div className="modal-header">
-                    <h2>Book Appointment with {priest?.firstName || 'Priest'}</h2>
+                    <h2>Book Appointment</h2>
                     <button className="close-button" onClick={onClose}><FaTimes /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="appointment-form">
-                    {/* Event Selection */}
                     <div className="form-section">
                         <h3>Select Event</h3>
                         <div className="form-group">
-                            <label>Event Name:</label>
-                            <select name="eventId" value={formData.eventId} onChange={handleChange} required>
+                            <select 
+                                name="eventId" 
+                                value={formData.eventId} 
+                                onChange={handleChange} 
+                                className={errors.includes('eventId') ? 'error-shaking' : ''}
+                            >
                                 <option value="">-- Select Event --</option>
-                                {events.map(event => (
-                                    <option key={event.id} value={event.id}>{event.name}</option>
-                                ))}
+                                {events.map(event => <option key={event.id} value={event.id}>{event.name}</option>)}
                             </select>
                         </div>
                     </div>
 
-                    {/* Date & Time Selection */}
                     <div className="form-section">
-                        <h3>Select Date & Time</h3>
+                        <h3>Date & Time</h3>
                         <div className="form-group">
-                            <label>Appointment Date:</label>
-                            <DatePicker
-                                selected={formData.date}
-                                onChange={handleDateChange}
-                                dateFormat="MMMM d, yyyy"
-                                minDate={new Date()}
-                                placeholderText="Select an available date"
-                                className="datepicker-input"
-                            />
+                            <div className={errors.includes('date') ? 'error-shaking' : ''}>
+                                <DatePicker
+                                    selected={formData.date}
+                                    onChange={(date) => {
+                                        setFormData(prev => ({ ...prev, date }));
+                                        setErrors(prev => prev.filter(err => err !== 'date'));
+                                    }}
+                                    dateFormat="MMMM d, yyyy"
+                                    minDate={new Date()}
+                                    placeholderText="Select date"
+                                    className="datepicker-input"
+                                />
+                            </div>
                         </div>
 
-                        {formData.date && (
-                            <div className="time-slot-selection">
-                                {availableTimeSlots.length > 0 ? (
-                                    <>
-                                        <label>Available Time Slots:</label>
-                                        <div className="time-slot-grid">
-                                            {availableTimeSlots.map(slot => (
-                                                <button
-                                                    type="button"
-                                                    key={slot}
-                                                    className={`time-slot-button ${selectedTime === slot ? 'selected' : ''}`}
-                                                    onClick={() => setSelectedTime(slot)}
-                                                >
-                                                    {format(parse(slot, 'HH:mm', new Date()), 'h:mm a')}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-slots-message">No available slots for this date.</p>
-                                )}
-                            </div>
-                        )}
+                        <div className={`time-slot-grid ${errors.includes('time') ? 'error-shaking' : ''}`}>
+                            {availableTimeSlots.map(slot => (
+                                <button
+                                    type="button"
+                                    key={slot}
+                                    className={`time-slot-button ${selectedTime === slot ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        setSelectedTime(slot);
+                                        setErrors(prev => prev.filter(err => err !== 'time'));
+                                    }}
+                                >
+                                    {format(parse(slot, 'HH:mm', new Date()), 'h:mm a')}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Customer Details */}
                     <div className="form-section">
                         <h3>Customer Details</h3>
                         <div className="form-grid">
-                            <div className="form-group">
-                                <label>Customer Full Name</label>
-                                <input name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" required />
-                            </div>
-                            <div className="form-group">
-                                <label>Phone Number</label>
-                                <input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="Phone Number" required />
-                            </div>
+                            <input 
+                                name="name" 
+                                value={formData.name} 
+                                onChange={handleChange} 
+                                placeholder="Full Name" 
+                                className={errors.includes('name') ? 'error-shaking' : ''}
+                            />
+                            <input 
+                                name="phone" 
+                                value={formData.phone} 
+                                onChange={handleChange} 
+                                placeholder="Phone" 
+                                className={errors.includes('phone') ? 'error-shaking' : ''}
+                            />
                         </div>
-
-                        <div className="form-group">
-                            <label>Full Address</label>
-                            <textarea name="address" value={formData.address} onChange={handleChange} placeholder="Enter Full Address" required rows="3" />
-                        </div>
-                        <div className="form-group">
-                            <label>Additional Notes (optional)</label>
-                            <textarea name="note" value={formData.note} onChange={handleChange} placeholder="Any special requests or details..." rows="3" />
-                        </div>
+                        <textarea 
+                            name="address" 
+                            value={formData.address} 
+                            onChange={handleChange} 
+                            placeholder="Full Address" 
+                            className={errors.includes('address') ? 'error-shaking' : ''}
+                            rows="2" 
+                        />
                     </div>
 
                     <div className="modal-actions">
