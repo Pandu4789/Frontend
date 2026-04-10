@@ -39,13 +39,12 @@
     display: grid;
     grid-template-columns: 320px 1fr 320px; 
     gap: 30px;
-    align-items: start; /* Essential for sticky to work correctly */
+    align-items: start;
 }
 
-/* Sidebars stay fixed while middle scrolls */
 .db-sticky-sidebar {
     position: sticky;
-    top: 90px; /* Lock position below the global navbar */
+    top: 90px; 
     max-height: calc(100vh - 120px);
     display: flex;
     flex-direction: column;
@@ -112,18 +111,20 @@
     border: 1px solid #fce8d5;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     width: 100%;
-    margin-bottom: 25px; /* Adds the vertical gap between cards */
-
+    margin-bottom: 35px; /* Spacing between cards in requests */
+    box-sizing: border-box;
 }
+
 .db-column.center-col {
     min-width: 0;
 }
+
 .db-ritual-card:hover, .db-request-card:hover { 
-    transform: translateY(-10px) scale(1.03); /* Lifts up and enlarges slightly */
+    transform: translateY(-10px) scale(1.03); 
     border-color: #e65100; 
     background: white; 
-    box-shadow: 0 20px 40px rgba(230, 81, 0, 0.15); /* Adds a soft orange glow */
-    z-index: 10; /* Ensures the enlarged box stays on top of others */
+    box-shadow: 0 20px 40px rgba(230, 81, 0, 0.15); 
+    z-index: 10; 
 }
 
 .muh-card { border-left: 5px solid #3b82f6; }
@@ -137,7 +138,7 @@
 .status-pending { background: #f59e0b; }
 .req-badge { background: #fff3e0; color: #e65100; }
 
-.db-card-body-grid, .req-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.db-card-body-grid, .req-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
 .db-info-item label, .req-mini-item label { font-size: 0.6rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 3px; text-transform: uppercase; }
 .db-info-item p, .req-mini-item p { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; margin: 0; }
 
@@ -154,13 +155,13 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 15px;
-    transition: all 0.3s ease; /* Smooth hover transition */
+    transition: all 0.3s ease; 
 }
 .req-details-trigger:hover {
     background: #e65100;
     color: #fff;
-    transform: translateY(-2px); /* Lifts up slightly */
-    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2); /* Glow effect */
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 20px rgba(230, 81, 0, 0.2); 
 }
 
 /* --- DETAILS OVERLAY (Premium Logic) --- */
@@ -189,23 +190,25 @@
 .ov-item { display: flex; align-items: center; gap: 10px; color: #64748b; font-weight: 600; font-size: 0.9rem; }
 
 .ov-details-box { background: #f8fafc; border-radius: 25px; padding: 25px; border: 1px solid #e2e8f0; }
+
+/* FIX: Spacing for address/details in popup */
 .ov-detail-row { 
     display: flex; 
     justify-content: space-between; 
-    align-items: flex-start; /* Keeps label at top if text wraps */
-    gap: 20px;               /* Adds the horizontal gap you requested */
-    margin-bottom: 12px; 
+    align-items: flex-start; 
+    gap: 40px;               
+    margin-bottom: 15px; 
     border-bottom: 1px solid #f1f5f9; 
-    padding-bottom: 8px; 
+    padding-bottom: 10px; 
 }
 .ov-detail-row:last-child { border: none; }
-.ov-detail-row label { color: #94a3b8; font-weight: 700; font-size: 0.8rem; }
+.ov-detail-row label { color: #94a3b8; font-weight: 700; font-size: 0.8rem; min-width: 100px; }
 .ov-detail-row strong { 
     color: #1a1a1a; 
     font-weight: 800; 
-    text-align: right;       /* Aligns address text to the right */
-    max-width: 65%;          /* Prevents long addresses from squashing the label */
-    word-break: break-word;  /* Ensures long addresses don't overflow */
+    text-align: right;       
+    flex: 1;
+    word-break: break-word;  
 }
 .ov-notes { margin-top: 20px; padding-top: 15px; border-top: 2px dashed #e2e8f0; }
 .ov-notes label { display: block; font-weight: 800; font-size: 0.75rem; margin-bottom: 5px; color: #e65100; }
@@ -273,6 +276,12 @@
 .mini-link-box input { flex: 1; border: none; background: none; padding: 12px; font-size: 0.75rem; color: #64748b; }
 .mini-link-box button { background: #e65100; color: white; border: none; padding: 12px 18px; cursor: pointer; }
 
+/* Green tick for copied link */
+.mini-link-box button.copied {
+    background: #10b981 !important; 
+    color: white;
+}
+
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes slideIn { from { transform: translateY(50px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -283,8 +292,4 @@
     .db-grid-layout { grid-template-columns: 1fr; margin-top: -40px; }
     .db-sticky-sidebar { position: static; max-height: none; }
     .view-content-wrapper.grid-mode { grid-template-columns: 1fr; }
-}
-.mini-link-box button.copied {
-    background: #10b981 !important; 
-    color: white;
 }

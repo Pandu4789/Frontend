@@ -105,7 +105,7 @@ const KnowledgeBase = ({ onSave }) => {
             <div className="kb-view-header">
                 <div className="kb-header-title">
                     <FaStickyNote className="txt-orange" />
-                    <h3>Sacred Knowledge Base</h3>
+                    <h3>Sacred Notes</h3>
                 </div>
                 <div className="kb-view-actions">
                     {isEditMode ? (

@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format, isToday, isAfter, startOfDay, parseISO } from 'date-fns';
-import CountUp from 'react-countup';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import {
-    FaCalendarCheck, FaCalendarAlt, FaBell, FaPlus, FaStickyNote,
-    FaChartBar, FaUserClock, FaRegCalendarAlt, FaListAlt, FaChevronRight, 
-    FaCalendarDay, FaBullhorn, FaCopy, FaEye, FaStar, FaOm, FaClock, 
-    FaDharmachakra, FaEdit, FaCheck, FaTimes, FaInfoCircle, FaMapMarkerAlt,
-    FaUserTie, FaPhoneAlt, FaEnvelope
+    FaCalendarAlt, FaBell, FaPlus, FaStickyNote,
+    FaChartBar, FaRegCalendarAlt, FaChevronRight, 
+    FaCalendarDay, FaBullhorn, FaCopy, FaStar, FaOm, 
+    FaEdit, FaTimes, FaMapMarkerAlt, FaUserTie, FaPhoneAlt, 
+    FaEnvelope, FaCheck, FaDharmachakra
 } from 'react-icons/fa';
 
 import './Dashboard.css';
@@ -30,13 +29,12 @@ const formatTime12Hour = (timeString) => {
   return `${String(formattedHours).padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
-// --- Standard Ritual Card for Today/Upcoming ---
 const DashboardCard = ({ item }) => (
     <div className="db-ritual-card">
         <div className="db-card-main">
             <div className="db-card-header">
                 <h4>{item.poojaType}</h4>
-                <span className={`status-pill status-${item.status?.toLowerCase()}`}>{item.status}</span>
+                <span className={`status-pill status-accepted`}>Confirmed</span>
             </div>
             <div className="db-card-body-grid">
                 <div className="db-info-item"><label>CLIENT</label><p>{item.customerName}</p></div>
@@ -67,7 +65,6 @@ const PriestDashboard = () => {
     const [templeEvents, setTempleEvents] = useState([]);
     const [knowledgeBaseContent, setKnowledgeBaseContent] = useState('');
 
-    // Overlay State
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [isActionLoading, setIsActionLoading] = useState(false);
 
@@ -99,9 +96,7 @@ const PriestDashboard = () => {
         }
     };
 
-    useEffect(() => {
-        if(priestId) fetchData();
-    }, [priestId]);
+    useEffect(() => { if(priestId) fetchData(); }, [priestId]);
 
     const todayBookings = useMemo(() => allAppointments.filter(b => b.date && isToday(parseISO(b.date)) && b.status?.toUpperCase() !== 'REJECTED'), [allAppointments]);
     const upcomingBookings = useMemo(() => allAppointments.filter(b => b.date && isAfter(parseISO(b.date), startOfDay(new Date())) && (b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED')), [allAppointments]);
@@ -112,10 +107,10 @@ const PriestDashboard = () => {
     }, [allAppointments, muhurtamRequests]);
 
    const handleCopy = () => {
-    navigator.clipboard.writeText(profileUrl);
-    setCopySuccess(true); 
-    setTimeout(() => setCopySuccess(false), 2000);
-};
+        navigator.clipboard.writeText(profileUrl);
+        setCopySuccess(true); 
+        setTimeout(() => setCopySuccess(false), 2000);
+    };
 
     const handleTabChange = (view) => {
         setActiveView(view);
@@ -148,6 +143,29 @@ const PriestDashboard = () => {
         }
     };
 
+    const ActionCard = ({ item, isPending }) => (
+        <div className={`db-request-card ${item.type === 'MUHURTAM' ? 'muh-card' : 'app-card'}`}>
+            <div className="req-header">
+                <span className="req-badge">{item.type === 'MUHURTAM' ? 'Muhurtam Inquiry' : 'Booking Request'}</span>
+                {!isPending && <span className="status-pill status-accepted">Confirmed</span>}
+                <span className="req-id">REF: #{item.id}</span>
+            </div>
+            <div className="req-body">
+                <h4>{item.poojaType}</h4>
+                <div className="req-mini-grid">
+                    <div className="req-mini-item"><label>CLIENT</label><p>{item.customerName}</p></div>
+                    <div className="req-mini-item">
+                        <label>{item.type === 'MUHURTAM' ? 'NAKSHATRAM' : 'DATE'}</label>
+                        <p>{item.type === 'MUHURTAM' ? (item.nakshatram || 'N/A') : (item.date || 'TBD')}</p>
+                    </div>
+                </div>
+            </div>
+            <button className="req-details-trigger" onClick={() => setSelectedRequest(item)}>
+                {isPending ? "View Details & Action" : "View Full Details"} <FaChevronRight />
+            </button>
+        </div>
+    );
+
     if (isLoading) return <div className="priest-loader">Synchronizing Divine Workspace...</div>;
 
     return (
@@ -163,8 +181,6 @@ const PriestDashboard = () => {
 
             <div className="db-main-container">
                 <div className="db-grid-layout">
-                    
-                    {/* LEFT COLUMN: STICKY */}
                     <aside className="db-column db-sticky-sidebar">
                         <div className="db-content-card">
                             <div className="db-card-head"><FaChartBar /> <h2>Performance</h2></div>
@@ -191,25 +207,21 @@ const PriestDashboard = () => {
                         </div>
                     </aside>
 
-                    {/* CENTER COLUMN */}
                     <main className="db-column center-col">
                         <div className="db-tile-row">
                             <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
                                 <FaCalendarDay className="db-tile-icon" />
                                 <h3>Availability</h3>
-                                <p>Manage schedule.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
                                 <FaPlus className="db-tile-icon" />
                                 <h3>Manual Booking</h3>
-                                <p>Record ritual.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                             <div className={`db-tile db-charcoal ${activeView === 'stats' ? 'tile-active' : ''}`} onClick={() => handleTabChange('stats')}>
                                 <FaChartBar className="db-tile-icon" />
                                 <h3>Earnings</h3>
-                                <p>Insights.</p>
                                 <FaChevronRight className="db-tile-go" />
                             </div>
                         </div>
@@ -219,47 +231,22 @@ const PriestDashboard = () => {
                                 <h2>{activeView.replace('-', ' ').toUpperCase()} VIEW</h2>
                             </div>
                             
-                            <div className={`view-content-wrapper ${['stats', 'events', 'knowledge', 'pending'].includes(activeView) ? 'full-page-mode' : 'grid-mode'}`}>
-                                {activeView === 'today' && (
-                                    todayBookings.length > 0 ? 
-                                    todayBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
-                                    <div className="empty-state">No ritual tasks for today.</div>
-                                )}
+                            <div className={`view-content-wrapper ${['today', 'upcoming', 'pending'].includes(activeView) ? 'grid-mode' : 'full-page-mode'}`}>
                                 {activeView === 'upcoming' && (
                                     upcomingBookings.length > 0 ? 
-                                    upcomingBookings.map(item => <DashboardCard key={item.id} item={item} />) : 
+                                    upcomingBookings.map(item => <ActionCard key={item.id} item={item} isPending={false} />) : 
                                     <div className="empty-state">No future bookings confirmed.</div>
                                 )}
                                 {activeView === 'pending' && (
                                     pendingRequests.length > 0 ? 
-                                    pendingRequests.map(item => (
-                                        <div key={`${item.type}-${item.id}`} className={`db-request-card ${item.type === 'MUHURTAM' ? 'muh-card' : 'app-card'}`}>
-                                            <div className="req-header">
-                                                <span className="req-badge">{item.type === 'MUHURTAM' ? 'Muhurtam Inquiry' : 'Booking Request'}</span>
-                                                <span className="req-id">REF: #{item.id}</span>
-                                            </div>
-                                            <div className="req-body">
-                                                <h4>{item.poojaType}</h4>
-                                                <div className="req-mini-grid">
-                                                    <div className="req-mini-item"><label>CLIENT</label><p>{item.customerName}</p></div>
-                                                    <div className="req-mini-item">
-                                                        <label>{item.type === 'MUHURTAM' ? 'NAKSHATRAM' : 'DATE'}</label>
-                                                        <p>{item.type === 'MUHURTAM' ? (item.nakshatram || 'N/A') : (item.date || 'TBD')}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button className="req-details-trigger" onClick={() => setSelectedRequest(item)}>
-                                                View Details & Action <FaChevronRight />
-                                            </button>
-                                        </div>
-                                    )) : 
+                                    pendingRequests.map(item => <ActionCard key={`${item.type}-${item.id}`} item={item} isPending={true} />) : 
                                     <div className="empty-state">Action center is clear.</div>
                                 )}
                                 
-                                {activeView === 'stats' && <PoojaStatsPage stats={stats} />}
-                                {activeView === 'events' && <ManageEventsPage events={templeEvents} />}
+                                {activeView === 'stats' && <div className="full-width-view"><PoojaStatsPage stats={stats} /></div>}
+                                {activeView === 'events' && <div className="full-width-view"><ManageEventsPage events={templeEvents} /></div>}
                                 {activeView === 'knowledge' && (
-                                    <div className="rich-editor-container">
+                                    <div className="full-width-view rich-editor-container">
                                         <div className="editor-header-hint"><FaEdit /> Digital Mantra Bank</div>
                                         <KnowledgeBase content={knowledgeBaseContent} onSave={() => fetchData()} priestId={priestId}/>
                                     </div>
@@ -268,7 +255,6 @@ const PriestDashboard = () => {
                         </div>
                     </main>
 
-                    {/* RIGHT COLUMN: STICKY PANCHANG */}
                     <aside className="db-column db-sticky-sidebar">
                         <div className="db-panchang-card">
                             <div className="db-p-header">
@@ -292,8 +278,8 @@ const PriestDashboard = () => {
                         </div>
 
                         <div className="db-content-card action-list">
-                            <div className="db-card-head"><FaDharmachakra /> <h2>Tools</h2></div>
-                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Full Calendar</button>
+                            <div className="db-card-head"><FaDharmachakra /> <h2>Shortcuts</h2></div>
+                            <button className={`s-link ${activeView === 'upcoming' ? 's-active' : ''}`} onClick={() => handleTabChange('upcoming')}><FaRegCalendarAlt /> Upcoming Bookings</button>
                             <button className={`s-link ${activeView === 'events' ? 's-active' : ''}`} onClick={() => handleTabChange('events')}><FaBullhorn /> Manage Events</button>
                             <button className={`s-link ${activeView === 'knowledge' ? 's-active' : ''}`} onClick={() => handleTabChange('knowledge')}><FaStickyNote /> Mantra Notes</button>
                         </div>
@@ -301,7 +287,6 @@ const PriestDashboard = () => {
                 </div>
             </div>
 
-            {/* --- REQUEST DETAILS OVERLAY --- */}
             {selectedRequest && (
                 <div className="req-overlay" onClick={() => setSelectedRequest(null)}>
                     <div className="req-overlay-content" onClick={e => e.stopPropagation()}>
@@ -309,17 +294,14 @@ const PriestDashboard = () => {
                             <div className="req-type-pill">{selectedRequest.type}</div>
                             <button className="close-overlay" onClick={() => setSelectedRequest(null)}><FaTimes /></button>
                         </div>
-                        
                         <div className="req-overlay-body">
                             <span className="ov-label">RITUAL REQUEST</span>
                             <h2 className="ov-title">{selectedRequest.poojaType}</h2>
-                            
                             <div className="ov-section">
                                 <div className="ov-item"><FaUserTie /> <span>{selectedRequest.customerName}</span></div>
                                 <div className="ov-item"><FaPhoneAlt /> <span>{selectedRequest.contact || 'N/A'}</span></div>
                                 <div className="ov-item"><FaEnvelope /> <span>{selectedRequest.email || 'N/A'}</span></div>
                             </div>
-
                             <div className="ov-details-box">
                                 {selectedRequest.type === 'MUHURTAM' ? (
                                     <>
@@ -336,22 +318,22 @@ const PriestDashboard = () => {
                                     </>
                                 )}
                                 {selectedRequest.note && (
-                                    <div className="ov-notes">
-                                        <label>Special Instructions:</label>
-                                        <p>{selectedRequest.note}</p>
-                                    </div>
+                                    <div className="ov-notes"><label>Special Instructions:</label><p>{selectedRequest.note}</p></div>
                                 )}
                             </div>
                         </div>
-
                         <div className="req-overlay-footer">
-                            {selectedRequest.type === 'MUHURTAM' ? (
-                                <button className="ov-btn view" onClick={() => handleAction('view')} disabled={isActionLoading}>Mark as Read & Archive</button>
+                            {selectedRequest.status?.toUpperCase() === 'PENDING' || !selectedRequest.status ? (
+                                selectedRequest.type === 'MUHURTAM' ? (
+                                    <button className="ov-btn view" onClick={() => handleAction('view')} disabled={isActionLoading}>Mark as Read & Archive</button>
+                                ) : (
+                                    <>
+                                        <button className="ov-btn reject" onClick={() => handleAction('reject')} disabled={isActionLoading}>Decline Booking</button>
+                                        <button className="ov-btn accept" onClick={() => handleAction('accept')} disabled={isActionLoading}>Accept & Confirm</button>
+                                    </>
+                                )
                             ) : (
-                                <>
-                                    <button className="ov-btn reject" onClick={() => handleAction('reject')} disabled={isActionLoading}>Decline Booking</button>
-                                    <button className="ov-btn accept" onClick={() => handleAction('accept')} disabled={isActionLoading}>Accept & Confirm</button>
-                                </>
+                                <button className="ov-btn view" onClick={() => setSelectedRequest(null)}>Close View</button>
                             )}
                         </div>
                     </div>
