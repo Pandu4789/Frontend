@@ -45,18 +45,17 @@
     transition: 0.3s;
 }
 
-/* --- MAIN LAYOUT --- */
+/* --- MAIN LAYOUT (STACKED FOR FULL WIDTH) --- */
 .availability-manager-component {
     max-width: 1200px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    display: flex;
+    flex-direction: column; /* CALENDAR TOP, SLOTS BOTTOM */
     gap: 30px;
 }
 
 .am-dashboard-widget .availability-manager-component {
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 25px;
 }
 
 /* --- CALENDAR CARD --- */
@@ -66,6 +65,7 @@
     border-radius: 30px;
     border: 1px solid #f2f2f2;
     box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+    width: 100%;
 }
 
 .am-calendar-header {
@@ -74,42 +74,35 @@
     align-items: center;
     margin-bottom: 25px;
     background: #fffaf5;
-    padding: 12px 20px;
+    padding: 12px 25px;
     border-radius: 15px;
     border: 1px solid #fce8d5;
 }
 
-.am-calendar-header span { font-weight: 800; font-size: 1.2rem; color: #e65100; }
+.am-calendar-header span { font-weight: 800; font-size: 1.3rem; color: #e65100; }
 
 .am-calendar-header button {
     background: #ffffff; border: 1px solid #fce8d5;
-    color: #e65100; width: 38px; height: 38px;
+    color: #e65100; width: 42px; height: 42px;
     border-radius: 10px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
 }
 
 .am-calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-}
-
-.am-day-name {
-    text-align: center; font-weight: 800; color: #94a3b8;
-    font-size: 0.7rem; text-transform: uppercase; padding-bottom: 10px;
+    gap: 10px;
 }
 
 .am-day-cell {
-    aspect-ratio: 1; display: flex; align-items: center;
-    justify-content: center; border-radius: 12px;
+    aspect-ratio: 1; 
+    display: flex; align-items: center;
+    justify-content: center; border-radius: 15px;
     cursor: pointer; font-weight: 600; transition: 0.2s;
     background: #f8fafc; border: 1px solid transparent;
 }
 
-/* Other Month States - Gray and Pale */
-.am-day-cell.other-month {
-    color: #cbd5e1;
-    background: #fcfdfe;
-}
+.am-day-cell.other-month { color: #cbd5e1; background: #fcfdfe; }
 
 .am-day-cell:hover:not(.past-day) {
     background: #fffaf5;
@@ -133,38 +126,116 @@
 /* --- SLOTS PANEL --- */
 .am-timeslot-panel {
     background: #ffffff !important;
-    padding: 30px;
-    border-radius: 30px;
+    padding: 35px;
+    border-radius: 35px;
     border: 1px solid #f2f2f2;
     box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+    width: 100%;
 }
 
 .am-edit-template-btn {
     width: 100%; background: #1e293b; color: white;
-    padding: 14px; border-radius: 15px; font-weight: 700;
-    border: none; margin-bottom: 20px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px; border-radius: 18px; font-weight: 700;
+    border: none; margin-bottom: 25px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-size: 1rem;
 }
 
+/* WORKDAY SETTINGS GRID (FIXED COLLAPSE) */
 .template-settings {
-    background: #fffaf5; border: 1px solid #fce8d5;
-    padding: 20px; border-radius: 20px; margin-bottom: 20px;
+    background: #fffaf5; 
+    border: 1px solid #fce8d5;
+    padding: 25px; 
+    border-radius: 25px; 
+    margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.time-select-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.time-select-group label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.time-select-group select {
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.break-settings {
+    grid-column: span 2;
+    margin-top: 10px;
+}
+
+.break-settings label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.break-slots-grid {
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
+    gap: 10px;
+}
+
+.break-slot-btn {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.break-slot-btn.is-break {
+    background: #e65100;
+    color: white;
+    border-color: #e65100;
 }
 
 .am-apply-template-btn {
+    grid-column: span 2;
     background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%);
-    color: white; width: 100%; padding: 14px; border-radius: 12px;
-    border: none; font-weight: 800; font-size: 1rem; cursor: pointer;
-    margin-top: 10px; box-shadow: 0 10px 20px rgba(230, 81, 0, 0.15);
+    color: white; 
+    width: 100%; 
+    padding: 16px; 
+    border-radius: 15px;
+    border: none; 
+    font-weight: 800; 
+    font-size: 1rem; 
+    cursor: pointer;
+    margin-top: 10px; 
+    box-shadow: 0 10px 20px rgba(230, 81, 0, 0.15);
 }
 
+/* --- TIME SLOT GRID --- */
 .am-timeslot-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 10px;
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+    gap: 12px;
 }
 
 .am-slot-btn {
-    padding: 12px; border-radius: 12px; font-weight: 800;
-    font-size: 0.8rem; cursor: pointer; border: 2px solid transparent;
+    padding: 15px; border-radius: 15px; font-weight: 800;
+    font-size: 0.9rem; cursor: pointer; border: 2px solid transparent;
     transition: 0.2s; text-align: center;
 }
 
@@ -172,18 +243,28 @@
 .am-slot-btn.status-unavailable { background: #fff1f2; color: #be123c; border-color: #ffe4e6; text-decoration: line-through; }
 .am-slot-btn.status-booked { background: #eff6ff; color: #1d4ed8; border-color: #dbeafe; opacity: 0.8; cursor: not-allowed; }
 
-/* --- SAVE ACTIONS --- */
-.am-save-actions {
-    background: #1e293b; color: white; padding: 15px;
-    border-radius: 15px; margin-bottom: 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 0.85rem; font-weight: 600;
+/* --- INFO PANEL HEADER --- */
+.am-panel-header-info {
+    margin-bottom: 25px;
+    border-left: 5px solid #e65100;
+    padding: 5px 20px;
 }
 
-.am-save-btn { background: #10b981; color: white; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
-.am-cancel-btn { background: rgba(255,255,255,0.1); color: white; padding: 8px 16px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; }
+.am-panel-subtitle { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin: 0; }
+.am-panel-title-date { font-size: 1.6rem; font-weight: 900; color: #1a1a1a; margin: 5px 0 0; }
 
-/* --- POPUP --- */
+/* --- SAVE ACTIONS --- */
+.am-save-actions {
+    background: #1e293b; color: white; padding: 20px;
+    border-radius: 20px; margin-bottom: 25px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.am-save-btn { background: #10b981; color: white; padding: 10px 25px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
+.am-cancel-btn { background: rgba(255,255,255,0.1); color: white; padding: 10px 25px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; }
+
+/* --- POPUP MODAL --- */
 .am-modal-backdrop {
     position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px); z-index: 5000;
@@ -191,8 +272,9 @@
 }
 
 .am-modal-content {
-    background: #ffffff !important; padding: 35px; border-radius: 30px;
-    width: 90%; max-width: 400px; text-align: center;
+    background: #ffffff !important; padding: 40px; border-radius: 35px;
+    width: 95%; max-width: 450px; text-align: center;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
 }
 
 /* --- SHAKE ERROR --- */
@@ -208,7 +290,7 @@
     40%, 60% { transform: translate3d(3px, 0, 0); }
 }
 
-@media (max-width: 992px) {
-    .availability-manager-component,
-    .am-dashboard-widget .availability-manager-component { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+    .template-settings { grid-template-columns: 1fr; }
+    .am-save-actions { flex-direction: column; gap: 15px; text-align: center; }
 }

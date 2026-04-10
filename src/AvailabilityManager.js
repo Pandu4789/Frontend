@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     format, addMonths, subMonths, startOfMonth, endOfMonth, 
@@ -15,6 +15,7 @@ import './AvailabilityManager.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
+// --- Helper Functions ---
 const generateTimeSlots = () => {
     const slots = {};
     for (let i = 3; i <= 23; i++) { 
@@ -25,6 +26,7 @@ const generateTimeSlots = () => {
 };
 const allPossibleSlots = Object.keys(generateTimeSlots());
 
+// --- Solid Confirmation Modal ---
 const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
     <div className="am-modal-backdrop">
         <div className="am-modal-content">
@@ -48,6 +50,9 @@ const AvailabilityManager = ({ activeView }) => {
     const [availability, setAvailability] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isShaking, setIsShaking] = useState(false);
+
+    // REF for Auto-Scroll
+    const timeSlotsRef = useRef(null);
 
     const refreshAvailability = async () => {
         const priestId = localStorage.getItem('userId');
@@ -95,6 +100,7 @@ const AvailabilityManager = ({ activeView }) => {
 
     useEffect(() => { refreshAvailability(); }, []);
 
+    // --- Sub-components ---
     const CalendarHeader = () => (
         <div className="am-calendar-header">
             <button onClick={() => setCurrentDate(subMonths(currentDate, 1))}><FaChevronLeft /></button>
@@ -115,11 +121,15 @@ const AvailabilityManager = ({ activeView }) => {
             const isPast = isBefore(day, today);
             if (isPast) return;
 
-            // Navigation Logic: If user clicks a grayed out date from prev/next month
             if (!isSameMonth(day, monthStart)) {
                 setCurrentDate(startOfMonth(day));
             }
             setSelectedDate(day);
+
+            // AUTO SCROLL LOGIC
+            if (timeSlotsRef.current) {
+                timeSlotsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         };
 
         return (
@@ -205,7 +215,7 @@ const AvailabilityManager = ({ activeView }) => {
         const slots = draftSlots || originalSlots;
 
         return (
-            <div className={`am-timeslot-panel ${isShaking ? 'error-shaking' : ''}`}>
+            <div ref={timeSlotsRef} className={`am-timeslot-panel ${isShaking ? 'error-shaking' : ''}`}>
                 {overrideSlot && (
                     <ConfirmationModal 
                         message="This slot has a confirmed booking. Overriding will mark it as available for others." 
