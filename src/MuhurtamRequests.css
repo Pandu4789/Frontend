@@ -1,188 +1,152 @@
-/* Filename: MuhurtamRequests.css - FINAL POLISHED VERSION */
-
-.requests-page-container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 16px;
-    font-family: 'Inter', sans-serif;
-}
-
-.requests-page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--theme-primary);
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-/* --- Tabs --- */
-.requests-tabs {
+/* --- VIEWPORT & GRADIENT BACKGROUND --- */
+.mr-viewport {
+    background: linear-gradient(135deg, #ff8c00 0%, #e65100 100%) !important;
+    min-height: 100vh;
+    padding: 60px 20px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     display: flex;
-    gap: 10px;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 24px;
+    justify-content: center; /* CENTER CONTENT */
+    align-items: flex-start;
 }
 
-.tab-btn {
-    padding: 12px 20px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-light);
-    background-color: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.tab-btn.active {
-    color: var(--theme-heading);
-    border-bottom-color: var(--theme-heading);
-}
-
-.notification-badge {
-    background-color: var(--danger-color);
-    color: white;
-    font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-}
-
-/* --- Content Area --- */
-.filter-container {
-    margin-bottom: 20px;
-}
-.filter-input {
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+/* --- CENTERED APP SHELL --- */
+.mr-app-shell {
+    max-width: 1000px;
     width: 100%;
-    max-width: 400px;
-    font-size: 1rem;
-    box-sizing: border-box;
-}
-
-.requests-list {
-    display: grid;
-    gap: 20px;
-}
-
-/* --- Card Styles --- */
-.request-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-left: 5px solid var(--theme-heading); /* Highlight for new requests */
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background: #ffffff;
+    border-radius: 32px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
+    min-height: 85vh;
+    overflow: hidden;
 }
 
-.request-card.viewed {
-    border-left-color: #ccc;
-    background-color: #f9f9f9;
-}
-.request-card.viewed .card-header h3 {
-    color: var(--text-light);
-}
+/* --- HEADER --- */
+.mr-main-header { padding: 45px 50px 20px; text-align: left; }
+.mr-header-text h1 { font-size: 2.2rem; font-weight: 900; color: #1a1a1a; margin: 0; letter-spacing: -1px; }
+.mr-header-text p { font-size: 1.05rem; color: #666; margin-top: 6px; }
 
-.card-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-.card-header h3 {
-    margin: 0;
-    font-size: 1.4rem;
-    color: var(--theme-primary);
-}
-
-.card-body {
-    padding: 20px;
-    line-height: 1.7;
-    font-size: 1rem;
-    flex-grow: 1; /* Allows footer to stick to bottom */
-}
-.card-body p {
-    margin: 0 0 10px 0;
-}
-.card-body p:last-child {
-    margin-bottom: 0;
-}
-.card-body strong {
-    font-weight: 600;
-    color: var(--text-dark);
-    min-width: 110px; /* Increased width for better alignment */
-    display: inline-block;
-}
-
-/* --- CORRECTED Card Actions Footer --- */
-.card-actions {
+/* --- NAVIGATION --- */
+.mr-nav-container { padding: 0 50px 30px; }
+.mr-segmented-control {
+    background: #f1f1f1;
+    padding: 6px;
+    border-radius: 20px;
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 15px 20px;
-    background-color: transparent; /* Removed the background color */
-    border-top: 1px solid var(--border-color); /* Use a line separator */
-}
-.action-btn {
-    padding: 10px 39px;       /* More space inside the button */
-    font-size: 1.05rem;       /* Larger text */
-    font-weight: 600;
-    border-radius: 8px;       /* Slightly rounder */
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    margin-bottom: 25px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.action-btn.view {
-    background-color: lightskyblue;
-    color: var(--theme-primary);
-    border: 1px solid var(--theme-primary);
-    padding: 8px 16px;         /* Adjust padding to fit content */
-    width: fit-content;        /* Makes the button fit the text */
-    white-space: nowrap;       /* Prevents text from wrapping */
-    font-weight: 600;
-    font-size: 0.95rem;
+.mr-segmented-control button {
+    flex: 1; border: none; background: transparent; padding: 14px;
+    font-weight: 800; font-size: 0.95rem; color: #777;
+    cursor: pointer; border-radius: 16px; transition: 0.3s;
 }
 
-.action-btn.accept {
-    background-color: green;
-    color: white;
-}
-.action-btn.reject {
-    background-color: var(--danger-color);
-    color: white;
-}
-.action-btn:hover {
-    opacity: 0.85;
-    transform: scale(1.02);
+.mr-segmented-control button.active {
+    background: #ffffff; color: #e65100;
+    box-shadow: 0 10px 20px rgba(230, 81, 0, 0.15);
 }
 
-.status-text {
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 10px 24px;
+/* --- FILTER ROW --- */
+.mr-filter-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.mr-search-bar {
+    flex: 1; min-width: 250px; display: flex; align-items: center;
+    background: #f8fafc; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 0 15px; gap: 10px; color: #94a3b8;
 }
-.status-text.viewed { color: var(--text-light); }
-.status-text.accepted { color: #28a745; }
-.status-text.rejected { color: var(--danger-color); }
-
-.no-requests-message {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.1rem;
-    color: var(--text-light);
+.mr-search-bar input {
+    border: none; background: transparent; padding: 12px 0;
+    width: 100%; outline: none; font-weight: 600; color: #1e293b;
 }
 
-.loading-message, .error-message {
-    text-align: center;
-    font-size: 1.2rem;
-    padding: 40px;
-    color: var(--text-dark);
+.mr-chips { display: flex; gap: 10px; }
+.mr-chips button {
+    border: 1px solid #e0e0e0; background: white; padding: 8px 16px;
+    border-radius: 40px; font-size: 0.8rem; font-weight: 700;
+    color: #666; cursor: pointer; transition: 0.2s;
 }
-.error-message {
-    color: var(--danger-color);
+.mr-chips button.chip-active { background: #e65100; color: white; border-color: #e65100; box-shadow: 0 4px 10px rgba(230, 81, 0, 0.2); }
+.red-chip.chip-active { background: #ef4444 !important; border-color: #ef4444 !important; }
+
+/* --- GRID & CARDS --- */
+.mr-scroll-container { flex: 1; padding: 0 50px 40px; overflow-y: auto; }
+.mr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.mr-ritual-card {
+    background: #ffffff; border: 1px solid #f0f0f0;
+    border-radius: 24px; display: flex; overflow: hidden;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.mr-ritual-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.06); border-color: #ff8c00; }
+
+.mr-status-sidebar { width: 10px; flex-shrink: 0; }
+.status-confirmed { background: #10b981; }
+.status-pending { background: #ff8c00; }
+.status-rejected { background: #ef4444; }
+
+.mr-card-content { flex: 1; padding: 25px; }
+.mr-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.mr-ritual-id { font-size: 0.75rem; font-weight: 800; color: #bbb; font-family: monospace; }
+
+.mr-status-badge {
+    padding: 5px 12px; border-radius: 20px; font-size: 0.65rem;
+    font-weight: 900; text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+}
+
+.mr-ritual-title { font-size: 1.3rem; font-weight: 900; color: #1e293b; margin: 0 0 20px; }
+
+.mr-data-stack { background: #f9fafb; padding: 15px; border-radius: 16px; border: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 10px; }
+.mr-data-row { display: flex; align-items: center; gap: 20px; }
+.mr-label { font-size: 0.65rem; font-weight: 900; color: #e65100; width: 85px; text-transform: uppercase; }
+.mr-value { font-size: 0.95rem; font-weight: 700; color: #333; }
+
+.mr-card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1.5px dashed #f1f5f9; padding-top: 18px; margin-top: 18px;
+}
+
+.mr-btn-details {
+    background: #fff3e0; border: 1.5px solid #e65100; color: #e65100;
+    padding: 8px 16px; border-radius: 10px; font-weight: 800;
+    font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s;
+}
+.mr-btn-details:hover { background: #e65100; color: white; }
+
+/* --- DRAWER --- */
+.mr-drawer-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); z-index: 5000; display: flex; justify-content: flex-end; }
+.mr-drawer { width: 100%; max-width: 500px; background: white; height: 100%; box-shadow: -15px 0 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+.mr-drawer-header { padding: 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+.mr-drawer-header h2 { font-weight: 900; color: #1e293b; margin: 0; }
+.mr-close-btn { background: #f1f5f9; border: none; font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+.mr-drawer-body { padding: 40px; flex: 1; overflow-y: auto; }
+.mr-drawer-status { padding: 15px; border-radius: 12px; text-align: center; font-weight: 900; margin-bottom: 30px; text-transform: uppercase; }
+
+/* Drawer Address Box */
+.mr-drawer-address-box { margin-top: 20px; padding: 15px; background: #fff8f0; border-radius: 12px; border: 1px solid #ffe0b2; }
+.mr-drawer-address-text { font-weight: 700; color: #334155; line-height: 1.5; margin-top: 5px; }
+
+.banner-confirmed { background: #dcfce7; color: #16a34a; }
+.banner-pending { background: #fff3e0; color: #e65100; }
+.banner-rejected { background: #fee2e2; color: #ef4444; }
+
+.mr-drawer-section { margin-bottom: 30px; }
+.mr-drawer-section h3 { font-size: 0.75rem; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+
+.mr-contact-item { display: flex; align-items: center; gap: 15px; background: #fff8f0; padding: 12px; border-radius: 12px; margin-bottom: 10px; font-weight: 700; color: #334155; border: 1px solid #ffe0b2; }
+.mr-contact-icon { color: #e65100; }
+
+.mr-drawer-footer { padding: 30px 40px; border-top: 1px solid #f1f5f9; }
+.mr-action-group { display: flex; gap: 15px; }
+.mr-btn-accept-full { flex: 2; background: #10b981; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+.mr-btn-reject-full { flex: 1; background: #f1f5f9; color: #ef4444; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+.mr-btn-close-full { width: 100%; background: #1e293b; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+
+/* --- PAGINATION --- */
+.mr-pagination { padding: 25px 50px; display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; background: #fff; }
+.mr-pagination button { background: white; border: 2px solid #e2e8f0; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+.mr-pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 1000px) { .mr-grid { grid-template-columns: 1fr; } .mr-app-shell { max-width: 100%; border-radius: 0; } }

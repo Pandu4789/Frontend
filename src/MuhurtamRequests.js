@@ -1,218 +1,288 @@
-// Filename: MuhurtamRequests.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { 
+    FaCheckCircle, FaExclamationCircle, FaUserAlt, FaCalendarAlt, FaInbox, 
+    FaChevronLeft, FaChevronRight, FaTimesCircle, FaMapMarkerAlt, 
+    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby, FaBell, FaSearch 
+} from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import './MuhurtamRequests.css';
-import { FaBell, FaCalendarCheck } from 'react-icons/fa';
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
 const MuhurtamRequests = () => {
-  const [activeTab, setActiveTab] = useState('muhurtam');
-  const [requests, setRequests] = useState([]);
-  const [appointments, setAppointments] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filter, setFilter] = useState('');
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('bookings');
+    const [statusFilter, setStatusFilter] = useState('ALL'); 
+    const [searchTerm, setSearchTerm] = useState('');
+    
+    const [appointmentBookings, setAppointmentBookings] = useState([]);
+    const [muhurtamRequests, setMuhurtamRequests] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [selectedItem, setSelectedItem] = useState(null); 
+    const itemsPerPage = 10;
 
-  const priestId = localStorage.getItem('userId');
+    const priestId = localStorage.getItem('userId');
 
-  const fetchData = async () => {
-    if (!priestId) {
-      toast.error('Priest ID not found. Please log in again.');
-      setIsLoading(false);
-      return;
-    }
+    const fetchData = async () => {
+        if (!priestId) return;
+        setIsLoading(true);
+        try {
+            const [bookingRes, muhurtamRes] = await Promise.all([
+                axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
+                axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`)
+            ]);
 
-    setIsLoading(true);
-    setError('');
-    try {
-      const [muhurtamRes, appointmentRes, eventsRes] = await Promise.all([
-        axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`),
-        axios.get(`${API_BASE}/api/booking/priest/${priestId}`),
-        axios.get(`${API_BASE}/api/events`)
-      ]);
+            // Smart Sort: Pending First, then ID descending
+            const smartSort = (data, type) => [...data].sort((a, b) => {
+                const statusA = type === 'muhurtam' ? (a.viewed ? 'ACK' : 'PENDING') : (a.status || 'PENDING').toUpperCase();
+                const statusB = type === 'muhurtam' ? (b.viewed ? 'ACK' : 'PENDING') : (b.status || 'PENDING').toUpperCase();
+                
+                if (statusA === 'PENDING' && statusB !== 'PENDING') return -1;
+                if (statusA !== 'PENDING' && statusB === 'PENDING') return 1;
+                return b.id - a.id;
+            });
 
-      setRequests((muhurtamRes.data || []).sort((a, b) => a.viewed - b.viewed));
-      setAppointments((appointmentRes.data || []).sort((a, b) => {
-        const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
-        return order[a.status] - order[b.status];
-      }));
-      setEvents(eventsRes.data || []);
+            setAppointmentBookings(smartSort(bookingRes.data || [], 'booking'));
+            setMuhurtamRequests(smartSort(muhurtamRes.data || [], 'muhurtam'));
+        } catch (err) {
+            toast.error("Failed to sync inbox.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    } catch (err) {
-      setError('Failed to load requests. Please try again later.');
-      toast.error('Failed to load requests.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    useEffect(() => { fetchData(); }, [priestId]);
 
-  useEffect(() => {
-    fetchData();
-  }, [priestId]);
+    const getStatusMeta = (item) => {
+        if (activeTab === 'requests') {
+            return item.viewed 
+                ? { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Acknowledged' }
+                : { cls: 'pending', icon: <FaExclamationCircle />, label: 'New Inquiry' };
+        }
+        const status = (item.status || 'PENDING').toUpperCase();
+        if (status === 'ACCEPTED') return { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Accepted' };
+        if (status === 'REJECTED') return { cls: 'rejected', icon: <FaTimesCircle />, label: 'Rejected' };
+        return { cls: 'pending', icon: <FaExclamationCircle />, label: 'Pending' };
+    };
 
-  const getEventNameById = (id) => {
-    const match = events.find(e => e.id === id);
-    return match ? match.name : 'Unknown Event';
-  };
+    // COUNTS FOR CHIPS
+    const counts = useMemo(() => {
+        return {
+            rituals: {
+                all: appointmentBookings.length,
+                pending: appointmentBookings.filter(b => (b.status || 'PENDING').toUpperCase() === 'PENDING').length,
+                accepted: appointmentBookings.filter(b => b.status?.toUpperCase() === 'ACCEPTED').length,
+                rejected: appointmentBookings.filter(b => b.status?.toUpperCase() === 'REJECTED').length,
+            },
+            muhurtams: {
+                all: muhurtamRequests.length,
+                new: muhurtamRequests.filter(r => !r.viewed).length,
+                viewed: muhurtamRequests.filter(r => r.viewed).length
+            }
+        };
+    }, [appointmentBookings, muhurtamRequests]);
 
-  const handleViewRequest = async (id) => {
-    try {
-      await axios.put(`${API_BASE}/api/muhurtam/${id}/viewed`, { viewed: true });
-      setRequests(prev => {
-        const updated = prev.map(req =>
-          req.id === id ? { ...req, viewed: true } : req
-        );
-        return updated.sort((a, b) => a.viewed - b.viewed);
-      });
-      toast.info(`Request #${id} marked as viewed.`);
-    } catch {
-      toast.error('Failed to update request status.');
-    }
-  };
+    const handleAction = async (id, action) => {
+        try {
+            if (activeTab === 'requests') {
+                await axios.put(`${API_BASE}/api/muhurtam/${id}/viewed`, { viewed: true });
+            } else {
+                await axios.put(`${API_BASE}/api/booking/${action}/${id}`);
+            }
+            toast.success("Action successful");
+            setSelectedItem(null);
+            fetchData();
+        } catch { toast.error("Action failed"); }
+    };
 
-  const handleAcceptAppointment = async (id) => {
-    try {
-      await axios.put(`${API_BASE}/api/booking/accept/${id}`);
-      setAppointments(prev => {
-        const updated = prev.map(app =>
-          app.id === id ? { ...app, status: 'ACCEPTED' } : app
-        );
-        return updated.sort((a, b) => {
-          const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
-          return order[a.status] - order[b.status];
+    const filteredData = useMemo(() => {
+        const rawData = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
+        return rawData.filter(item => {
+            const matchesSearch = (item.name + (item.eventName || '')).toLowerCase().includes(searchTerm.toLowerCase());
+            if (statusFilter === 'ALL') return matchesSearch;
+            
+            if (activeTab === 'bookings') {
+                return matchesSearch && (item.status || 'PENDING').toUpperCase() === statusFilter;
+            } else {
+                return matchesSearch && (statusFilter === 'NEW' ? !item.viewed : item.viewed);
+            }
         });
-      });
-      toast.success('Appointment accepted!');
-    } catch {
-      toast.error('Failed to accept the appointment.');
-    }
-  };
+    }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter, searchTerm]);
 
-  const handleRejectAppointment = async (id) => {
-    try {
-      await axios.put(`${API_BASE}/api/booking/reject/${id}`);
-      setAppointments(prev => {
-        const updated = prev.map(app =>
-          app.id === id ? { ...app, status: 'REJECTED' } : app
-        );
-        return updated.sort((a, b) => {
-          const order = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 };
-          return order[a.status] - order[b.status];
-        });
-      });
-      toast.warn('Appointment rejected.');
-    } catch {
-      toast.error('Failed to reject the appointment.');
-    }
-  };
+    const visibleData = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredData.slice(start, start + itemsPerPage);
+    }, [filteredData, currentPage]);
 
-  const pendingMuhurtamCount = requests.filter(req => !req.viewed).length;
-  const pendingAppointmentCount = appointments.filter(app => app.status?.toUpperCase() === 'PENDING').length;
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const filteredData = (activeTab === 'muhurtam' ? requests : appointments).filter(item =>
-    item.name?.toLowerCase().includes(filter.toLowerCase())
-  );
+    return (
+        <div className="mr-viewport">
+            <div className="mr-app-shell">
+                <ToastContainer position="bottom-right" theme="colored" />
+                
+                <header className="mr-main-header">
+                    <div className="mr-header-text">
+                        <h1>Inquiry Inbox</h1>
+                        <p>Review and manage your incoming ritual requests.</p>
+                    </div>
+                </header>
 
-  return (
-    <div className="requests-page-container">
-      <h1 className="requests-page-title">Requests Inbox</h1>
-      <div className="requests-tabs">
-        <button className={`tab-btn ${activeTab === 'muhurtam' ? 'active' : ''}`} onClick={() => setActiveTab('muhurtam')}>
-          <FaBell /> Muhurtam Requests
-          {pendingMuhurtamCount > 0 && <span className="notification-badge">{pendingMuhurtamCount}</span>}
-        </button>
-        <button className={`tab-btn ${activeTab === 'appointment' ? 'active' : ''}`} onClick={() => setActiveTab('appointment')}>
-          <FaCalendarCheck /> Appointment Requests
-          {pendingAppointmentCount > 0 && <span className="notification-badge">{pendingAppointmentCount}</span>}
-        </button>
-      </div>
-      <div className="requests-content">
-        <div className="filter-container">
-          <input type="text" placeholder="Search by name..." value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-input" />
+                <div className="mr-nav-container">
+                    <div className="mr-segmented-control">
+                        <button className={activeTab === 'bookings' ? 'active' : ''} onClick={() => {setActiveTab('bookings'); setStatusFilter('ALL'); setCurrentPage(1);}}>
+                            Ritual Bookings ({counts.rituals.all})
+                        </button>
+                        <button className={activeTab === 'requests' ? 'active' : ''} onClick={() => {setActiveTab('requests'); setStatusFilter('ALL'); setCurrentPage(1);}}>
+                            Muhurtam Inquiries ({counts.muhurtams.all})
+                        </button>
+                    </div>
+
+                    <div className="mr-filter-row">
+                        <div className="mr-search-bar">
+                            <FaSearch />
+                            <input type="text" placeholder="Search customer or event..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                        </div>
+                        <div className="mr-chips">
+                            <button className={statusFilter === 'ALL' ? 'chip-active' : ''} onClick={() => setStatusFilter('ALL')}>All</button>
+                            
+                            {activeTab === 'bookings' ? (
+                                <>
+                                    <button className={statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('PENDING')}>Pending ({counts.rituals.pending})</button>
+                                    <button className={statusFilter === 'ACCEPTED' ? 'chip-active' : ''} onClick={() => setStatusFilter('ACCEPTED')}>Accepted ({counts.rituals.accepted})</button>
+                                    <button className={statusFilter === 'REJECTED' ? 'chip-active red-chip' : ''} onClick={() => setStatusFilter('REJECTED')}>Rejected ({counts.rituals.rejected})</button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className={statusFilter === 'NEW' ? 'chip-active' : ''} onClick={() => setStatusFilter('NEW')}>New ({counts.muhurtams.new})</button>
+                                    <button className={statusFilter === 'VIEWED' ? 'chip-active' : ''} onClick={() => setStatusFilter('VIEWED')}>Viewed ({counts.muhurtams.viewed})</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <main className="mr-scroll-container">
+                    {isLoading ? (
+                        <div className="mr-loader">Synchronizing heavens...</div>
+                    ) : visibleData.length > 0 ? (
+                        <div className="mr-grid">
+                            {visibleData.map((item) => {
+                                const meta = getStatusMeta(item);
+                                return (
+                                    <div key={`${activeTab}-${item.id}`} className={`mr-ritual-card border-${meta.cls}`}>
+                                        <div className={`mr-status-sidebar status-${meta.cls}`}></div>
+                                        <div className="mr-card-content">
+                                            <div className="mr-card-top">
+                                                <span className="mr-ritual-id">REF: #{item.id}</span>
+                                                <div className={`mr-status-badge status-${meta.cls}`}>{meta.icon} <span>{meta.label}</span></div>
+                                            </div>
+                                            <h3 className="mr-ritual-title">{item.eventName || 'Sacred Service'}</h3>
+                                            
+                                            <div className="mr-data-stack">
+                                                <div className="mr-data-row"><span className="mr-label">CLIENT</span><span className="mr-value">{item.name}</span></div>
+                                                <div className="mr-data-row">
+                                                    <span className="mr-label">{activeTab === 'requests' ? 'BIRTH INFO' : 'SCHEDULE'}</span>
+                                                    <span className="mr-value">
+                                                        {activeTab === 'requests' ? (item.nakshatram || `${item.date} | ${item.time}`) : `${item.date} @ ${item.start}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="mr-card-footer">
+                                                <div className="mr-contact-mini"><FaPhoneAlt /> <span>{item.phone}</span></div>
+                                                <button className="mr-btn-details" onClick={() => setSelectedItem(item)}>View & Action <FaExternalLinkAlt /></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="mr-empty-state"><FaInbox size={50} /><h3>No inquiries found</h3></div>
+                    )}
+                </main>
+
+                {totalPages > 1 && (
+                    <footer className="mr-pagination">
+                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}><FaChevronLeft /> Previous</button>
+                        <span className="mr-page-info">Page {currentPage} of {totalPages}</span>
+                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>Next <FaChevronRight /></button>
+                    </footer>
+                )}
+            </div>
+
+            {selectedItem && (
+                <div className="mr-drawer-overlay" onClick={() => setSelectedItem(null)}>
+                    <div className="mr-drawer" onClick={e => e.stopPropagation()}>
+                        <div className="mr-drawer-header">
+                            <h2>Request Details</h2>
+                            <button className="mr-close-btn" onClick={() => setSelectedItem(null)}>&times;</button>
+                        </div>
+                        <div className="mr-drawer-body">
+                             <div className={`mr-drawer-status banner-${getStatusMeta(selectedItem).cls}`}>
+                                {getStatusMeta(selectedItem).label}
+                            </div>
+                            <section className="mr-drawer-section">
+                                <h3><FaUserAlt /> Customer Info</h3>
+                                <div className="mr-drawer-info">
+                                    <p className="mr-drawer-priest-name">{selectedItem.name}</p>
+                                    <div className="mr-contact-item"><FaPhoneAlt className="mr-contact-icon" /> <span>{selectedItem.phone}</span></div>
+                                    <div className="mr-contact-item"><FaEnvelope className="mr-contact-icon" /> <span>{selectedItem.email || 'N/A'}</span></div>
+                                </div>
+                            </section>
+                            <section className="mr-drawer-section">
+                                <h3>{activeTab === 'requests' ? <FaBaby /> : <FaCalendarAlt />} Ritual Details</h3>
+                                <div className="mr-drawer-info">
+                                    <p><strong>Ritual:</strong> {selectedItem.eventName || 'Analysis'}</p>
+                                    {activeTab === 'requests' ? (
+                                        selectedItem.nakshatram ? <p><strong>Nakshatram:</strong> {selectedItem.nakshatram}</p> :
+                                        <>
+                                            <p><strong>Birth Date:</strong> {selectedItem.date}</p>
+                                            <p><strong>Birth Time:</strong> {selectedItem.time}</p>
+                                            <p><strong>Place:</strong> {selectedItem.place || 'N/A'}</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p><strong>Scheduled:</strong> {selectedItem.date} @ {selectedItem.start}</p>
+                                            {/* ADDRESS ADDED HERE */}
+                                            {selectedItem.address && (
+                                                <div className="mr-drawer-address-box">
+                                                    <p><strong><FaMapMarkerAlt /> Venue Address:</strong></p>
+                                                    <p className="mr-drawer-address-text">{selectedItem.address}</p>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </section>
+                            {selectedItem.note && (
+                                <section className="mr-drawer-section">
+                                    <h3><FaInfoCircle /> Notes</h3>
+                                    <p className="mr-drawer-note">"{selectedItem.note}"</p>
+                                </section>
+                            )}
+                        </div>
+                        <div className="mr-drawer-footer">
+                            {getStatusMeta(selectedItem).cls === 'pending' ? (
+                                <div className="mr-action-group">
+                                    <button className="mr-btn-reject-full" onClick={() => handleAction(selectedItem.id, 'reject')}>Decline</button>
+                                    <button className="mr-btn-accept-full" onClick={() => handleAction(selectedItem.id, activeTab === 'requests' ? 'view' : 'accept')}>
+                                        {activeTab === 'requests' ? 'Acknowledge' : 'Accept Booking'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button className="mr-btn-close-full" onClick={() => setSelectedItem(null)}>Close Details</button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-        <div className="requests-list">
-          {isLoading ? (
-            <p className="loading-text">Loading requests...</p>
-          ) : error ? (
-            <p className="error-message">{error}</p>
-          ) : filteredData.length === 0 ? (
-            <p className="no-requests-message">No requests found in this category.</p>
-          ) : activeTab === 'muhurtam' ? (
-            filteredData.map(req => (
-              <MuhurtamCard key={req.id} request={req} onView={handleViewRequest} getEventName={getEventNameById} />
-            ))
-          ) : (
-            filteredData.map(app => (
-              <AppointmentCard key={app.id} appointment={app} onAccept={handleAcceptAppointment} onReject={handleRejectAppointment} />
-            ))
-          )}
-        </div>
-      </div>
-      <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
-    </div>
-  );
-};
-
-// --- Card Components ---
-const MuhurtamCard = ({ request, onView, getEventName }) => {
-  return (
-    <div className={`request-card ${request.viewed ? 'viewed' : 'new'}`}>
-      <div className="card-header"> <h3>{request.name}</h3> </div>
-      <div className="card-body">
-        {request.eventName && <p><strong>Event:</strong> {request.eventName}</p>}
-        {request.nakshatram && <p><strong>Nakshatram:</strong> {request.nakshatram}</p>}
-        {request.date && <p><strong>Birth Date:</strong> {request.date}</p>}
-        {request.time && <p><strong>Birth Time:</strong> {request.time}</p>}
-        {request.place && <p><strong>Birth Place:</strong> {request.place}</p>}
-        {request.phone && <p><strong>Phone:</strong> {request.phone}</p>}
-        {request.email && <p><strong>Email:</strong> {request.email}</p>}
-        {request.note && <p><strong>Notes:</strong> {request.note}</p>}
-
-      </div>
-      <div className="card-actions">
-        {!request.viewed ? (
-          <button className="action-btn view" onClick={() => onView(request.id)}>Mark As Viewed</button>
-        ) : (
-          <span className="status-text viewed">✅ Viewed</span>
-        )}
-      </div>
-    </div>
-  );
-};
-
-
-const AppointmentCard = ({ appointment, onAccept, onReject }) => {
-  const status = appointment.status?.toUpperCase();
-  return (
-    <div className={`request-card ${status !== 'PENDING' ? 'viewed' : 'new'}`}>
-      <div className="card-header"> <h3>{appointment.eventName || 'Event Booking'}</h3> </div>
-      <div className="card-body">
-        <p><strong>Requester:</strong> {appointment.name}</p>
-        <p><strong>Date:</strong> {appointment.date}</p>
-        <p><strong>Time:</strong> {appointment.start} - {appointment.end}</p>
-        <p><strong>Address:</strong> {appointment.address}</p>
-        <p><strong>Notes:</strong> {appointment.note}</p>
-
-      </div>
-      <div className="card-actions">
-        {status === 'PENDING' ? (
-          <>
-            <button className="action-btn reject" onClick={() => onReject(appointment.id)}>Reject</button>
-            <button className="action-btn accept" onClick={() => onAccept(appointment.id)}>Accept</button>
-          </>
-        ) : status === 'ACCEPTED' ? (
-          <span className="status-text accepted">✅ Accepted</span>
-        ) : (
-          <span className="status-text rejected">❌ Rejected</span>
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
 export default MuhurtamRequests;
