@@ -291,6 +291,37 @@
     background-color: #64748b !important;
     color: white;
 }
+/* Ensure Availability Manager fits inside the Dashboard container */
+.full-width-view .availability-manager-component {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Adjusting for narrower space */
+    gap: 20px;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+
+/* Remove the back button and header if it's inside the dashboard */
+.full-width-view .availability-page-header, 
+.full-width-view .availability-page-description {
+    display: none; 
+}
+
+/* Make the calendar and panels smaller to fit the dashboard's center column */
+.full-width-view .am-calendar-view, 
+.full-width-view .am-timeslot-panel {
+    padding: 20px;
+    border-radius: 25px;
+    min-height: 500px;
+}
+
+/* Responsive fix for internal dashboard view */
+@media (max-width: 1300px) {
+    .full-width-view .availability-manager-component {
+        grid-template-columns: 1fr;
+    }
+}
 
 
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

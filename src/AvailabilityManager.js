@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     format, addMonths, subMonths, startOfMonth, endOfMonth, 
@@ -7,7 +7,7 @@ import {
 } from 'date-fns';
 import { 
     FaChevronLeft, FaChevronRight, FaRegClock, 
-    FaTimes, FaArrowLeft, FaCheckCircle, FaExclamationTriangle 
+    FaArrowLeft, FaExclamationTriangle 
 } from 'react-icons/fa';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -15,7 +15,6 @@ import './AvailabilityManager.css';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
-// --- Helper Functions ---
 const generateTimeSlots = () => {
     const slots = {};
     for (let i = 3; i <= 23; i++) { 
@@ -26,7 +25,6 @@ const generateTimeSlots = () => {
 };
 const allPossibleSlots = Object.keys(generateTimeSlots());
 
-// --- Solid Confirmation Modal ---
 const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
     <div className="am-modal-backdrop">
         <div className="am-modal-content">
@@ -43,7 +41,7 @@ const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
     </div>
 );
 
-const AvailabilityManager = () => {
+const AvailabilityManager = ({ activeView }) => {
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -64,8 +62,6 @@ const AvailabilityManager = () => {
             ]);
 
             const newMap = {};
-            
-            // 1. Mark blocked slots
             (availabilityRes.data || []).forEach(slot => {
                 const dateStr = format(parseISO(slot.slotDate), 'yyyy-MM-dd');
                 const timeStr = slot.slotTime.substring(0, 5);
@@ -73,7 +69,6 @@ const AvailabilityManager = () => {
                 newMap[dateStr][timeStr] = 'Unavailable';
             });
             
-            // 2. Mark Customer Bookings
             (bookingRes.data || []).forEach(b => {
                 if ((b.status?.toUpperCase() === 'ACCEPTED' || b.status?.toUpperCase() === 'CONFIRMED') && b.date) {
                     if (!newMap[b.date]) newMap[b.date] = generateTimeSlots();
@@ -81,7 +76,6 @@ const AvailabilityManager = () => {
                 }
             });
 
-            // 3. Mark Manual Appointments
             (manualRes.data || []).forEach(a => {
                 if (a.start) {
                     const dt = parseISO(a.start);
@@ -91,7 +85,6 @@ const AvailabilityManager = () => {
                     newMap[dStr][tStr] = 'Booked';
                 }
             });
-            
             setAvailability(newMap);
         } catch (error) {
             toast.error("Failed to sync data.");
@@ -102,7 +95,6 @@ const AvailabilityManager = () => {
 
     useEffect(() => { refreshAvailability(); }, []);
 
-    // --- Sub-components ---
     const CalendarHeader = () => (
         <div className="am-calendar-header">
             <button onClick={() => setCurrentDate(subMonths(currentDate, 1))}><FaChevronLeft /></button>
@@ -119,6 +111,17 @@ const AvailabilityManager = () => {
         const days = eachDayOfInterval({ start: startDate, end: endDate });
         const today = startOfDay(new Date());
 
+        const handleDateClick = (day) => {
+            const isPast = isBefore(day, today);
+            if (isPast) return;
+
+            // Navigation Logic: If user clicks a grayed out date from prev/next month
+            if (!isSameMonth(day, monthStart)) {
+                setCurrentDate(startOfMonth(day));
+            }
+            setSelectedDate(day);
+        };
+
         return (
             <div className="am-calendar-grid">
                 {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
@@ -126,12 +129,17 @@ const AvailabilityManager = () => {
                 ))}
                 {days.map(day => {
                     const isPast = isBefore(day, today);
+                    const isOtherMonth = !isSameMonth(day, monthStart);
                     const isSel = isSameDay(day, selectedDate);
                     return (
                         <div 
                             key={day.toString()} 
-                            className={`am-day-cell ${!isSameMonth(day, monthStart) ? 'other-month' : ''} ${isSameDay(day, today) ? 'today' : ''} ${isSel ? 'selected' : ''} ${isPast ? 'past-day' : ''}`} 
-                            onClick={() => !isPast && setSelectedDate(day)}
+                            className={`am-day-cell 
+                                ${isOtherMonth ? 'other-month' : ''} 
+                                ${isSameDay(day, today) ? 'today' : ''} 
+                                ${isSel ? 'selected' : ''} 
+                                ${isPast ? 'past-day' : ''}`} 
+                            onClick={() => handleDateClick(day)}
                         >
                             <span>{format(day, 'd')}</span>
                         </div>
@@ -284,15 +292,20 @@ const AvailabilityManager = () => {
     if (isLoading && Object.keys(availability).length === 0) return <div className="loading-container">Syncing Divine Calendar...</div>;
 
     return (
-        <div className="availability-page-container">
+        <div className={activeView === 'availability' ? "am-dashboard-widget" : "availability-page-container"}>
             <ToastContainer position="bottom-right" theme="colored"/>
-            <div className="availability-page-header">
-                <h1 className="availability-page-title">Manage Availability</h1>
-                <button className="am-back-to-dashboard-btn" onClick={() => navigate('/dashboard')}>
-                    <FaArrowLeft /> Dashboard
-                </button>
-            </div>
-            <p className="availability-page-description">Click slots to toggle Availability. Use "Workday Settings" to apply a standard schedule to specific days.</p>
+            
+            {activeView !== 'availability' && (
+                <>
+                    <div className="availability-page-header">
+                        <h1 className="availability-page-title">Manage Availability</h1>
+                        <button className="am-back-to-dashboard-btn" onClick={() => navigate('/dashboard')}>
+                            <FaArrowLeft /> Dashboard
+                        </button>
+                    </div>
+                    <p className="availability-page-description">Click slots to toggle Availability. Use "Workday Settings" to apply a standard schedule to specific days.</p>
+                </>
+            )}
             
             <div className="availability-manager-component">
                 <div className="am-calendar-view">

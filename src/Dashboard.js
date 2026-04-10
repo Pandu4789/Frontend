@@ -17,6 +17,7 @@ import AppointmentModal from './AppointmentModal';
 import KnowledgeBase from './KnowledgeBase';
 import PoojaStatsPage from './PoojaStatsPage';
 import ManageEventsPage from './ManageEventsPage';
+import AvailabilityManager from './AvailabilityManager';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
@@ -250,12 +251,12 @@ const PriestDashboard = () => {
 
                     <main className="db-column center-col">
                         <div className="db-tile-row">
-                            <div className="db-tile db-saffron" onClick={() => navigate('/availability-manager')}>
-                                <FaCalendarDay className="db-tile-icon" />
-                                <h3>Availability</h3>
-                                <p>Set your working hours and dates.</p>
-                                <FaChevronRight className="db-tile-go" />
-                            </div>
+                            <div className="db-tile db-saffron" onClick={() => handleTabChange('availability')}>
+    <FaCalendarDay className="db-tile-icon" />
+    <h3>Availability</h3>
+    <p>Set your working hours and dates.</p>
+    <FaChevronRight className="db-tile-go" />
+</div>
                             <div className="db-tile db-gold" onClick={() => setIsModalOpen(true)}>
                                 <FaPlus className="db-tile-icon" />
                                 <h3>Manual Booking</h3>
@@ -291,6 +292,11 @@ const PriestDashboard = () => {
                                         pendingRequests.map(item => <ActionCard key={`${item.type}-${item.id}`} item={item} isPending={true} />) :
                                         <div className="empty-state">Action center is clear.</div>
                                 )}
+                                {activeView === 'availability' && (
+    <div className="full-width-view">
+        <AvailabilityManager />
+    </div>
+)}
 
                                 {activeView === 'stats' && <div className="full-width-view"><PoojaStatsPage stats={stats} /></div>}
                                 {activeView === 'events' && <div className="full-width-view"><ManageEventsPage events={templeEvents} /></div>}
