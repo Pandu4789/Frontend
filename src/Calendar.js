@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Calendar from 'react-calendar';
-import { isSameDay, format, getMonth, getYear } from 'date-fns';
-import { FaRegCalendarAlt, FaRegClock, FaSun, FaMoon, FaRegListAlt, FaRegCalendarCheck } from 'react-icons/fa';
+import { isSameDay, format, getMonth, getYear, startOfMonth ,parseISO} from 'date-fns';
+import { 
+    FaRegCalendarAlt, FaRegClock, FaSun, FaMoon, 
+    FaRegListAlt, FaRegCalendarCheck, FaHandsHelping, FaArrowRight 
+} from 'react-icons/fa';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-calendar/dist/Calendar.css';
 import './Calendar.css';
 
@@ -11,25 +15,30 @@ const formatTime12Hour = (timeString) => {
   if (!timeString) return 'N/A';
   const [hours, minutes] = timeString.split(':');
   const h = parseInt(hours, 10);
-  if (isNaN(h)) return 'N/A';
-  
   const ampm = h >= 12 ? 'PM' : 'AM';
   const formattedHours = h % 12 || 12;
   return `${String(formattedHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`;
 };
 
 export default function TeluguCalendar() {
-  // --- STATE MANAGEMENT ---
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeStartDate, setActiveStartDate] = useState(new Date());
   const [appointments, setAppointments] = useState([]);
-  const [festivals, setFestivals] = useState([]); // ✅ State for separate festival data
-  const [monthlyPanchangam, setMonthlyPanchangam] = useState({}); // For Tithi/moon symbols
+  const [festivals, setFestivals] = useState([]);
+  const [monthlyPanchangam, setMonthlyPanchangam] = useState({});
   const [dailyTimes, setDailyTimes] = useState(null);
   const [sunTimes, setSunTimes] = useState(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(true);
 
-  // --- DATA MAPPING & MEMOIZATION ---
+  const priestId = localStorage.getItem('userId');
+
+  const handleJumpToToday = () => {
+    const today = new Date();
+    setSelectedDate(today);
+    setActiveStartDate(startOfMonth(today));
+  };
+
+  // Memoized lookups
   const appointmentsByDate = useMemo(() => {
     const map = new Map();
     appointments.forEach(app => {
@@ -39,21 +48,17 @@ export default function TeluguCalendar() {
     });
     return map;
   }, [appointments]);
-  
-  // ✅ NEW: Creates a lookup map specifically for festivals
+
   const festivalsByDate = useMemo(() => {
     const map = new Map();
-    festivals.forEach(festival => {
-        // Assuming festival.date is "YYYY-MM-DD"
-        const dateStr = format(new Date(festival.date + 'T00:00:00'), 'yyyy-MM-dd');
+    festivals.forEach(f => {
+        const dateStr = format(new Date(f.date + 'T00:00:00'), 'yyyy-MM-dd');
         if (!map.has(dateStr)) map.set(dateStr, []);
-        map.get(dateStr).push(festival);
+        map.get(dateStr).push(f);
     });
     return map;
   }, [festivals]);
 
-
-  // ✅ CORRECTED: This now correctly reads from the separate 'festivals' state
   const monthlyFestivals = useMemo(() => {
       return festivals
         .filter(f => {
@@ -63,194 +68,164 @@ export default function TeluguCalendar() {
         .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [festivals, activeStartDate]);
 
-
-  // --- DATA FETCHING HOOKS ---
-
-  // 1. Fetches appointments/bookings once on mount
+  // Initial Fetch
   useEffect(() => {
-    const priestId = localStorage.getItem('userId');
     if (priestId) {
       const bookingsUrl = `${API_BASE}/api/booking/priest/${priestId}`;
       const appointmentsUrl = `${API_BASE}/api/appointments/priest/${priestId}`;
-      const fetchBookings = fetch(bookingsUrl).then(res => res.ok ? res.json() : []);
-      const fetchAppointments = fetch(appointmentsUrl).then(res => res.ok ? res.json() : []);
-
-      Promise.all([fetchBookings, fetchAppointments])
-        .then(([bookingsData, appointmentsData]) => {
-          const normalizedBookings = bookingsData.map(b => ({ id: `booking-${b.id}`, date: b.date, title: b.eventName || 'Booking', detail: `for ${b.name || 'a devotee'}` }));
-          const normalizedAppointments = appointmentsData.map(a => ({ id: `appt-${a.id}`, date: a.start, title: a.eventName || 'Appointment', detail: `with ${a.name}` }));
-          setAppointments([...normalizedBookings, ...normalizedAppointments]);
-        })
-        .catch(() => setAppointments([]));
+      Promise.all([
+        fetch(bookingsUrl).then(res => res.ok ? res.json() : []),
+        fetch(appointmentsUrl).then(res => res.ok ? res.json() : [])
+      ]).then(([bookings, appts]) => {
+          const normBookings = bookings.map(b => ({ id: `b-${b.id}`, date: b.date, title: b.eventName, detail: `for ${b.name}` }));
+          const normAppts = appts.map(a => ({ id: `a-${a.id}`, date: a.start, title: a.eventName, detail: `with ${a.name}` }));
+          setAppointments([...normBookings, ...normAppts]);
+      });
     }
-  }, []);
+  }, [priestId]);
 
-  // ✅ UPDATED: Fetches BOTH Panchangam and Festival data when the month changes
+  // Monthly Fetch
   useEffect(() => {
     const year = getYear(activeStartDate);
     const month = getMonth(activeStartDate) + 1;
-    
-    const fetchPanchangam = fetch(`${API_BASE}/api/panchangam/month?year=${year}&month=${month}`).then(res => res.ok ? res.json() : []);
-    const fetchFestivals = fetch(`${API_BASE}/api/festivals/month?year=${year}&month=${month}`).then(res => res.ok ? res.json() : []);
-
-    Promise.all([fetchPanchangam, fetchFestivals])
-        .then(([panchangamData, festivalData]) => {
-            // Process and set Panchangam data for Tithi/moon symbols
-            const panchangamMap = panchangamData.reduce((acc, day) => {
-                acc[day.date] = day;
-                return acc;
-            }, {});
-            setMonthlyPanchangam(panchangamMap);
-
-            // Set the separate festival data
-            setFestivals(festivalData);
-        })
-        .catch(() => {
-            setMonthlyPanchangam({});
-            setFestivals([]);
-        });
+    Promise.all([
+        fetch(`${API_BASE}/api/panchangam/month?year=${year}&month=${month}`).then(r => r.ok ? r.json() : []),
+        fetch(`${API_BASE}/api/festivals/month?year=${year}&month=${month}`).then(r => r.ok ? r.json() : [])
+    ]).then(([panch, fest]) => {
+        const pMap = panch.reduce((acc, d) => ({ ...acc, [d.date]: d }), {});
+        setMonthlyPanchangam(pMap);
+        setFestivals(fest);
+    });
   }, [activeStartDate]);
 
-  // 3. Fetches specific timings for the selected day (for details panel)
+  // Daily Details Fetch
   useEffect(() => {
     setIsLoadingDetails(true);
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    const fetchDailyTimes = fetch(`${API_BASE}/api/daily-times/by-date/${dateStr}`).then(res => res.ok ? res.json() : null);
-    const fetchSunTimes = fetch(`${API_BASE}/api/sun?date=${dateStr}`).then(res => res.ok ? res.json() : null);
-
-    Promise.all([fetchDailyTimes, fetchSunTimes])
-      .then(([dailyData, sunData]) => {
-        setDailyTimes(dailyData);
-        setSunTimes(sunData);
-      })
-      .finally(() => setIsLoadingDetails(false));
+    Promise.all([
+        fetch(`${API_BASE}/api/daily-times/by-date/${dateStr}`).then(r => r.ok ? r.json() : null),
+        fetch(`${API_BASE}/api/sun?date=${dateStr}`).then(r => r.ok ? r.json() : null)
+    ]).then(([daily, sun]) => {
+        setDailyTimes(daily);
+        setSunTimes(sun);
+        setIsLoadingDetails(false);
+    });
   }, [selectedDate]);
 
-
-  // --- CALENDAR TILE RENDERING LOGIC ---
   const tileContent = ({ date, view }) => {
     if (view !== 'month') return null;
     const dateStr = format(date, 'yyyy-MM-dd');
-    // Read from separate data sources
-    const dayPanchangam = monthlyPanchangam[dateStr];
-    const dayFestivals = festivalsByDate.get(dateStr) || [];
-    const hasAppointment = appointmentsByDate.has(dateStr);
+    const panch = monthlyPanchangam[dateStr];
+    const fests = festivalsByDate.get(dateStr) || [];
+    const hasAppt = appointmentsByDate.has(dateStr);
     
-    let moonSymbol = null;
-    if (dayPanchangam?.tithi === 'Pournami') moonSymbol = '🌕';
-    else if (dayPanchangam?.tithi === 'Amavasya') moonSymbol = '🌑';
+    let moonSymbol = panch?.tithi === 'Pournami' ? '🌕' : panch?.tithi === 'Amavasya' ? '🌑' : null;
 
     return (
-      <div className="tile-content-wrapper">
-        <div className="tile-dots-container">
-            {hasAppointment && <div className="appointment-dot"></div>}
-            {moonSymbol && <span className="moon-symbol">{moonSymbol}</span>}
+      <div className="custom-tile-inner">
+        <div className="tile-top-row">
+            {hasAppt && <span className="appt-dot" title="Ritual Scheduled" />}
+            {moonSymbol && <span className="moon-icon">{moonSymbol}</span>}
         </div>
-        {dayFestivals.length > 0 && (
-            <div className="festival-name-tile">{dayFestivals[0].name}</div>
-        )}
+        {fests.length > 0 && <div className="fest-label">{fests[0].name}</div>}
       </div>
     );
   };
-  
-  const tileClassName = ({ date, view }) => {
-    if (view !== 'month') return '';
-    const classes = [];
-    if (isSameDay(date, new Date())) classes.push('today');
-    // Read from the separate festival data source
-    if (festivalsByDate.has(format(date, 'yyyy-MM-dd'))) {
-      classes.push('festival-day');
-    }
-    return classes.join(' ');
-  };
+
   return (
-    <div className="telugu-calendar-page">
-      <h1 className="telugu-calendar-title">Panchangam Calendar</h1>
-      <div className="page-layout-container">
-        <div className="left-sidebar">
-          <div className="info-box">
-              <h3><FaRegCalendarCheck /> Festivals in {format(activeStartDate, 'MMMM')}</h3>
-              <div className="info-box-content">
-                  {monthlyFestivals.length > 0 ? (
-                      <div className="sidebar-list">
-                          {monthlyFestivals.map((f, index) => (
-                              <div key={`festival-${index}`} className="sidebar-item">
-                                  <div className="sidebar-item-date">
-                                    <span>{format(f.date, 'd')}</span>
-                                  </div>
-                                  <p className="sidebar-item-name">{f.name}</p>
-                              </div>
-                          ))}
+    <div className="high-end-calendar-wrapper">
+      <ToastContainer position="bottom-right" theme="colored" />
+      
+      <div className="calendar-main-header">
+          <div>
+            <h1>Panchangam Calendar</h1>
+            <p>Vedic Insights & Ritual Schedule</p>
+          </div>
+          <button className="jump-today-btn" onClick={handleJumpToToday}>Go to Today</button>
+      </div>
+
+      <div className="calendar-grid-layout">
+        {/* SIDEBAR */}
+        <aside className="calendar-sidebar">
+          <div className="sidebar-card fest-card">
+              <h3><FaRegCalendarCheck /> {format(activeStartDate, 'MMMM')} Festivals</h3>
+              <div className="sidebar-scroll">
+                  {monthlyFestivals.length > 0 ? monthlyFestivals.map((f, i) => (
+                      <div key={i} className="sidebar-item">
+                          <div className="item-date">{format(parseISO(f.date), 'dd')}</div>
+                          <div className="item-info"><strong>{f.name}</strong></div>
                       </div>
-                  ) : <p className="no-events-message">No festivals this month.</p>}
+                  )) : <p className="empty-txt">No festivals this month.</p>}
               </div>
           </div>
-          <div className="info-box">
-            <h3><FaRegListAlt /> Appointments for {format(selectedDate, 'MMM d')}</h3>
-            <div className="info-box-content">
+
+          <div className="sidebar-card appt-card">
+            <h3><FaRegListAlt /> Rituals: {format(selectedDate, 'MMM d')}</h3>
+            <div className="sidebar-scroll">
               {(appointmentsByDate.get(format(selectedDate, 'yyyy-MM-dd')) || []).length > 0 ? (
-                <div className="sidebar-list">
-                  {(appointmentsByDate.get(format(selectedDate, 'yyyy-MM-dd'))).map(app => (
-                    <div key={app.id} className="sidebar-item appointment-item">
-                      <p className="sidebar-item-name">{app.title}</p>
-                      <span className="sidebar-item-detail">{app.detail}</span>
+                appointmentsByDate.get(format(selectedDate, 'yyyy-MM-dd')).map(app => (
+                  <div key={app.id} className="sidebar-item appt-item">
+                    <strong>{app.title}</strong>
+                    <span>{app.detail}</span>
+                  </div>
+                ))
+              ) : <p className="empty-txt">No rituals scheduled.</p>}
+            </div>
+          </div>
+        </aside>
+
+        {/* MAIN CALENDAR */}
+        <main className="calendar-center">
+            <div className="calendar-container-premium">
+                <Calendar
+                    value={selectedDate}
+                    onClickDay={setSelectedDate}
+                    onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
+                    tileContent={tileContent}
+                    tileClassName={({ date, view }) => {
+                        if (view !== 'month') return '';
+                        let classes = [];
+                        if (isSameDay(date, new Date())) classes.push('is-today');
+                        if (festivalsByDate.has(format(date, 'yyyy-MM-dd'))) classes.push('is-festival');
+                        return classes.join(' ');
+                    }}
+                    navigationLabel={({ date }) => format(date, 'MMMM yyyy')}
+                    formatDay={(locale, date) => format(date, 'd')}
+                    calendarType="gregory"
+                    next2Label={null}
+                    prev2Label={null}
+                />
+            </div>
+
+            {/* DETAILS PANEL */}
+            <section className="day-details-premium">
+                <div className="details-header">
+                    <FaRegCalendarAlt /> 
+                    <h2>Daily Panchangam: {format(selectedDate, 'PPPP')}</h2>
+                </div>
+                
+                {isLoadingDetails ? <div className="loader-ring">Processing...</div> : (
+                    <div className="timings-grid-modern">
+                        <div className="t-card sunrise">
+                            <label><FaSun /> Sunrise</label>
+                            <strong>{formatTime12Hour(sunTimes?.sunrise)}</strong>
+                        </div>
+                        <div className="t-card sunset">
+                            <label><FaMoon /> Sunset</label>
+                            <strong>{formatTime12Hour(sunTimes?.sunset)}</strong>
+                        </div>
+                        <div className="t-card rahu">
+                            <label><FaRegClock /> Rahu Kalam</label>
+                            <p>{dailyTimes ? `${formatTime12Hour(dailyTimes.rahukalamStart)} - ${formatTime12Hour(dailyTimes.rahukalamEnd)}` : 'N/A'}</p>
+                        </div>
+                        <div className="t-card yama">
+                            <label><FaRegClock /> Yamagandam</label>
+                            <p>{dailyTimes ? `${formatTime12Hour(dailyTimes.yamagandamStart)} - ${formatTime12Hour(dailyTimes.yamagandamEnd)}` : 'N/A'}</p>
+                        </div>
                     </div>
-                  ))}
-                </div>
-              ) : <p className="no-events-message">No appointments scheduled.</p>}
-            </div>
-          </div>
-        </div>
-
-        <div className="main-content-area">
-          <div className="calendar-wrapper">
-            <Calendar
-              value={selectedDate}
-              onClickDay={setSelectedDate}
-              onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
-              tileContent={tileContent}
-              tileClassName={tileClassName}
-              navigationLabel={({ date }) => format(date, 'MMMM yyyy')}
-              formatDay={(locale, date) => format(date, 'd')}
-              calendarType="gregory"
-              locale="en-US"
-              next2Label={null}
-              prev2Label={null}
-            />
-          </div>
-
-          <div className="bottom-details-panel">
-            <h2 className="panel-title">Details for {format(selectedDate, 'MMMM d, yyyy')}</h2>
-            <div className="details-content">
-              {isLoadingDetails ? (
-                <p className="loading-message">Loading timings...</p>
-              ) : (
-                <div className="details-timing-grid">
-                  <div className="timing-card">
-                    <h4 className="timing-card-title"><FaSun /> Sunrise</h4>
-                    <p className="timing-card-value">{formatTime12Hour(sunTimes?.sunrise)}</p>
-                  </div>
-                  <div className="timing-card">
-                    <h4 className="timing-card-title"><FaMoon /> Sunset</h4>
-                    <p className="timing-card-value">{formatTime12Hour(sunTimes?.sunset)}</p>
-                  </div>
-                  <div className="timing-card inauspicious">
-                    <h4 className="timing-card-title"><FaRegClock /> Rahu Kalam</h4>
-                    <p className="timing-card-value">
-                      {dailyTimes ? `${formatTime12Hour(dailyTimes.rahukalamStart)} - ${formatTime12Hour(dailyTimes.rahukalamEnd)}` : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="timing-card inauspicious">
-                    <h4 className="timing-card-title"><FaRegClock /> Yamagandam</h4>
-                    <p className="timing-card-value">
-                      {dailyTimes ? `${formatTime12Hour(dailyTimes.yamagandamStart)} - ${formatTime12Hour(dailyTimes.yamagandamEnd)}` : 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                )}
+            </section>
+        </main>
       </div>
     </div>
   );

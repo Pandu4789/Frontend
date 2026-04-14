@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
-import { FaPlus, FaTrash, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaSearch, FaStar, FaHistory, FaCalendarCheck } from 'react-icons/fa';
 import './Mohurtam.css';
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
 const Mohurtam = () => {
   const [nakshatramList, setNakshatramList] = useState([]);
   const [selectedNakshatrams, setSelectedNakshatrams] = useState(['']);
-  const [favorableNakshatrams, setFavorableNakshatrams] = useState([]); // ✅ 1. New state
+  const [favorableNakshatrams, setFavorableNakshatrams] = useState([]);
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -41,8 +41,6 @@ const Mohurtam = () => {
     }
     setIsLoading(true);
     setSubmitted(true);
-    setResults([]);
-    setFavorableNakshatrams([]);
     try {
       const payload = { nakshatrams: selectedNakshatrams.filter(n => n) };
       const response = await axios.post(`${API_BASE}/api/muhurtam/find`, payload);
@@ -51,102 +49,100 @@ const Mohurtam = () => {
         setFavorableNakshatrams(Array.from(response.data.favorableNakshatrams || []).sort());
       }
     } catch (error) {
-      toast.error("Failed to find Muhurtams. Please try again.");
+      toast.error("Failed to sync celestial data.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="mohurtam-page-container">
-      <ToastContainer position="bottom-right" autoClose={3000} theme="colored" />
-      <h1 className="mohurtam-page-title">Auspicious Time Finder (Muhurtam)</h1>
-      <p className="mohurtam-page-description">Enter the birth stars (Nakshatram) of the key individuals to find a list of astrologically favorable dates and times.</p>
+    <div className="moh-viewport">
+      <ToastContainer position="bottom-right" theme="colored" />
+      
+      <div className="moh-app-shell">
+        <header className="moh-header">
+          <h1>Seek Auspicious Time</h1>
+          <p>Tara Balam & Panchangam Alignment Analysis</p>
+        </header>
 
-      <div className="mohurtam-input-section">
-        <div className="form-group">
-          <label>Enter Birth Nakshatrams</label>
-          {selectedNakshatrams.map((value, index) => (
-            <div key={index} className="dropdown-group">
-              <select
-                className="themed-select"
-                value={value}
-                onChange={(e) => handleNakshatramChange(e, index)}
-              >
-                <option value="">-- Person {index + 1} Nakshatram --</option>
-                {nakshatramList.map(name => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </select>
-              {selectedNakshatrams.length > 1 && (
-                <button className="action-btn remove" onClick={() => removeNakshatram(index)}><FaTrash /></button>
-              )}
-            </div>
-          ))}
-          <button className="action-btn add" onClick={addNakshatram}><FaPlus /> Add another person</button>
-        </div>
-        <button onClick={handleFind} disabled={isLoading} className="find-btn">
-          <FaSearch /> {isLoading ? 'Searching...' : 'Find Auspicious Dates'}
-        </button>
-      </div>
-
-      {submitted && !isLoading && (
-        <>
-          <div className="favorable-nakshatrams-section">
-            {favorableNakshatrams.length > 0 ? (
-              <>
-                <h3>Your Favourable Nakshatrams (Tara Balam)</h3>
-                <div className="nakshatram-tags-container">
-                  {favorableNakshatrams.map(nakshatram => (
-                    <span key={nakshatram} className="nakshatram-tag">
-                      {nakshatram}
-                    </span>
-                  ))}
+        {/* Input Section */}
+        <div className="moh-input-card">
+          <div className="moh-input-grid">
+            {selectedNakshatrams.map((value, index) => (
+              <div key={index} className="moh-dropdown-wrapper">
+                <label>Person {index + 1}</label>
+                <div className="moh-select-group">
+                  <select value={value} onChange={(e) => handleNakshatramChange(e, index)}>
+                    <option value="">Select Nakshatram...</option>
+                    {nakshatramList.map(name => <option key={name} value={name}>{name}</option>)}
+                  </select>
+                  {selectedNakshatrams.length > 1 && (
+                    <button className="moh-remove-btn" onClick={() => removeNakshatram(index)}><FaTrash /></button>
+                  )}
                 </div>
-              </>
-            ) : (
-              <div>
-                <h3>No Common Matches</h3>
-                <p>There are no common favorable nakshatrams for the selected birth stars.</p>
               </div>
-            )}
+            ))}
           </div>
-          {favorableNakshatrams.length > 0 && (
-            <div className="results-section">
-              <h2 className="results-section-title">Recommended Muhurtams</h2>
+          <div className="moh-action-bar">
+            <button className="moh-add-person" onClick={addNakshatram}><FaPlus /> Add Member</button>
+            <button className="moh-find-btn" onClick={handleFind} disabled={isLoading}>
+              <FaSearch /> {isLoading ? 'Calculating...' : 'Find Muhurtams'}
+            </button>
+          </div>
+        </div>
+
+        {submitted && !isLoading && (
+          <div className="moh-results-layout">
+            {/* Left Sidebar: Tara Balam */}
+            <aside className="moh-sidebar">
+              <div className="moh-tara-card">
+                <h3><FaStar /> Tara Balam</h3>
+                <p className="moh-side-hint">Common favorable birth stars for members:</p>
+                {favorableNakshatrams.length > 0 ? (
+                  <div className="moh-tag-container">
+                    {favorableNakshatrams.map(n => <span key={n} className="moh-tag">{n}</span>)}
+                  </div>
+                ) : (
+                  <div className="moh-empty-side">No common matches found.</div>
+                )}
+              </div>
+            </aside>
+
+            {/* Right Side: Recommended Muhurtams */}
+            <main className="moh-main-results">
+              <div className="moh-results-header">
+                <h3><FaCalendarCheck /> Recommended Muhurtams</h3>
+              </div>
               {results.length > 0 ? (
-                <div className="results-grid">
+                <div className="moh-results-grid">
                   {results.map((res, idx) => (
-                    <div key={idx} className={`result-card status-${(res.status || '').toLowerCase()}`}>
-                      <h4>{new Date(res.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}</h4>
-                      <p><strong>Tithi:</strong> {res.tithi}</p>
-                      <p><strong>Nakshatram:</strong> {res.nakshatram}</p>
-                      <div className="auspicious-times">
-                        <strong>{res.status === 'orange' ? 'Suggested Time:' : 'Muhurtam Time:'}</strong>
-                        <p className="muhurtam-time-display">
-                          {res.status === 'orange' && res.alternateTime ? res.alternateTime : res.muhurtamTime}
-                        </p>
-                        <p className="muhurtam-lagna-display"><strong>Lagna:</strong> {res.muhurtamLagna}</p>
-                        <p className="muhurtam-notes-disply"><strong>Notes:</strong> {res.notes}</p>
-                        <p className="muhurtam-status-disply"><strong>Status:</strong> {res.status}</p>
+                    <div key={idx} className={`moh-result-card border-${(res.status || 'gray').toLowerCase()}`}>
+                      <div className="moh-card-date">
+                        {new Date(res.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      </div>
+                      <div className="moh-card-body">
+                        <div className="moh-data-row"><label>TITHI</label><strong>{res.tithi}</strong></div>
+                        <div className="moh-data-row"><label>STAR</label><strong>{res.nakshatram}</strong></div>
+                        <div className="moh-data-row"><label>LAGNA</label><strong>{res.muhurtamLagna}</strong></div>
+                        <div className="moh-time-box">
+                          <label>{res.status === 'orange' ? 'SUGGESTED TIME' : 'MUHURTAM TIME'}</label>
+                          <p>{res.status === 'orange' ? res.alternateTime : res.muhurtamTime}</p>
+                        </div>
+                        {res.notes && <div className="moh-notes">"{res.notes}"</div>}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="no-match-message">
-                  <p>No suitable dates found in the next 90 days. Please try a different combination.</p>
+                <div className="moh-no-data">
+                  <FaHistory />
+                  <p>No suitable Muhurtams found in this interval.</p>
                 </div>
               )}
-            </div>
-          )}
-        </>
-      )}
+            </main>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,67 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-
-/* --- Page & Layout --- */
-.telugu-calendar-page { background-color: var(--theme-bg); padding: 24px; max-width: 1400px; margin: 0 auto; font-family: 'Inter', sans-serif; }
-.telugu-calendar-title { text-align: center; color: var(--primaryDark); font-size: 2.2rem; font-weight: 700; margin-bottom: 30px; }
-.page-layout-container { display: flex; gap: 24px; align-items: flex-start; }
-.left-sidebar { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 24px; }
-.main-content-area { flex: 3; display: flex; flex-direction: column; gap: 24px; }
-
-/* --- Calendar Component --- */
-.calendar-wrapper { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 20px var(--shadow-color); overflow: hidden; }
-.react-calendar { width: 100%; border: none; }
-.react-calendar__navigation { display: flex; margin-bottom: 1rem; padding: 0.5rem 1rem; align-items: center; }
-.react-calendar__navigation__label { flex-grow: 1 !important; font-weight: 700; font-size: 1.5rem; color: var(--theme-heading); }
-.react-calendar__month-view__weekdays { text-align: center; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; background-color: var(--primaryDark); color: var(--textLight); }
-.react-calendar__month-view__weekdays__weekday { padding: 12px 0; }
-.react-calendar__month-view__weekdays abbr { text-decoration: none; }
-.react-calendar__tile { height: 110px; padding: 5px; position: relative; text-align: left; vertical-align: top; border: none; box-shadow: inset 0 0 0 1px var(--border-color); }
-.react-calendar__tile:hover { background-color: var(--hover-bg); }
-.react-calendar__tile abbr { display: inline-block; font-weight: 700; font-size: 0.9rem; padding: 3px 6px; border-radius: 4px; }
-.react-calendar__month-view__days__day--neighboringMonth { color: #d1d1d1; background-color: #fafafa; }
-.react-calendar__tile.today abbr { background-color: var(--textLight); color: var(--primaryDark); }
-.react-calendar__tile--active { background-color: var(--theme-heading); }
-.react-calendar__tile--active:hover { background-color: var(--theme-heading) !important; }
-.react-calendar__tile--active abbr, .react-calendar__tile--active .festival-name-tile { color: white; }
-.react-calendar__tile.festival-day abbr { color: var(--festival-color); font-weight: 700; }
-
-/* Tile Content (Dots, Festival Names, etc.) */
-.tile-content-wrapper { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-.tile-dots-container { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.appointment-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--theme-heading); }
-.moon-symbol { font-size: 1rem; line-height: 1; }
-.react-calendar__tile--active .appointment-dot, .react-calendar__tile--active .moon-symbol { background-color: white; color: white; }
-.festival-name-tile { font-size: 0.8rem; font-weight: 600; padding: 3px; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; align-self: flex-end; }
-
-/* --- Sidebar & Details Panel General Styles --- */
-.info-box, .bottom-details-panel { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px var(--shadow-color); }
-.info-box h3, .panel-title { font-size: 1.25rem; font-weight: 700; color: var(--theme-heading); margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; }
-.no-events-message, .loading-message { text-align: center; color: var(--text-secondary); padding: 10px 0; font-style: italic; }
-
-/* Sidebar Item Styles */
-.info-box-content { max-height: 300px; overflow-y: auto; }
-.sidebar-list { display: flex; flex-direction: column; gap: 10px; }
-.sidebar-item { display: flex; gap: 12px; align-items: center; background-color: var(--hover-bg); padding: 10px; border-radius: 8px; border-left: 4px solid var(--theme-accent); }
-.sidebar-item-date { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-weight: 700; font-size: 1.1rem; color: var(--theme-heading); text-align: center; min-width: 30px; }
-.sidebar-item-name { font-weight: 600; color: var(--primaryDark); }
-.sidebar-item.appointment-item { flex-direction: column; align-items: flex-start; border-left-color: var(--theme-heading); }
-.sidebar-item-detail { font-size: 0.9rem; color: #7a7a7a; }
-
-/* Bottom Details Panel Styles */
-.details-content { min-height: 120px; }
-.details-timing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-.timing-card { background-color: var(--hover-bg); border-radius: 8px; padding: 15px; text-align: center; border: 1px solid var(--border-color); }
-.timing-card-title { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); margin: 0 0 8px 0; text-transform: uppercase; }
-.timing-card-value { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); margin: 0; }
-.timing-card.inauspicious .timing-card-value { color: var(--festival-color); }
-
-/* --- Responsive --- */
-@media (max-width: 1024px) {
-  .page-layout-container { flex-direction: column; }
-  .left-sidebar { width: 100%; order: 2; }
-  .main-content-area { order: 1; }
+.high-end-calendar-wrapper {
+    background-color: #fffaf5;
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
 }
-@media (max-width: 768px) {
-  .react-calendar__tile { height: 90px; }
-  .details-timing-grid { grid-template-columns: 1fr 1fr; }
+
+.calendar-main-header {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar-main-header h1 { font-size: 2.5rem; font-weight: 900; color: #1a1a1a; margin: 0; }
+.calendar-main-header p { color: #e65100; font-weight: 700; margin: 5px 0 0; }
+
+.jump-today-btn {
+    background: #1e293b;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.jump-today-btn:hover { background: #0f172a; transform: translateY(-2px); }
+
+/* Grid Layout */
+.calendar-grid-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+}
+
+/* Sidebar Styling */
+.calendar-sidebar { display: flex; flex-direction: column; gap: 25px; }
+.sidebar-card {
+    background: white;
+    border-radius: 30px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    border: 1px solid #f2f2f2;
+}
+
+.sidebar-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f8fafc;
+    padding-bottom: 15px;
+}
+
+.sidebar-scroll { max-height: 350px; overflow-y: auto; padding-right: 10px; }
+.sidebar-item {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #fffaf5;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.item-date {
+    background: #e65100;
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 800;
+}
+
+.appt-item { flex-direction: column; align-items: flex-start; gap: 5px; background: #f8fafc; border-left: 5px solid #e65100; }
+.empty-txt { color: #94a3b8; font-style: italic; text-align: center; }
+
+/* Calendar Body */
+.calendar-container-premium {
+    background: white;
+    border-radius: 35px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.04);
+    border: 1px solid #f2f2f2;
+}
+
+/* React Calendar Customization */
+.react-calendar { width: 100%; border: none; font-family: inherit; }
+.react-calendar__navigation { margin-bottom: 25px; }
+.react-calendar__navigation button { font-size: 1.2rem; font-weight: 800; color: #1e293b; border-radius: 12px; }
+.react-calendar__navigation button:hover { background: #fffaf5; color: #e65100; }
+
+.react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    padding-bottom: 15px;
+}
+
+.react-calendar__tile {
+    height: 120px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    padding: 15px !important;
+    border: 1px solid #f8fafc !important;
+    border-radius: 15px;
+    transition: 0.3s;
+}
+
+.react-calendar__tile abbr { font-weight: 800; font-size: 1.1rem; margin-bottom: 5px; }
+.react-calendar__tile:hover { background: #fffaf5; transform: scale(1.02); z-index: 2; }
+
+/* Tile Inner Elements */
+.custom-tile-inner { width: 100%; height: 100%; display: flex; flex-direction: column; }
+.tile-top-row { display: flex; justify-content: flex-end; width: 100%; gap: 5px; position: absolute; top: 10px; right: 10px;}
+.appt-dot { width: 8px; height: 8px; background: #e65100; border-radius: 50%; }
+.moon-icon { font-size: 1.2rem; }
+.fest-label {
+    margin-top: auto;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #e65100;
+    background: #fff3e0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Selected & Festival States */
+.react-calendar__tile--active { background: #1e293b !important; color: white !important; }
+.react-calendar__tile--active .fest-label { background: rgba(255,255,255,0.2); color: white; }
+.is-festival abbr { color: #e65100; }
+.is-today { border: 2px solid #ff8c00 !important; }
+
+/* Details Panel */
+.day-details-premium {
+    margin-top: 30px;
+    background: white;
+    border-radius: 35px;
+    padding: 35px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.03);
+    border: 1px solid #f2f2f2;
+}
+
+.details-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; color: #e65100; }
+.details-header h2 { font-size: 1.5rem; font-weight: 900; color: #1a1a1a; margin: 0; }
+
+.timings-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.t-card { padding: 20px; border-radius: 20px; border: 1px solid #f2f2f2; background: #f8fafc; }
+.t-card label { display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; }
+.t-card strong, .t-card p { font-size: 1.3rem; font-weight: 900; color: #1a1a1a; margin: 0; }
+
+.t-card.rahu { background: #fff1f2; border-color: #ffe4e6; }
+.t-card.rahu p { color: #be123c; }
+.t-card.yama { background: #fffbeb; border-color: #fef3c7; }
+.t-card.yama p { color: #b45309; }
+
+@media (max-width: 1100px) {
+    .calendar-grid-layout { grid-template-columns: 1fr; }
+    .calendar-sidebar { order: 2; }
+    .calendar-center { order: 1; }
 }
