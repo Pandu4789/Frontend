@@ -29,15 +29,19 @@ const allPossibleSlots = Object.keys(generateTimeSlots());
 // --- Solid Confirmation Modal ---
 const ConfirmationModal = ({ onConfirm, onCancel, message }) => (
     <div className="am-modal-backdrop">
-        <div className="am-modal-content">
+        <div className="am-modal-content warning-state">
             <div className="am-modal-icon-warn">
                 <FaExclamationTriangle />
             </div>
-            <h3 className="am-modal-title">Confirm Change</h3>
+            <h3 className="am-modal-title">Confirm Availability Override</h3>
             <p className="am-modal-message">{message}</p>
             <div className="am-modal-footer">
-                <button className="am-modal-btn-secondary" onClick={onCancel}>Cancel</button>
-                <button className="am-modal-btn-primary" onClick={onConfirm}>Confirm Override</button>
+                <button className="am-modal-btn-secondary" onClick={onCancel}>
+                    Cancel
+                </button>
+                <button className="am-modal-btn-primary danger-action" onClick={onConfirm}>
+                    Yes, Make Available
+                </button>
             </div>
         </div>
     </div>
