@@ -127,6 +127,69 @@
 
 .center-empty { text-align: center; padding: 100px 0; color: #fff; }
 .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.6; }
+/* Add these styles to your existing Mohurtam.css to handle the new lists */
+
+.side-list-section {
+    margin-top: 20px;
+    padding: 20px !important;
+}
+
+.mini-scroll-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.mini-scroll-list::-webkit-scrollbar { width: 4px; }
+.mini-scroll-list::-webkit-scrollbar-thumb { background: #fce8d5; border-radius: 10px; }
+
+.mini-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border-left: 4px solid #cbd5e1;
+}
+
+.mini-item.ritual { border-left-color: #3b82f6; }
+.mini-item.fest { border-left-color: #e65100; flex-direction: row; align-items: center; gap: 12px; }
+
+.mini-item strong { font-size: 0.85rem; color: #1e293b; }
+.mini-item span { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+
+.fest-date {
+    background: #e65100;
+    color: white;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+}
+
+.empty-msg {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    padding: 10px;
+}
+
+/* Ensure columns stay stuck in place during scroll */
+.col-left, .col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: calc(100vh - 280px); /* Keeps sidebars aligned with viewport */
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.col-left::-webkit-scrollbar, .col-right::-webkit-scrollbar { display: none; }
 
 @media (max-width: 1400px) {
     .moh-v2-grid { grid-template-columns: 1fr 340px; }
