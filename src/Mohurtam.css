@@ -46,10 +46,12 @@
     display: grid;
     grid-template-columns: 280px 1fr 340px;
     gap: 25px;
+    /* Lock the height so only the center scrolls, preventing page-level cut-off */
+    height: calc(100vh - 280px); 
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;
-    align-items: start; /* Keeps sticky working correctly */
+    align-items: start;
 }
 
 .moh-v2-col {
@@ -59,14 +61,56 @@
 /* Sticky Logic */
 .col-left, .col-right {
     position: sticky;
-    top: 20px;
-    z-index: 10;
+    top: 0;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
 }
-
+.col-left::-webkit-scrollbar, .col-right::-webkit-scrollbar { 
+    display: none; /* Chrome/Safari */
+}
 .col-center {
     min-height: 600px;
 }
-
+.center-scroll-wrapper {
+    position: relative;
+    height: 100%;
+    overflow: hidden; /* Clips the inner list */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 35px;
+}
+.results-list {
+    height: 100%;
+    overflow-y: scroll; /* Force track visibility */
+    padding: 20px 20px 120px; /* 120px bottom padding is key for the "peeking" effect */
+    
+    /* Elegant Scrollbar Styling */
+    scrollbar-width: thin;
+    scrollbar-color: #1e293b rgba(255, 255, 255, 0.1);
+}
+.results-list::-webkit-scrollbar {
+    width: 6px;
+}
+.results-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.results-list::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+}
+.scroll-fade-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    /* Fades into the deep orange of your background */
+    background: linear-gradient(to bottom, transparent, #e65100); 
+    pointer-events: none; /* Non-blocking */
+    z-index: 10;
+    border-radius: 0 0 35px 35px;
+}
 /* --- CARDS --- */
 .moh-v2-sticky-card {
     background: white;
@@ -87,14 +131,13 @@
 
 /* --- MUHURTAM RESULT CARDS --- */
 .muhurtam-card-v2 {
-    background: white;
-    border-radius: 30px;
-    padding: 30px;
-    margin-bottom: 25px;
-    border-left: 10px solid #cbd5e1;
-    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
 }
-.muhurtam-card-v2:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+.muhurtam-card-v2:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
 .status-green { border-left-color: #10b981; }
 .status-orange { border-left-color: #ff8c00; }
 

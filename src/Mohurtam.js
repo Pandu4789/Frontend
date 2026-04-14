@@ -168,30 +168,33 @@ const Mohurtam = () => {
 
         {/* CENTER COLUMN: RESULTS */}
         <main className="moh-v2-col col-center">
-          <div className="results-list">
-            {results.length > 0 ? results.map((res, i) => (
-              <div key={i} className={`muhurtam-card-v2 status-${res.status}`}>
-                <div className="card-v2-header">
-                    <h4>{format(parseISO(res.date), 'EEEE, MMM do')}</h4>
-                    <span className={`badge badge-${res.status}`}>{res.status.toUpperCase()}</span>
-                </div>
-                <div className="card-v2-body">
-                    <div className="info-pill"><span>Tithi</span><strong>{res.tithi}</strong></div>
-                    <div className="info-pill"><span>Star</span><strong>{res.nakshatram}</strong></div>
-                    <div className="info-pill"><span>Lagna</span><strong>{res.muhurtamLagna}</strong></div>
-                </div>
-                <div className="card-v2-time">
-                    <label>{res.status === 'orange' ? 'SUGGESTED TIME' : 'MUHURTAM WINDOW'}</label>
-                    <p>{res.status === 'orange' ? res.alternateTime : res.muhurtamTime}</p>
-                </div>
+          <div className="center-scroll-wrapper">
+             <div className="results-list">
+                {results.length > 0 ? results.map((res, i) => (
+                  <div key={i} className={`muhurtam-card-v2 status-${res.status}`}>
+                    <div className="card-v2-header">
+                        <h4>{format(parseISO(res.date), 'EEEE, MMMM do')}</h4>
+                        <span className={`badge badge-${res.status}`}>{res.status.toUpperCase()}</span>
+                    </div>
+                    <div className="card-v2-body">
+                        <div className="info-pill"><span>Tithi</span><strong>{res.tithi}</strong></div>
+                        <div className="info-pill"><span>Star</span><strong>{res.nakshatram}</strong></div>
+                        <div className="info-pill"><span>Lagna</span><strong>{res.muhurtamLagna}</strong></div>
+                    </div>
+                    <div className="card-v2-time">
+                        <label>{res.status === 'orange' ? 'SUGGESTED TIME' : 'MUHURTAM WINDOW'}</label>
+                        <p>{res.status === 'orange' ? res.alternateTime : res.muhurtamTime}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="center-empty">
+                    <FaCalendarCheck className="empty-icon" />
+                    <h3>No Search Results</h3>
+                    <p>Enter members' birth stars above to begin analysis.</p>
+                  </div>
+                )}
               </div>
-            )) : (
-              <div className="center-empty">
-                <FaCalendarCheck className="empty-icon" />
-                <h3>No Search Results</h3>
-                <p>Enter members' birth stars above to begin analysis.</p>
-              </div>
-            )}
+              {results.length > 0 && <div className="scroll-fade-hint"></div>}
           </div>
         </main>
 
