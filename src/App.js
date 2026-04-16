@@ -31,6 +31,7 @@ import ProtectedRoute from './ProtectedRoute';
 import AvailabilityManager from './AvailabilityManager';
 import YourBookings from './YourBookings'; // Import the new page component
 import PriestGallery from './PriestGallery';
+import Footer from './Footer';
 
 function MainApp({
   isAuthenticated,
@@ -57,7 +58,7 @@ function MainApp({
         {shouldShowLayout && isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
 
         {/* Main content */}
-        <div style={{ flex: 1, paddingTop: shouldShowLayout ? '70px' : 0, paddingBottom: '80px' }}>
+        <div style={{ flex: 1, paddingTop: shouldShowLayout ? '70px' : 0 }}>
           <Routes>
             <Route
               path="/"
@@ -195,7 +196,7 @@ element={
         </div>
 
         {/* Footer */}
-        {/* {shouldShowLayout && <Footer />} */}
+        {shouldShowLayout && <Footer />}
       </div>
     </SessionTimeout>
   );

@@ -2,17 +2,12 @@ import React from 'react';
 
 const Footer = () => {
   const footerStyle = {
-    position: 'fixed',
-    bottom: 0,
-    left: 0,
-    width: '100%',
     backgroundColor: '#000000',
     color: '#ffffff',
     textAlign: 'center',
     padding: '20px 10px',
     fontSize: '14px',
-    boxShadow: '0 -2px 5px rgba(0,0,0,0.5)',
-    zIndex: 1000,
+    boxShadow: '0 -2px 5px rgba(0,0,0,0.15)',
   };
 
   const containerStyle = {
