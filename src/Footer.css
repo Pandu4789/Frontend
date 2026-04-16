@@ -1,0 +1,83 @@
+.priestify-footer-slim {
+    background-color: #fffaf5; /* Warm Earthy Tint */
+    border-top: 3px solid #e65100; /* Professional Saffron Line */
+    padding: 15px 0; /* Creates that ~1.5 inch height */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.footer-slim-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between; /* Spreads content to the edges */
+    align-items: center;
+}
+
+/* Left Section */
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.footer-brand-mini {
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.brand-priest { color: #1e293b; }
+.brand-ify { color: #E65C00; }
+
+.footer-copyright {
+    font-size: 12px;
+    color: #64748b;
+    border-left: 1px solid #cbd5e1;
+    padding-left: 15px;
+}
+
+/* Center Section */
+.footer-center-motto {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* Right Section */
+.footer-right-credits {
+    font-size: 12px;
+    color: #475569;
+}
+
+.footer-right-credits span {
+    color: #e65100;
+    font-weight: 800;
+}
+
+/* Responsive: Stack on small screens */
+@media (max-width: 900px) {
+    .footer-center-motto {
+        display: none; /* Hide motto on tablets/phones to keep it 1-line */
+    }
+}
+
+@media (max-width: 600px) {
+    .footer-slim-container {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    .footer-left {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .footer-copyright {
+        border-left: none;
+        padding-left: 0;
+    }
+}
