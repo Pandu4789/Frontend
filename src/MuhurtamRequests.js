@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { isBefore, startOfDay, parseISO } from 'date-fns';
 import { 
     FaCheckCircle, FaExclamationCircle, FaUserAlt, FaCalendarAlt, FaInbox, 
     FaChevronLeft, FaChevronRight, FaTimesCircle, FaMapMarkerAlt, 
-    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby, FaBell, FaSearch 
+    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby, FaBell, FaSearch, FaBan 
 } from 'react-icons/fa';
 import { toast, ToastContainer } from 'react-toastify';
 import './MuhurtamRequests.css';
@@ -13,6 +14,8 @@ const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
 const MuhurtamRequests = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    
     const [activeTab, setActiveTab] = useState('bookings');
     const [statusFilter, setStatusFilter] = useState('ALL'); 
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +29,16 @@ const MuhurtamRequests = () => {
 
     const priestId = localStorage.getItem('userId');
 
+    // --- NAVIGATION SYNC LOGIC ---
+    useEffect(() => {
+        if (location.state) {
+            const { tab, filter } = location.state;
+            if (tab) setActiveTab(tab);
+            if (filter) setStatusFilter(filter);
+            setCurrentPage(1); // Reset pagination on filter change
+        }
+    }, [location.state]);
+
     const fetchData = async () => {
         if (!priestId) return;
         setIsLoading(true);
@@ -35,7 +48,6 @@ const MuhurtamRequests = () => {
                 axios.get(`${API_BASE}/api/muhurtam/priest/${priestId}`)
             ]);
 
-            // Smart Sort: Pending First, then ID descending
             const smartSort = (data, type) => [...data].sort((a, b) => {
                 const statusA = type === 'muhurtam' ? (a.viewed ? 'ACK' : 'PENDING') : (a.status || 'PENDING').toUpperCase();
                 const statusB = type === 'muhurtam' ? (b.viewed ? 'ACK' : 'PENDING') : (b.status || 'PENDING').toUpperCase();
@@ -56,34 +68,45 @@ const MuhurtamRequests = () => {
 
     useEffect(() => { fetchData(); }, [priestId]);
 
+    // --- EXPIRATION LOGIC ---
+    const isExpired = (dateStr) => {
+        if (!dateStr) return false;
+        // Check if the ritual date is before today
+        return isBefore(parseISO(dateStr.split('T')[0]), startOfDay(new Date()));
+    };
+
     const getStatusMeta = (item) => {
         if (activeTab === 'requests') {
             return item.viewed 
                 ? { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Acknowledged' }
                 : { cls: 'pending', icon: <FaExclamationCircle />, label: 'New Inquiry' };
         }
+
         const status = (item.status || 'PENDING').toUpperCase();
-        if (status === 'ACCEPTED') return { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Accepted' };
+        
+        // Expiration check only for PENDING Ritual Bookings
+        if (status === 'PENDING' && isExpired(item.date)) {
+            return { cls: 'expired', icon: <FaBan />, label: 'Expired / Passed' };
+        }
+
+        if (status === 'ACCEPTED' || status === 'CONFIRMED') return { cls: 'confirmed', icon: <FaCheckCircle />, label: 'Accepted' };
         if (status === 'REJECTED') return { cls: 'rejected', icon: <FaTimesCircle />, label: 'Rejected' };
         return { cls: 'pending', icon: <FaExclamationCircle />, label: 'Pending' };
     };
 
-    // COUNTS FOR CHIPS
-    const counts = useMemo(() => {
-        return {
-            rituals: {
-                all: appointmentBookings.length,
-                pending: appointmentBookings.filter(b => (b.status || 'PENDING').toUpperCase() === 'PENDING').length,
-                accepted: appointmentBookings.filter(b => b.status?.toUpperCase() === 'ACCEPTED').length,
-                rejected: appointmentBookings.filter(b => b.status?.toUpperCase() === 'REJECTED').length,
-            },
-            muhurtams: {
-                all: muhurtamRequests.length,
-                new: muhurtamRequests.filter(r => !r.viewed).length,
-                viewed: muhurtamRequests.filter(r => r.viewed).length
-            }
-        };
-    }, [appointmentBookings, muhurtamRequests]);
+    const counts = useMemo(() => ({
+        rituals: {
+            all: appointmentBookings.length,
+            pending: appointmentBookings.filter(b => (b.status || 'PENDING').toUpperCase() === 'PENDING' && !isExpired(b.date)).length,
+            accepted: appointmentBookings.filter(b => b.status?.toUpperCase() === 'ACCEPTED').length,
+            rejected: appointmentBookings.filter(b => b.status?.toUpperCase() === 'REJECTED').length,
+        },
+        muhurtams: {
+            all: muhurtamRequests.length,
+            new: muhurtamRequests.filter(r => !r.viewed).length,
+            viewed: muhurtamRequests.filter(r => r.viewed).length
+        }
+    }), [appointmentBookings, muhurtamRequests]);
 
     const handleAction = async (id, action) => {
         try {
@@ -92,7 +115,7 @@ const MuhurtamRequests = () => {
             } else {
                 await axios.put(`${API_BASE}/api/booking/${action}/${id}`);
             }
-            toast.success("Action successful");
+            toast.success("Update successful");
             setSelectedItem(null);
             fetchData();
         } catch { toast.error("Action failed"); }
@@ -105,9 +128,13 @@ const MuhurtamRequests = () => {
             if (statusFilter === 'ALL') return matchesSearch;
             
             if (activeTab === 'bookings') {
-                return matchesSearch && (item.status || 'PENDING').toUpperCase() === statusFilter;
+                const status = (item.status || 'PENDING').toUpperCase();
+                // Special filter for Navbar: if state passed PENDING, show only non-expired pending
+                if (statusFilter === 'PENDING') return matchesSearch && status === 'PENDING' && !isExpired(item.date);
+                return matchesSearch && status === statusFilter;
             } else {
-                return matchesSearch && (statusFilter === 'NEW' ? !item.viewed : item.viewed);
+                const isNew = statusFilter === 'NEW' || statusFilter === 'PENDING';
+                return matchesSearch && (isNew ? !item.viewed : item.viewed);
             }
         });
     }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter, searchTerm]);
@@ -148,7 +175,6 @@ const MuhurtamRequests = () => {
                         </div>
                         <div className="mr-chips">
                             <button className={statusFilter === 'ALL' ? 'chip-active' : ''} onClick={() => setStatusFilter('ALL')}>All</button>
-                            
                             {activeTab === 'bookings' ? (
                                 <>
                                     <button className={statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('PENDING')}>Pending ({counts.rituals.pending})</button>
@@ -157,7 +183,7 @@ const MuhurtamRequests = () => {
                                 </>
                             ) : (
                                 <>
-                                    <button className={statusFilter === 'NEW' ? 'chip-active' : ''} onClick={() => setStatusFilter('NEW')}>New ({counts.muhurtams.new})</button>
+                                    <button className={statusFilter === 'NEW' || statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('NEW')}>New ({counts.muhurtams.new})</button>
                                     <button className={statusFilter === 'VIEWED' ? 'chip-active' : ''} onClick={() => setStatusFilter('VIEWED')}>Viewed ({counts.muhurtams.viewed})</button>
                                 </>
                             )}
@@ -248,7 +274,6 @@ const MuhurtamRequests = () => {
                                     ) : (
                                         <>
                                             <p><strong>Scheduled:</strong> {selectedItem.date} @ {selectedItem.start}</p>
-                                            {/* ADDRESS ADDED HERE */}
                                             {selectedItem.address && (
                                                 <div className="mr-drawer-address-box">
                                                     <p><strong><FaMapMarkerAlt /> Venue Address:</strong></p>
@@ -267,6 +292,7 @@ const MuhurtamRequests = () => {
                             )}
                         </div>
                         <div className="mr-drawer-footer">
+                            {/* ACTION BUTTONS LOGIC */}
                             {getStatusMeta(selectedItem).cls === 'pending' ? (
                                 <div className="mr-action-group">
                                     <button className="mr-btn-reject-full" onClick={() => handleAction(selectedItem.id, 'reject')}>Decline</button>
@@ -275,7 +301,9 @@ const MuhurtamRequests = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <button className="mr-btn-close-full" onClick={() => setSelectedItem(null)}>Close Details</button>
+                                <button className="mr-btn-close-full" onClick={() => setSelectedItem(null)}>
+                                    {getStatusMeta(selectedItem).cls === 'expired' ? 'No Longer Available' : 'Close Details'}
+                                </button>
                             )}
                         </div>
                     </div>
