@@ -44,15 +44,20 @@ const PriestProfile = () => {
                 setNakshatramList(nakshatraRes.data);
 
                 const email = localStorage.getItem('userEmail');
-                if (email) {
-                    const customerRes = await axios.get(`http://localhost:8080/api/profile?email=${email}`);
-                    setCustomer({ 
-                        name: `${customerRes.data.firstName || ''} ${customerRes.data.lastName || ''}`, 
-                        email: customerRes.data.email || '', 
-                        phone: customerRes.data.phone || '', 
-                        address: customerRes.data.addressLine1 || '', 
-                        note: '' 
-                    });
+                const isGuestUser = email === 'guest@example.com';
+                if (email && !isGuestUser) {
+                    try {
+                        const customerRes = await axios.get(`http://localhost:8080/api/profile?email=${email}`);
+                        setCustomer({ 
+                            name: `${customerRes.data.firstName || ''} ${customerRes.data.lastName || ''}`, 
+                            email: customerRes.data.email || '', 
+                            phone: customerRes.data.phone || '', 
+                            address: customerRes.data.addressLine1 || '', 
+                            note: '' 
+                        });
+                    } catch (customerErr) {
+                        console.warn('Customer profile not available for current user.', customerErr);
+                    }
                 }
             } catch (err) {
                 setError('Profile currently unavailable.');
@@ -65,7 +70,9 @@ const PriestProfile = () => {
     }, [priestId]);
 
     const handleActionClick = (action) => {
-        if (!localStorage.getItem('userEmail')) {
+        const email = localStorage.getItem('userEmail');
+        const isGuestUser = email === 'guest@example.com';
+        if (!email || isGuestUser) {
             setShowLoginPrompt(true);
         } else {
             action();
