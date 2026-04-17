@@ -23,6 +23,8 @@ const CustomerNavbar = ({ onLogout }) => {
   
   // Get User Details
   const firstName = localStorage.getItem('firstName') || 'User';
+  const userEmail = localStorage.getItem('userEmail');
+  const isGuest = userEmail === 'guest@example.com' || firstName === 'Guest';
 
   const [stats, setStats] = useState({ 
     ritual: { all: 0, upcoming: 0, accepted: 0, rejected: 0, pending: 0 }, 
@@ -98,6 +100,7 @@ const CustomerNavbar = ({ onLogout }) => {
   const handleDropdownAction = (action) => {
     setDropdownOpen(false);
     if (action === 'profile') navigate('/profile');
+    else if (action === 'signup') navigate('/signup');
     else if (action === 'help') navigate('/help');
     else if (action === 'changePassword') setShowChangePasswordModal(true);
     else if (action === 'logout') setShowLogoutConfirm(true);
@@ -138,12 +141,21 @@ const CustomerNavbar = ({ onLogout }) => {
             {dropdownOpen && (
               <div className="profile-dropdown" ref={dropdownRef}>
                 <div className="dropdown-menu">
-                  <div onClick={() => handleDropdownAction('profile')} className="dropdown-item">
-                    <FaUserCircle className="dropdown-icon" /> Profile
-                  </div>
-                  <div onClick={() => handleDropdownAction('changePassword')} className="dropdown-item">
-                    <FaLock className="dropdown-icon" /> Change Password
-                  </div>
+                  {!isGuest && (
+                    <>
+                      <div onClick={() => handleDropdownAction('profile')} className="dropdown-item">
+                        <FaUserCircle className="dropdown-icon" /> Profile
+                      </div>
+                      <div onClick={() => handleDropdownAction('changePassword')} className="dropdown-item">
+                        <FaLock className="dropdown-icon" /> Change Password
+                      </div>
+                    </>
+                  )}
+                  {isGuest && (
+                    <div onClick={() => handleDropdownAction('signup')} className="dropdown-item">
+                      <FaUserCircle className="dropdown-icon" /> Sign Up
+                    </div>
+                  )}
                   <div onClick={() => handleDropdownAction('help')} className="dropdown-item">
                     <MdOutlineHelpOutline className="dropdown-icon" /> Help
                   </div>
@@ -216,7 +228,9 @@ const CustomerNavbar = ({ onLogout }) => {
           <div className="v2-divider"></div>
 
           <div className="sidebar-v2-footer">
-            <div className="v2-nav-item" onClick={() => handleNavigation('profile')}><FaUserCircle className="v2-icon" /> Profile</div>
+            {!isGuest && (
+              <div className="v2-nav-item" onClick={() => handleNavigation('profile')}><FaUserCircle className="v2-icon" /> Profile</div>
+            )}
             <div className="v2-nav-item" onClick={() => handleNavigation('help')}><MdOutlineHelpOutline className="v2-icon" /> Help</div>
             <div className="v2-nav-item logout" onClick={() => setShowLogoutConfirm(true)}><MdOutlineLogout className="v2-icon" /> Logout</div>
           </div>
