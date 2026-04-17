@@ -237,7 +237,16 @@ const CustomerNavbar = ({ onLogout }) => {
         </div>
       </aside>
 
-      <ConfirmationModal isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} onConfirm={onLogout} title="Logout" message="Are you sure you want to log out?" />
+      <ConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          onLogout();
+          navigate('/login');
+        }}
+        title="Logout"
+        message="Are you sure you want to log out?"
+      />
       <ChangePasswordModal isOpen={showChangePasswordModal} onClose={() => setShowChangePasswordModal(false)} />
     </>
   );
