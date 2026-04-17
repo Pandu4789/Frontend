@@ -1,9 +1,8 @@
-import React from 'react';
 import './Footer.css';
 
 const Footer = () => {
   return (
-    <footer className="priestify-footer-slim">
+    <footer className="priestify-footer-slim" role="contentinfo" aria-label="Site footer">
       <div className="footer-slim-container">
         
         {/* Left Side: Brand & Copyright */}

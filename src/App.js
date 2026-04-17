@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,7 +29,7 @@ import SessionTimeout from './SessionTimeout';
 import AdminPage from './AdminPage';
 import ProtectedRoute from './ProtectedRoute';
 import AvailabilityManager from './AvailabilityManager';
-import YourBookings from './YourBookings'; // Import the new page component
+import YourBookings from './YourBookings';
 import PriestGallery from './PriestGallery';
 import Footer from './Footer';
 
@@ -118,21 +118,21 @@ function MainApp({
               }
             />
             <Route
-  path="/availability-manager"
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
-      <AvailabilityManager/>
-    </ProtectedRoute>
-  }
-/>
-<Route
-path="/priest-gallery"
-element={
-  <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
-    <PriestGallery></PriestGallery>
-  </ProtectedRoute>
-}
-/>
+              path="/availability-manager"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <AvailabilityManager />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/priest-gallery"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                  <PriestGallery />
+                </ProtectedRoute>
+              }
+            />
             {/* Admin Routes */}
             <Route
               path="/adminpage"

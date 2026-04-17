@@ -71,7 +71,7 @@ const PoojaItems = () => {
                     <h2>{selectedPooja.name}</h2>
                     <div className="print-stats-inline">
                         <span><strong>Duration:</strong> {selectedPooja.duration || '15-20 Min'}</span>
-                        <span><strong>Price:</strong> {selectedPooja.estimatedPrice || '$51'}</span>
+                        <span><strong> Price:</strong> {selectedPooja.estimatedPrice || '$51'}</span>
                     </div>
                 </div>
                 <div className="print-ritual-description">
