@@ -188,7 +188,12 @@ const Login = ({ onLoginSuccess }) => {
             type="button"
             className="guest-btn"
             onClick={() => {
+              localStorage.removeItem('userId');
+              localStorage.removeItem('firstName');
+              localStorage.removeItem('lastName');
+              localStorage.removeItem('profilePicture');
               localStorage.setItem('userEmail', 'guest@example.com');
+              localStorage.setItem('firstName', 'Guest');
               localStorage.setItem('role', 'customer');
               onLoginSuccess('customer');
               navigate('/events');

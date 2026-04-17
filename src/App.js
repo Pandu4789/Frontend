@@ -233,6 +233,11 @@ export default function App() {
     setUserRole(null);
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('firstName');
+    localStorage.removeItem('lastName');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('profilePicture');
   };
 
   return (
