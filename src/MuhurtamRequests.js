@@ -228,8 +228,21 @@ const MuhurtamRequests = () => {
                         <h3 className="yb-filters-title">
                             <FaFilter /> Filters & Search
                         </h3>
-                    </div>
-
+                    
+ <div className="yb-active-filters">
+                             {searchTerm && <span className="yb-filter-tag">Search: "{searchTerm}"</span>}
+                             {dateFrom && <span className="yb-filter-tag">From: {format(new Date(dateFrom), 'MMM dd, yyyy')}</span>}
+                             {dateTo && <span className="yb-filter-tag">To: {format(new Date(dateTo), 'MMM dd, yyyy')}</span>}
+                             {(searchTerm || dateFrom || dateTo) && (
+                                 <button 
+                                     className="yb-clear-all-filters"
+                                     onClick={() => { setSearchTerm(''); setDateFrom(''); setDateTo(''); setStatusFilter('ALL'); }}
+                                 >
+                                     Clear All
+                                 </button>
+                             )}
+                         </div> 
+                         </div>
                     <div className="yb-filters-grid">
                         {/* Search */}
                         <div className="yb-filter-group">
