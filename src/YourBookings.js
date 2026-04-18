@@ -5,7 +5,7 @@ import { format, isValid, isBefore, startOfDay } from 'date-fns';
 import { 
     FaCheckCircle, FaExclamationCircle, FaUserAlt, FaCalendarAlt, FaInbox, 
     FaChevronLeft, FaChevronRight, FaArrowLeft, FaTimesCircle, FaMapMarkerAlt, 
-    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby, FaFilter, FaBan 
+    FaExternalLinkAlt, FaInfoCircle, FaPhoneAlt, FaEnvelope, FaBaby, FaFilter, FaBan, FaSearch 
 } from 'react-icons/fa';
 import './YourBookings.css';
 
@@ -17,6 +17,9 @@ const YourBookings = () => {
     
     const [activeTab, setActiveTab] = useState('bookings');
     const [statusFilter, setStatusFilter] = useState('ALL'); 
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     
     const [appointmentBookings, setAppointmentBookings] = useState([]);
     const [muhurtamRequests, setMuhurtamRequests] = useState([]);
@@ -111,21 +114,52 @@ const YourBookings = () => {
     // --- FILTER LOGIC ---
     const filteredData = useMemo(() => {
         const rawData = activeTab === 'bookings' ? appointmentBookings : muhurtamRequests;
-        if (statusFilter === 'ALL') return rawData;
-        
-        if (statusFilter === 'UPCOMING') return rawData.filter(item => !isPast(item.date));
-        
-        if (statusFilter === 'EXPIRED') {
-            return rawData.filter(item => isPast(item.date) && (!item.status || item.status.toUpperCase() === 'PENDING'));
+        let filtered = rawData;
+
+        // Status filter
+        if (statusFilter === 'ALL') {
+            // No status filter
+        } else if (statusFilter === 'UPCOMING') {
+            filtered = filtered.filter(item => !isPast(item.date));
+        } else if (statusFilter === 'EXPIRED') {
+            filtered = filtered.filter(item => isPast(item.date) && (!item.status || item.status.toUpperCase() === 'PENDING'));
+        } else {
+            filtered = filtered.filter(item => {
+                const status = (item.status || '').toUpperCase();
+                if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !item.viewed && !isPast(item.date);
+                if (statusFilter === 'ACKNOWLEDGED') return item.viewed === true && (status === '' || status === 'ACKNOWLEDGED');
+                return status.includes(statusFilter);
+            });
         }
 
-        return rawData.filter(item => {
-            const status = (item.status || '').toUpperCase();
-            if (statusFilter === 'PENDING') return (status === 'PENDING' || status === '') && !item.viewed && !isPast(item.date);
-            if (statusFilter === 'ACKNOWLEDGED') return item.viewed === true && (status === '' || status === 'ACKNOWLEDGED');
-            return status.includes(statusFilter);
-        });
-    }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter]);
+        // Date filter
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(item => {
+                const itemDate = new Date(item.date);
+                return itemDate >= fromDate;
+            });
+        }
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999); // End of day
+            filtered = filtered.filter(item => {
+                const itemDate = new Date(item.date);
+                return itemDate <= toDate;
+            });
+        }
+
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter(item => 
+                item.priestName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.eventName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.nakshatram?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        return filtered;
+    }, [activeTab, appointmentBookings, muhurtamRequests, statusFilter, dateFrom, dateTo, searchTerm]);
 
     const visibleData = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
@@ -135,101 +169,334 @@ const YourBookings = () => {
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
     return (
-        <div className="yb-viewport">
-            <div className="yb-app-shell">
-                <header className="yb-main-header">
-                    <div className="yb-title-stack">
-                        <button className="yb-minimal-back" onClick={() => navigate('/events')}><FaArrowLeft /></button>
-                        <div className="yb-header-text">
-                            <h1>My Rituals</h1>
-                            <p>Track your spiritual schedule and upcoming poojas.</p>
+        <div className="yb-container">
+            {/* Modern Header */}
+            <div className="yb-header">
+                <div className="yb-header-content">
+                    <button className="yb-back-button" onClick={() => navigate('/events')}>
+                        <FaArrowLeft />
+                    </button>
+                    <div className="yb-header-text">
+                        <h1 className="yb-title">My Spiritual Journey</h1>
+                        <p className="yb-subtitle">Manage your sacred ceremonies and divine connections</p>
+                    </div>
+                </div>
+                <div className="yb-header-stats">
+                    <div className="yb-stat-card">
+                        <div className="yb-stat-number">{appointmentBookings.length}</div>
+                        <div className="yb-stat-label">Total Bookings</div>
+                    </div>
+                    <div className="yb-stat-card">
+                        <div className="yb-stat-number">{muhurtamRequests.length}</div>
+                        <div className="yb-stat-label">Muhurtam Requests</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="yb-main-content">
+                {/* Enhanced Tab Navigation */}
+                <div className="yb-tabs">
+                    <button 
+                        className={`yb-tab ${activeTab === 'bookings' ? 'active' : ''}`}
+                        onClick={() => {setActiveTab('bookings'); setStatusFilter('ALL'); setCurrentPage(1);}}
+                    >
+                        <div className="yb-tab-icon">
+                            <FaCalendarAlt />
+                        </div>
+                        <div className="yb-tab-content">
+                            <div className="yb-tab-title">Ritual Bookings</div>
+                            <div className="yb-tab-count">{appointmentBookings.length}</div>
+                        </div>
+                    </button>
+                    <button 
+                        className={`yb-tab ${activeTab === 'requests' ? 'active' : ''}`}
+                        onClick={() => {setActiveTab('requests'); setStatusFilter('ALL'); setCurrentPage(1);}}
+                    >
+                        <div className="yb-tab-icon">
+                            <FaBaby />
+                        </div>
+                        <div className="yb-tab-content">
+                            <div className="yb-tab-title">Muhurtam Requests</div>
+                            <div className="yb-tab-count">{muhurtamRequests.length}</div>
+                        </div>
+                    </button>
+                </div>
+
+                {/* Advanced Filters */}
+                <div className="yb-filters-section">
+                    <div className="yb-filters-header">
+                        <h3 className="yb-filters-title">
+                            <FaFilter /> Filters & Search
+                        </h3>
+                        <div className="yb-active-filters">
+                            {searchTerm && <span className="yb-filter-tag">Search: "{searchTerm}"</span>}
+                            {dateFrom && <span className="yb-filter-tag">From: {format(new Date(dateFrom), 'MMM dd, yyyy')}</span>}
+                            {dateTo && <span className="yb-filter-tag">To: {format(new Date(dateTo), 'MMM dd, yyyy')}</span>}
+                            {(searchTerm || dateFrom || dateTo) && (
+                                <button 
+                                    className="yb-clear-all-filters"
+                                    onClick={() => { setSearchTerm(''); setDateFrom(''); setDateTo(''); setStatusFilter('ALL'); }}
+                                >
+                                    Clear All
+                                </button>
+                            )}
                         </div>
                     </div>
-                </header>
 
-                <div className="yb-nav-container">
-                    <div className="yb-segmented-control">
-                        <button className={activeTab === 'bookings' ? 'active' : ''} onClick={() => {setActiveTab('bookings'); setStatusFilter('ALL'); setCurrentPage(1);}}>Ritual Bookings ({appointmentBookings.length})</button>
-                        <button className={activeTab === 'requests' ? 'active' : ''} onClick={() => {setActiveTab('requests'); setStatusFilter('ALL'); setCurrentPage(1);}}>Muhurtam Requests ({muhurtamRequests.length})</button>
-                    </div>
+                    <div className="yb-filters-grid">
+                        {/* Search */}
+                        <div className="yb-filter-group">
+                            <label className="yb-filter-label">Search</label>
+                            <div className="yb-search-wrapper">
+                                <FaSearch className="yb-search-icon" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search by priest, event, or nakshatram..." 
+                                    value={searchTerm} 
+                                    onChange={(e) => setSearchTerm(e.target.value)} 
+                                    className="yb-search-input"
+                                />
+                            </div>
+                        </div>
 
-                    <div className="yb-filter-row">
-                        <span className="yb-filter-label"><FaFilter /> Filter:</span>
-                        <div className="yb-chips">
-                            <button className={statusFilter === 'ALL' ? 'chip-active' : ''} onClick={() => setStatusFilter('ALL')}>All</button>
-                            
-                            {activeTab === 'bookings' ? (
-                                <>
-                                    <button className={statusFilter === 'UPCOMING' ? 'chip-active' : ''} onClick={() => setStatusFilter('UPCOMING')}>Upcoming ({counts.upcoming})</button>
-                                    <button className={statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('PENDING')}>Pending ({counts.pending})</button>
-                                    <button className={statusFilter === 'ACCEPTED' ? 'chip-active' : ''} onClick={() => setStatusFilter('ACCEPTED')}>Accepted ({counts.accepted})</button>
-                                    <button className={statusFilter === 'REJECTED' ? 'chip-active' : ''} onClick={() => setStatusFilter('REJECTED')}>Rejected ({counts.rejected})</button>
-                                    {counts.expired > 0 && (
-                                        <button className={statusFilter === 'EXPIRED' ? 'chip-active red-chip' : ''} onClick={() => setStatusFilter('EXPIRED')}>Expired ({counts.expired})</button>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    <button className={statusFilter === 'PENDING' ? 'chip-active' : ''} onClick={() => setStatusFilter('PENDING')}>Pending ({counts.pending})</button>
-                                    <button className={statusFilter === 'ACKNOWLEDGED' ? 'chip-active' : ''} onClick={() => setStatusFilter('ACKNOWLEDGED')}>Acknowledged ({counts.acknowledged})</button>
-                                </>
-                            )}
+                        {/* Date Range */}
+                        <div className="yb-filter-group">
+                            <label className="yb-filter-label">Date Range</label>
+                            <div className="yb-date-range">
+                                <div className="yb-date-input-wrapper">
+                                    <span className="yb-date-label">From</span>
+                                    <input 
+                                        type="date" 
+                                        value={dateFrom} 
+                                        onChange={(e) => setDateFrom(e.target.value)} 
+                                        className="yb-date-input"
+                                    />
+                                </div>
+                                <div className="yb-date-input-wrapper">
+                                    <span className="yb-date-label">To</span>
+                                    <input 
+                                        type="date" 
+                                        value={dateTo} 
+                                        onChange={(e) => setDateTo(e.target.value)} 
+                                        className="yb-date-input"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Status Filter */}
+                        <div className="yb-filter-group">
+                            <label className="yb-filter-label">Status</label>
+                            <div className="yb-status-chips">
+                                <button 
+                                    className={`yb-status-chip ${statusFilter === 'ALL' ? 'active' : ''}`}
+                                    onClick={() => setStatusFilter('ALL')}
+                                >
+                                    All ({activeTab === 'bookings' ? appointmentBookings.length : muhurtamRequests.length})
+                                </button>
+                                
+                                {activeTab === 'bookings' ? (
+                                    <>
+                                        <button 
+                                            className={`yb-status-chip upcoming ${statusFilter === 'UPCOMING' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('UPCOMING')}
+                                        >
+                                            Upcoming ({counts.upcoming})
+                                        </button>
+                                        <button 
+                                            className={`yb-status-chip pending ${statusFilter === 'PENDING' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('PENDING')}
+                                        >
+                                            Pending ({counts.pending})
+                                        </button>
+                                        <button 
+                                            className={`yb-status-chip confirmed ${statusFilter === 'ACCEPTED' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('ACCEPTED')}
+                                        >
+                                            Accepted ({counts.accepted})
+                                        </button>
+                                        <button 
+                                            className={`yb-status-chip rejected ${statusFilter === 'REJECTED' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('REJECTED')}
+                                        >
+                                            Rejected ({counts.rejected})
+                                        </button>
+                                        {counts.expired > 0 && (
+                                            <button 
+                                                className={`yb-status-chip expired ${statusFilter === 'EXPIRED' ? 'active' : ''}`}
+                                                onClick={() => setStatusFilter('EXPIRED')}
+                                            >
+                                                Expired ({counts.expired})
+                                            </button>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        <button 
+                                            className={`yb-status-chip pending ${statusFilter === 'PENDING' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('PENDING')}
+                                        >
+                                            Pending ({counts.pending})
+                                        </button>
+                                        <button 
+                                            className={`yb-status-chip viewed ${statusFilter === 'ACKNOWLEDGED' ? 'active' : ''}`}
+                                            onClick={() => setStatusFilter('ACKNOWLEDGED')}
+                                        >
+                                            Acknowledged ({counts.acknowledged})
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <main className="yb-scroll-container">
+                {/* Results Summary */}
+                <div className="yb-results-summary">
+                    <div className="yb-results-count">
+                        Showing {visibleData.length} of {filteredData.length} {activeTab === 'bookings' ? 'bookings' : 'requests'}
+                    </div>
+                    {filteredData.length > itemsPerPage && (
+                        <div className="yb-pagination-info">
+                            Page {currentPage} of {totalPages}
+                        </div>
+                    )}
+                </div>
+
+                {/* Content Area */}
+                <div className="yb-content-area">
                     {isLoading ? (
-                        <div className="yb-loader">Organizing your schedule...</div>
+                        <div className="yb-loading-state">
+                            <div className="yb-loading-spinner"></div>
+                            <p>Organizing your sacred schedule...</p>
+                        </div>
                     ) : visibleData.length > 0 ? (
-                        <div className="yb-feed">
+                        <div className="yb-cards-grid">
                             {visibleData.map((item) => {
                                 const meta = getStatusMeta(item);
                                 return (
-                                    <div key={`${activeTab}-${item.id}`} className={`yb-ritual-card border-${meta.cls}`}>
-                                        <div className={`yb-status-sidebar status-${meta.cls}`}></div>
-                                        <div className="yb-card-content">
-                                            <div className="yb-card-top">
-                                                <span className="yb-ritual-id">REF: #{item.id}</span>
-                                                <div className={`yb-status-badge status-${meta.cls}`}>{meta.icon} <span>{meta.label}</span></div>
+                                    <div key={`${activeTab}-${item.id}`} className={`yb-card ${meta.cls}`}>
+                                        <div className="yb-card-header">
+                                            <div className="yb-card-id">#{item.id}</div>
+                                            <div className={`yb-card-status ${meta.cls}`}>
+                                                {meta.icon}
+                                                <span>{meta.label}</span>
                                             </div>
-                                            <h3 className="yb-ritual-title">{item.eventName || 'Ritual Service'}</h3>
+                                        </div>
+                                        
+                                        <div className="yb-card-body">
+                                            <h3 className="yb-card-title">{item.eventName || 'Ritual Service'}</h3>
                                             
-                                            <div className="yb-data-stack">
-                                                <div className="yb-data-row">
-                                                    <span className="yb-label">PRIEST</span>
-                                                    <span className="yb-value">{item.priestName}</span>
+                                            <div className="yb-card-details">
+                                                <div className="yb-detail-item">
+                                                    <FaUserAlt className="yb-detail-icon" />
+                                                    <div className="yb-detail-content">
+                                                        <div className="yb-detail-label">Priest</div>
+                                                        <div className="yb-detail-value">{item.priestName}</div>
+                                                    </div>
                                                 </div>
-                                                <div className="yb-data-row">
-                                                    <span className="yb-label">{activeTab === 'requests' && !item.nakshatram ? 'BIRTH INFO' : activeTab === 'requests' ? 'NAKSHATRAM' : 'SCHEDULE'}</span>
-                                                    <span className="yb-value">
-                                                        {activeTab === 'requests' ? (item.nakshatram || `${item.date} | ${item.time}`) : 
-                                                        (item.date && isValid(new Date(item.date)) ? format(new Date(item.date), 'MMMM dd, yyyy') : 'TBD')}
-                                                        {activeTab === 'bookings' && item.start ? ` @ ${item.start}` : ''}
-                                                    </span>
+                                                
+                                                <div className="yb-detail-item">
+                                                    <FaCalendarAlt className="yb-detail-icon" />
+                                                    <div className="yb-detail-content">
+                                                        <div className="yb-detail-label">
+                                                            {activeTab === 'requests' && !item.nakshatram ? 'Birth Info' : activeTab === 'requests' ? 'Nakshatram' : 'Schedule'}
+                                                        </div>
+                                                        <div className="yb-detail-value">
+                                                            {activeTab === 'requests' ? 
+                                                                (item.nakshatram || `${item.date} | ${item.time}`) : 
+                                                                (item.date && isValid(new Date(item.date)) ? 
+                                                                    format(new Date(item.date), 'MMM dd, yyyy') : 'TBD')
+                                                            }
+                                                            {activeTab === 'bookings' && item.start ? ` at ${item.start}` : ''}
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                
+                                                {activeTab === 'bookings' && item.address && (
+                                                    <div className="yb-detail-item">
+                                                        <FaMapMarkerAlt className="yb-detail-icon" />
+                                                        <div className="yb-detail-content">
+                                                            <div className="yb-detail-label">Location</div>
+                                                            <div className="yb-detail-value">{item.address}</div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
-
-                                            <div className="yb-card-footer">
-                                                {activeTab === 'bookings' && item.address ? <div className="yb-location-tag"><FaMapMarkerAlt /> <span>{item.address}</span></div> : <span></span>}
-                                                <button className="yb-btn-details" onClick={() => setSelectedItem(item)}>View Details <FaExternalLinkAlt /></button>
-                                            </div>
+                                        </div>
+                                        
+                                        <div className="yb-card-footer">
+                                            <button 
+                                                className="yb-view-details-btn"
+                                                onClick={() => setSelectedItem(item)}
+                                            >
+                                                <FaExternalLinkAlt />
+                                                View Details
+                                            </button>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
                     ) : (
-                        <div className="yb-empty-state"><FaInbox size={50} /><h3>No results found</h3></div>
+                        <div className="yb-empty-state">
+                            <div className="yb-empty-icon">
+                                <FaInbox />
+                            </div>
+                            <h3 className="yb-empty-title">No results found</h3>
+                            <p className="yb-empty-description">
+                                Try adjusting your filters or search terms to find what you're looking for.
+                            </p>
+                            {(searchTerm || dateFrom || dateTo || statusFilter !== 'ALL') && (
+                                <button 
+                                    className="yb-reset-filters-btn"
+                                    onClick={() => { setSearchTerm(''); setDateFrom(''); setDateTo(''); setStatusFilter('ALL'); }}
+                                >
+                                    Reset All Filters
+                                </button>
+                            )}
+                        </div>
                     )}
-                </main>
+                </div>
 
+                {/* Pagination */}
                 {totalPages > 1 && (
-                    <footer className="yb-pagination">
-                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}><FaChevronLeft /> Previous</button>
-                        <span className="yb-page-info">Page {currentPage} of {totalPages}</span>
-                        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>Next <FaChevronRight /></button>
-                    </footer>
+                    <div className="yb-pagination">
+                        <button 
+                            className="yb-pagination-btn"
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                        >
+                            <FaChevronLeft />
+                            Previous
+                        </button>
+                        
+                        <div className="yb-pagination-pages">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                                if (pageNum > totalPages) return null;
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        className={`yb-pagination-page ${pageNum === currentPage ? 'active' : ''}`}
+                                        onClick={() => setCurrentPage(pageNum)}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        
+                        <button 
+                            className="yb-pagination-btn"
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                        >
+                            Next
+                            <FaChevronRight />
+                        </button>
+                    </div>
                 )}
             </div>
 
