@@ -172,9 +172,6 @@ const MuhurtamRequests = () => {
             {/* Modern Header */}
             <div className="yb-header">
                 <div className="yb-header-content">
-                    <button className="yb-back-button" onClick={() => navigate('/events')}>
-                        <FaArrowLeft />
-                    </button>
                     <div className="yb-header-text">
                         <h1 className="yb-title">Inquiry Inbox</h1>
                         <p className="yb-subtitle">Review and manage your incoming ritual requests</p>

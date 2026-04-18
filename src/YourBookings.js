@@ -173,9 +173,6 @@ const YourBookings = () => {
             {/* Modern Header */}
             <div className="yb-header">
                 <div className="yb-header-content">
-                    <button className="yb-back-button" onClick={() => navigate('/events')}>
-                        <FaArrowLeft />
-                    </button>
                     <div className="yb-header-text">
                         <h1 className="yb-title">My Spiritual Journey</h1>
                         <p className="yb-subtitle">Manage your sacred ceremonies and divine connections</p>
