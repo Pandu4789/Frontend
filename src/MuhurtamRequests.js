@@ -170,7 +170,7 @@ const MuhurtamRequests = () => {
             <ToastContainer position="bottom-right" theme="colored" />
             
             {/* Modern Header */}
-            <div className="yb-header">
+            {/* <div className="yb-header">
                 <div className="yb-header-content">
                     <div className="yb-header-text">
                         <h1 className="yb-title">Inquiry Inbox</h1>
@@ -187,7 +187,7 @@ const MuhurtamRequests = () => {
                         <div className="yb-stat-label">Muhurtam Inquiries</div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Main Content */}
             <div className="yb-main-content">

@@ -171,7 +171,7 @@ const YourBookings = () => {
     return (
         <div className="yb-container">
             {/* Modern Header */}
-            <div className="yb-header">
+            {/* <div className="yb-header">
                 <div className="yb-header-content">
                     <div className="yb-header-text">
                         <h1 className="yb-title">My Spiritual Journey</h1>
@@ -188,7 +188,7 @@ const YourBookings = () => {
                         <div className="yb-stat-label">Muhurtam Requests</div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Main Content */}
             <div className="yb-main-content">
