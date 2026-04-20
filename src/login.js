@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
-import { MdOutlineMailOutline, MdOutlineLock } from "react-icons/md"; 
-import './login.css'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { MdOutlineMailOutline, MdOutlineLock } from "react-icons/md";
+import "./login.css";
 
-import logo from './image.png'; 
+import logo from "./image.png";
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    email: '', 
-    password: '',
+    email: "",
+    password: "",
   });
   const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false); 
-  const [isSubmitting, setIsSubmitting] = useState(false); 
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('rememberedEmail'); 
+    const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
-      setForm(prev => ({ ...prev, email: savedEmail })); 
+      setForm((prev) => ({ ...prev, email: savedEmail }));
       setRememberMe(true);
     }
   }, []);
@@ -33,15 +33,12 @@ const Login = ({ onLoginSuccess }) => {
     setRememberMe(e.target.checked);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true); 
-
+  // Helper to perform the actual login API call
+  const performLogin = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
       });
 
@@ -50,32 +47,32 @@ const Login = ({ onLoginSuccess }) => {
 
         if (data.role) {
           if (rememberMe) {
-            localStorage.setItem('rememberedEmail', form.email); 
+            localStorage.setItem("rememberedEmail", form.email);
           } else {
-            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem("rememberedEmail");
           }
 
-          localStorage.setItem('userEmail', data.email); 
-          localStorage.setItem('username', data.email); 
-          localStorage.setItem('firstName', data.firstName); 
-          localStorage.setItem('lastName', data.lastName); 
-          localStorage.setItem('role', data.role);
-          localStorage.setItem('userId', data.userId);
+          localStorage.setItem("userEmail", data.email);
+          localStorage.setItem("username", data.email);
+          localStorage.setItem("firstName", data.firstName);
+          localStorage.setItem("lastName", data.lastName);
+          localStorage.setItem("role", data.role);
+          localStorage.setItem("userId", data.userId);
 
           onLoginSuccess(data.role);
 
-          if (data.role === 'priest') {
-            navigate('/dashboard');
-          } else if (data.role === 'customer') {
-            navigate('/events');
-          } else if (data.role === 'admin') {
-            navigate('/adminpage');
+          if (data.role === "priest") {
+            navigate("/dashboard");
+          } else if (data.role === "customer") {
+            navigate("/events");
+          } else if (data.role === "admin") {
+            navigate("/adminpage");
           }
         } else {
-          setError('Role not found in response');
+          setError("Role not found in response");
         }
       } else {
-        let msg = 'Login failed';
+        let msg = "Login failed";
         try {
           const errData = await res.json();
           msg = errData.message || msg;
@@ -85,35 +82,64 @@ const Login = ({ onLoginSuccess }) => {
         setError(msg);
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again later.');
+      setError("An unexpected error occurred. Please try again later.");
       console.error(err);
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
+  };
+
+  // HANDLESUBMIT: Starts location capture in background and performs login immediately
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    // 1. Fire and forget: Start location capture in background
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          localStorage.setItem("userLat", position.coords.latitude);
+          localStorage.setItem("userLon", position.coords.longitude);
+          localStorage.setItem(
+            "userTimeZone",
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+          );
+          console.log("Location updated in background.");
+        },
+        () =>
+          console.warn(
+            "Location denied or timed out. Using existing/default storage.",
+          ),
+        { timeout: 8000 },
+      );
+    }
+
+    // 2. Immediate Login: Proceed to performLogin without waiting for the geolocation result
+    performLogin();
   };
 
   return (
     <div className="login-page-container">
       <div className="login-content-wrapper">
-        
-        {/* --- NEW SIDE PANEL --- */}
         <div className="login-side-panel">
           <div className="login-side-panel-content">
-            <img src={logo} alt="Priestify Logo" className="login-side-panel-logo" />
-            
-            {/* Split colors for the Brand Name */}
+            <img
+              src={logo}
+              alt="Priestify Logo"
+              className="login-side-panel-logo"
+            />
             <h1 className="login-brand-text">
               <span className="brand-priest">PRIEST</span>
               <span className="brand-ify">IFY</span>
             </h1>
-            
             <p className="login-side-panel-text">
-              Your gateway to sacred rituals and spiritual guidance. Connect with authentic priests and bring divine grace to your home.
+              Your gateway to sacred rituals and spiritual guidance. Connect
+              with authentic priests and bring divine grace to your home.
             </p>
           </div>
         </div>
 
-        {/* --- EXISTING LOGIN FORM --- */}
         <div className="login-card">
           <h2 className="login-title">Welcome Back 👋</h2>
           <p className="login-subtitle">Sign in to book your sacred rituals</p>
@@ -131,12 +157,12 @@ const Login = ({ onLoginSuccess }) => {
                 className="login-auth-input"
               />
             </div>
-            
+
             <div className="login-input-group">
               <MdOutlineLock className="login-input-icon" />
               <input
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
@@ -161,21 +187,28 @@ const Login = ({ onLoginSuccess }) => {
                 />
                 <span>Remember Me</span>
               </label>
-              <a className="login-link forgot-link" onClick={() => navigate('/forgotpassword')}>
+              <a
+                className="login-link forgot-link"
+                onClick={() => navigate("/forgotpassword")}
+              >
                 Forgot Password?
               </a>
             </div>
 
             {error && <p className="login-error-text">{error}</p>}
 
-            <button type="submit" className="login-auth-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Logging In...' : 'Login'}
+            <button
+              type="submit"
+              className="login-auth-btn"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Logging In..." : "Login"}
             </button>
           </form>
 
           <p className="login-switch-link">
-            Don't have an account?{' '}
-            <a className="login-link" onClick={() => navigate('/signup')}>
+            Don't have an account?{" "}
+            <a className="login-link" onClick={() => navigate("/signup")}>
               Sign Up
             </a>
           </p>
@@ -188,15 +221,36 @@ const Login = ({ onLoginSuccess }) => {
             type="button"
             className="guest-btn"
             onClick={() => {
-              localStorage.removeItem('userId');
-              localStorage.removeItem('firstName');
-              localStorage.removeItem('lastName');
-              localStorage.removeItem('profilePicture');
-              localStorage.setItem('userEmail', 'guest@example.com');
-              localStorage.setItem('firstName', 'Guest');
-              localStorage.setItem('role', 'customer');
-              onLoginSuccess('customer');
-              navigate('/events');
+              // 1. Set immediate Guest info and defaults
+              localStorage.removeItem("userId");
+              localStorage.removeItem("firstName");
+              localStorage.removeItem("lastName");
+              localStorage.setItem("userEmail", "guest@example.com");
+              localStorage.setItem("firstName", "Guest");
+              localStorage.setItem("role", "customer");
+
+              // Set Dallas defaults if no location exists yet
+              if (!localStorage.getItem("userLat")) {
+                localStorage.setItem("userLat", 32.7767);
+                localStorage.setItem("userLon", -96.797);
+                localStorage.setItem("userTimeZone", "America/Chicago");
+              }
+
+              // 2. Start background location update
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                  localStorage.setItem("userLat", position.coords.latitude);
+                  localStorage.setItem("userLon", position.coords.longitude);
+                  localStorage.setItem(
+                    "userTimeZone",
+                    Intl.DateTimeFormat().resolvedOptions().timeZone,
+                  );
+                });
+              }
+
+              // 3. Navigate immediately
+              onLoginSuccess("customer");
+              navigate("/events");
             }}
           >
             Explore as Guest
