@@ -10,7 +10,31 @@
     align-items: center;
     font-family: 'Inter', sans-serif;
 }
+/* Container for the dual links */
+.guest-access-item {
+    display: flex;
+    align-items: center;
+    cursor: default !important; /* Prevents the whole row from looking like one button */
+}
 
+/* Individual links */
+.guest-link {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.guest-link:hover {
+    color: #E65C00; /* Priestify Saffron */
+    text-decoration: underline;
+}
+
+/* The divider slash */
+.guest-divider {
+    margin: 0 2px;
+    color: #000000; /* Soft slate grey */
+    font-weight: 400;
+    cursor: default;
+}
 .navbar-content-wrapper {
     display: flex;
     align-items: center;
