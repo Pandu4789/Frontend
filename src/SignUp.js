@@ -51,6 +51,7 @@ const SignUp = () => {
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState(''); // New State for Phone Error
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,9 +66,30 @@ const SignUp = () => {
     return '';
   };
 
+  // Validation function for phone length
+  const validatePhone = (value) => {
+    if (value.length > 0 && value.length < 10) {
+      return 'Invalid phone number (must be 10 digits)';
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Phone logic: only numbers, max 10
+    if (name === 'phone') {
+      const onlyNums = value.replace(/\D/g, '');
+      if (onlyNums.length <= 10) {
+        setForm({ ...form, phone: onlyNums });
+        // Clear error if user reaches 10 digits while typing
+        if (onlyNums.length === 10) setPhoneError('');
+      }
+      return;
+    }
+
     setForm({ ...form, [name]: value });
+
     if (name === 'password') {
       setPasswordError(validatePassword(value));
       if (form.confirmPassword && value !== form.confirmPassword) {
@@ -82,6 +104,11 @@ const SignUp = () => {
         setConfirmPasswordError('');
       }
     }
+  };
+
+  // Handle when user clicks away from phone field
+  const handlePhoneBlur = () => {
+    setPhoneError(validatePhone(form.phone));
   };
 
   useEffect(() => {
@@ -141,6 +168,13 @@ const SignUp = () => {
     setError('');
     setPasswordError('');
     setConfirmPasswordError('');
+    setPhoneError('');
+
+    // Check Phone Length before submitting
+    if (form.phone.length !== 10) {
+      setPhoneError('Invalid phone number (must be 10 digits)');
+      return;
+    }
 
     const validationError = validatePassword(form.password);
     if (validationError) {
@@ -165,7 +199,7 @@ const SignUp = () => {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
-        phone: form.phone,
+        phone: `+1${form.phone}`, // Prefix added here for backend
         password: form.password,
         addressLine1: form.addressLine1,
         addressLine2: form.addressLine2,
@@ -203,7 +237,6 @@ const SignUp = () => {
     }
   };
 
-  // Custom styles for React-Select to match the Priestify theme
   const customSelectStyles = {
     control: (base, state) => ({
       ...base,
@@ -246,7 +279,6 @@ const SignUp = () => {
     <div className="signup-page-container">
       <div className="signup-card">
         
-        {/* BRAND HEADER WITH LOGO */}
         <div className="signup-header">
             <img src={logo} alt="Priestify Logo" className="signup-logo" />
             <h1 className="signup-brand-text">
@@ -256,7 +288,6 @@ const SignUp = () => {
             <p className="signup-subtitle">Create your account to get started</p>
         </div>
 
-        {/* ROLE SELECTION */}
         <div className="signup-role-section">
           <div className="signup-role-toggle">
             <button
@@ -277,7 +308,6 @@ const SignUp = () => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* PERSONAL INFORMATION SECTION */}
           <div className="signup-section">
             <h3 className="signup-section-heading">
               <FaRegUser className="heading-icon" /> Personal Information
@@ -334,21 +364,19 @@ const SignUp = () => {
                 <label className="signup-input-label">Phone Number</label>
                 <div className="signup-input-group">
                   <MdOutlinePhone className="signup-input-icon" />
+                  <span className="phone-prefix">+1</span>
                   <input
                     name="phone"
                     type="text"
                     placeholder="9876543210"
                     value={form.phone}
-                    onChange={(e) => {
-                      const onlyNums = e.target.value.replace(/\D/g, '');
-                      if (onlyNums.length <= 12) {
-                        handleChange({ target: { name: 'phone', value: onlyNums } });
-                      }
-                    }}
-                    className="signup-auth-input"
+                    onChange={handleChange}
+                    onBlur={handlePhoneBlur}
+                    className="signup-auth-input phone-input-field"
                     required
                   />
                 </div>
+                {phoneError && <p className="signup-error-text">{phoneError}</p>}
               </div>
 
               <div className="signup-input-container">
@@ -399,7 +427,6 @@ const SignUp = () => {
             </div>
           </div>
 
-          {/* ADDRESS SECTION */}
           <div className="signup-section">
             <h3 className="signup-section-heading">
               <BsHouseDoor className="heading-icon" /> Address
@@ -487,7 +514,6 @@ const SignUp = () => {
             </div>
           </div>
 
-          {/* PRIEST DETAILS SECTION (CONDITIONAL) */}
           {form.role === 'priest' && (
             <div className="signup-section">
               <h3 className="signup-section-heading">Priest Details</h3>
@@ -518,9 +544,6 @@ const SignUp = () => {
                     styles={customSelectStyles}
                     required={form.role === 'priest' && form.selectedServices.length === 0}
                   />
-                  <small className="signup-small-text">
-                    Please select all the spiritual services you provide.
-                  </small>
                 </div>
                 
                 <div className="signup-input-container full-width">
@@ -535,9 +558,6 @@ const SignUp = () => {
                     styles={customSelectStyles}
                     required={form.role === 'priest' && form.selectedLanguages.length === 0}
                   />
-                  <small className="signup-small-text">
-                    Please select all the languages you can communicate in.
-                  </small>
                 </div>
 
                 <div className="signup-input-container full-width">

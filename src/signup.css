@@ -195,7 +195,18 @@
 .signup-auth-textarea::placeholder {
     color: #BDBDBD;
 }
-
+.phone-prefix {
+    padding-left: 6px;
+    font-weight: 600;
+    color: #bdc1c6;
+    font-size: 15px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+.phone-input-field {
+    padding-left: 8px; 
+}
 /* Textarea */
 .signup-auth-textarea {
     width: 100%;
