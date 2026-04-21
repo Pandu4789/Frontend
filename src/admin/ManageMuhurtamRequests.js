@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import { FaChevronDown, FaUser, FaUserTie } from 'react-icons/fa';
-import 'react-toastify/dist/ReactToastify.css';
+import { FaChevronDown, FaUser, FaUserTie } from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE = "http://localhost:8080";
 
@@ -33,7 +33,7 @@ const ManageMuhurtamRequests = () => {
     try {
       await axios.put(`${API_BASE}/api/muhurtam/viewed/${id}`, { viewed });
       setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, viewed } : r))
+        prev.map((r) => (r.id === id ? { ...r, viewed } : r)),
       );
       toast.success(`Marked as ${viewed ? "viewed" : "unread"}`);
     } catch {
@@ -95,61 +95,79 @@ const ManageMuhurtamRequests = () => {
 
       <div className="manage-muhurtam-container">
         <div className="mmr-header">
-            <h2 className="mmr-title">Manage Muhurtam Requests</h2>
+          <h2 className="mmr-title">Manage Muhurtam Requests</h2>
         </div>
-        
-        {loading ? <p className="loading-error-message">Loading requests...</p> : (
-            <div className="request-list">
-                {requests.map((r) => (
-                    <div key={r.id} className="request-card">
-                        <div className="card-summary" onClick={() => handleToggleExpand(r.id)}>
-                            <div className="summary-item">
-                                <FaUser className="icon" />
-                                <strong>{fallback(r.name)}</strong>
-                            </div>
-                            <div className="summary-item">
-                                <FaUserTie className="icon" />
-                                <span>{fallback(r.priestUsername)}</span>
-                            </div>
-                            <div className="summary-item">
-                                <label className="toggle-switch" onClick={(e) => e.stopPropagation()}>
-                                    <input
-                                        type="checkbox"
-                                        checked={r.viewed || false}
-                                        onChange={(e) => handleViewedToggle(r.id, e.target.checked)}
-                                    />
-                                    <span className="slider"></span>
-                                </label>
-                            </div>
-                             <div className="summary-item">
-                                <FaChevronDown className={`expand-icon ${expandedRequestId === r.id ? 'expanded' : ''}`} />
-                            </div>
-                        </div>
-                        
-                        <div className={`card-details ${expandedRequestId === r.id ? 'expanded' : ''}`}>
-                            <div className="details-grid">
-                                <div className="detail-item">
-                                    <strong>Phone</strong>
-                                    <span>{fallback(r.phone)}</span>
-                                </div>
-                                <div className="detail-item">
-                                    <strong>Email</strong>
-                                    <span>{fallback(r.email)}</span>
-                                </div>
-                                <div className="detail-item full-width">
-                                    <strong>Nakshatrams</strong>
-                                    <span>{r.nakshatrams ? r.nakshatrams.join(', ') : '-'}</span>
-                                </div>
-                                <div className="detail-item full-width">
-                                    <strong>Notes</strong>
-                                    <span>{fallback(r.notes)}</span>
-                                </div>
-                            </div>
-                        </div>
+
+        {loading ? (
+          <p className="loading-error-message">Loading requests...</p>
+        ) : (
+          <div className="request-list">
+            {requests.map((r) => (
+              <div key={r.id} className="request-card">
+                <div
+                  className="card-summary"
+                  onClick={() => handleToggleExpand(r.id)}
+                >
+                  <div className="summary-item">
+                    <FaUser className="icon" />
+                    <strong>{fallback(r.name)}</strong>
+                  </div>
+                  <div className="summary-item">
+                    <FaUserTie className="icon" />
+                    <span>{fallback(r.priestUsername)}</span>
+                  </div>
+                  <div className="summary-item">
+                    <label
+                      className="toggle-switch"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={r.viewed || false}
+                        onChange={(e) =>
+                          handleViewedToggle(r.id, e.target.checked)
+                        }
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                  <div className="summary-item">
+                    <FaChevronDown
+                      className={`expand-icon ${expandedRequestId === r.id ? "expanded" : ""}`}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className={`card-details ${expandedRequestId === r.id ? "expanded" : ""}`}
+                >
+                  <div className="details-grid">
+                    <div className="detail-item">
+                      <strong>Phone</strong>
+                      <span>{fallback(r.phone)}</span>
                     </div>
-                ))}
-                {requests.length === 0 && <p className="loading-error-message">No requests found.</p>}
-            </div>
+                    <div className="detail-item">
+                      <strong>Email</strong>
+                      <span>{fallback(r.email)}</span>
+                    </div>
+                    <div className="detail-item full-width">
+                      <strong>Nakshatrams</strong>
+                      <span>
+                        {r.nakshatrams ? r.nakshatrams.join(", ") : "-"}
+                      </span>
+                    </div>
+                    <div className="detail-item full-width">
+                      <strong>Notes</strong>
+                      <span>{fallback(r.notes)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {requests.length === 0 && (
+              <p className="loading-error-message">No requests found.</p>
+            )}
+          </div>
         )}
         <ToastContainer position="bottom-right" autoClose={3000} />
       </div>

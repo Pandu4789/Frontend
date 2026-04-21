@@ -1,49 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
-  useLocation
-} from 'react-router-dom';
+  useLocation,
+} from "react-router-dom";
 
-import Navbar from './Navbar';
-import CustomerNavbar from './CustomerNavbar';
-import SplashScreen from './SplashScreen';
-import Login from './login';
-import Signup from './SignUp';
-import Dashboard from './Dashboard';
-import Calendar from './Calendar';
-import Mohurtam from './Mohurtam';
-import ForgotPassword from './ForgotPassword';
-import Profile from './Profile';
-import Help from './Help';
-import Prasadam from './Prasadam';
-import BookPriest from './BookPriest';
-import Events from './Events';
-import PoojaItems from './PoojaItems';
-import CustomerMohurtam from './CustomerMohurtam';
-import PriestProfile from './PriestProfile';
-import MohurtamRequests from './MuhurtamRequests';
-import SessionTimeout from './SessionTimeout';
-import AdminPage from './AdminPage';
-import ProtectedRoute from './ProtectedRoute';
-import AvailabilityManager from './AvailabilityManager';
-import YourBookings from './YourBookings';
-import PriestGallery from './PriestGallery';
-import Footer from './Footer';
+import Navbar from "./Navbar";
+import CustomerNavbar from "./CustomerNavbar";
+import SplashScreen from "./SplashScreen";
+import Login from "./login";
+import Signup from "./SignUp";
+import Dashboard from "./Dashboard";
+import Calendar from "./Calendar";
+import Mohurtam from "./Mohurtam";
+import ForgotPassword from "./ForgotPassword";
+import Profile from "./Profile";
+import Help from "./Help";
+import Prasadam from "./Prasadam";
+import BookPriest from "./BookPriest";
+import Events from "./Events";
+import PoojaItems from "./PoojaItems";
+import CustomerMohurtam from "./CustomerMohurtam";
+import PriestProfile from "./PriestProfile";
+import MohurtamRequests from "./MuhurtamRequests";
+import SessionTimeout from "./SessionTimeout";
+import AdminPage from "./AdminPage";
+import ProtectedRoute from "./ProtectedRoute";
+import AvailabilityManager from "./AvailabilityManager";
+import YourBookings from "./YourBookings";
+import PriestGallery from "./PriestGallery";
+import Footer from "./Footer";
 
 function MainApp({
   isAuthenticated,
   userRole,
   handleLoginSuccess,
   handleLogout,
-  showSplash
+  showSplash,
 }) {
   const location = useLocation();
 
   const currentPath = location.pathname;
-  const hideNavAndFooterRoutes = ['/login', '/signup', '/forgotpassword'];
+  const hideNavAndFooterRoutes = ["/login", "/signup", "/forgotpassword"];
   const shouldShowLayout = !hideNavAndFooterRoutes.includes(currentPath);
 
   if (showSplash) {
@@ -52,22 +52,33 @@ function MainApp({
 
   return (
     <SessionTimeout timeout={10 * 60 * 1000}>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div
+        style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      >
         {/* Navbar */}
-        {shouldShowLayout && isAuthenticated && userRole === 'priest' && <Navbar onLogout={handleLogout} />}
-        {shouldShowLayout && isAuthenticated && userRole === 'customer' && <CustomerNavbar onLogout={handleLogout} />}
+        {shouldShowLayout && isAuthenticated && userRole === "priest" && (
+          <Navbar onLogout={handleLogout} />
+        )}
+        {shouldShowLayout && isAuthenticated && userRole === "customer" && (
+          <CustomerNavbar onLogout={handleLogout} />
+        )}
 
         {/* Main content */}
-        <div style={{ flex: 1, paddingTop: shouldShowLayout ? '70px' : 0 }}>
+        <div style={{ flex: 1, paddingTop: shouldShowLayout ? "70px" : 0 }}>
           <Routes>
             <Route
               path="/"
               element={
                 isAuthenticated ? (
-                  userRole === 'priest' ? <Navigate to="/dashboard" /> :
-                  userRole === 'customer' ? <Navigate to="/events" /> :
-                  userRole === 'admin' ? <Navigate to="/adminpage" /> :
-                  <Navigate to="/login" />
+                  userRole === "priest" ? (
+                    <Navigate to="/dashboard" />
+                  ) : userRole === "customer" ? (
+                    <Navigate to="/events" />
+                  ) : userRole === "admin" ? (
+                    <Navigate to="/adminpage" />
+                  ) : (
+                    <Navigate to="/login" />
+                  )
                 ) : (
                   <Navigate to="/login" />
                 )
@@ -75,7 +86,10 @@ function MainApp({
             />
 
             {/* Auth Routes */}
-            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            <Route
+              path="/login"
+              element={<Login onLoginSuccess={handleLoginSuccess} />}
+            />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgotpassword" element={<ForgotPassword />} />
 
@@ -88,7 +102,11 @@ function MainApp({
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -96,7 +114,11 @@ function MainApp({
             <Route
               path="/calendar"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <Calendar />
                 </ProtectedRoute>
               }
@@ -104,7 +126,11 @@ function MainApp({
             <Route
               path="/mohurtam"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <Mohurtam />
                 </ProtectedRoute>
               }
@@ -112,7 +138,11 @@ function MainApp({
             <Route
               path="/requests"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <MohurtamRequests />
                 </ProtectedRoute>
               }
@@ -120,7 +150,11 @@ function MainApp({
             <Route
               path="/availability-manager"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <AvailabilityManager />
                 </ProtectedRoute>
               }
@@ -128,7 +162,11 @@ function MainApp({
             <Route
               path="/priest-gallery"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['priest']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["priest"]}
+                  userRole={userRole}
+                >
                   <PriestGallery />
                 </ProtectedRoute>
               }
@@ -137,7 +175,11 @@ function MainApp({
             <Route
               path="/adminpage"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['admin']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["admin"]}
+                  userRole={userRole}
+                >
                   <AdminPage />
                 </ProtectedRoute>
               }
@@ -147,7 +189,11 @@ function MainApp({
             <Route
               path="/events"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
                   <Events />
                 </ProtectedRoute>
               }
@@ -155,7 +201,11 @@ function MainApp({
             <Route
               path="/customer-mohurtam"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
                   <CustomerMohurtam />
                 </ProtectedRoute>
               }
@@ -163,7 +213,11 @@ function MainApp({
             <Route
               path="/book-priest"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
                   <BookPriest />
                 </ProtectedRoute>
               }
@@ -171,7 +225,11 @@ function MainApp({
             <Route
               path="/pooja-items"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
                   <PoojaItems />
                 </ProtectedRoute>
               }
@@ -179,19 +237,27 @@ function MainApp({
             <Route
               path="/prasadam"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
                   <Prasadam />
                 </ProtectedRoute>
               }
             />
             <Route
-  path="/your-bookings" // The URL for the new page
-  element={
-    <ProtectedRoute isAuthenticated={isAuthenticated} allowedRoles={['customer']} userRole={userRole}>
-      <YourBookings />
-    </ProtectedRoute>
-  }
-/>
+              path="/your-bookings" // The URL for the new page
+              element={
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
+                  <YourBookings />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
 
@@ -208,8 +274,8 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
 
     if (token && role) {
       setIsAuthenticated(true);
@@ -224,20 +290,20 @@ export default function App() {
     const normalizedRole = role.toLowerCase();
     setIsAuthenticated(true);
     setUserRole(normalizedRole);
-    localStorage.setItem('role', normalizedRole);
-    localStorage.setItem('token', 'sample_token'); // Replace with actual token from backend
+    localStorage.setItem("role", normalizedRole);
+    localStorage.setItem("token", "sample_token"); // Replace with actual token from backend
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserRole(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('firstName');
-    localStorage.removeItem('lastName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('profilePicture');
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("profilePicture");
   };
 
   return (

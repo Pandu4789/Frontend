@@ -1,10 +1,13 @@
-import './Footer.css';
+import "./Footer.css";
 
 const Footer = () => {
   return (
-    <footer className="priestify-footer-slim" role="contentinfo" aria-label="Site footer">
+    <footer
+      className="priestify-footer-slim"
+      role="contentinfo"
+      aria-label="Site footer"
+    >
       <div className="footer-slim-container">
-        
         {/* Left Side: Brand & Copyright */}
         <div className="footer-left">
           <div className="footer-brand-mini">
@@ -25,7 +28,6 @@ const Footer = () => {
         <div className="footer-right-credits">
           Developed & Maintained by <span>Mohit Kumar Nagubandi</span>
         </div>
-
       </div>
     </footer>
   );

@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const API_BASE = 'http://localhost:8080/api/prasadam';
+const API_BASE = "http://localhost:8080/api/prasadam";
 
 const ManagePrasadams = () => {
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
   const [form, setForm] = useState({
-    name: '',
-    category: '',
-    price: '',
-    description: '',
-    imageUrl: '',
+    name: "",
+    category: "",
+    price: "",
+    description: "",
+    imageUrl: "",
     available: true,
   });
 
@@ -38,12 +38,19 @@ const ManagePrasadams = () => {
     }
 
     fetchItems();
-    setForm({ name: '', category: '', price: '', description: '', imageUrl: '', available: true });
+    setForm({
+      name: "",
+      category: "",
+      price: "",
+      description: "",
+      imageUrl: "",
+      available: true,
+    });
     setEditingItem(null);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
+    if (window.confirm("Are you sure you want to delete this item?")) {
       await axios.delete(`${API_BASE}/${id}`);
       fetchItems();
     }
@@ -59,7 +66,7 @@ const ManagePrasadams = () => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -80,7 +87,10 @@ const ManagePrasadams = () => {
       <h2 className="text-2xl font-bold mb-4">Manage Prasadams</h2>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white shadow p-4 rounded mb-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow p-4 rounded mb-6"
+      >
         <div className="grid grid-cols-2 gap-4">
           <input
             name="name"
@@ -136,7 +146,7 @@ const ManagePrasadams = () => {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
           >
-            {editingItem ? 'Update' : 'Add'}
+            {editingItem ? "Update" : "Add"}
           </button>
 
           {editingItem && (
@@ -144,11 +154,11 @@ const ManagePrasadams = () => {
               type="button"
               onClick={() => {
                 setForm({
-                  name: '',
-                  category: '',
-                  price: '',
-                  description: '',
-                  imageUrl: '',
+                  name: "",
+                  category: "",
+                  price: "",
+                  description: "",
+                  imageUrl: "",
                   available: true,
                 });
                 setEditingItem(null);
@@ -176,10 +186,13 @@ const ManagePrasadams = () => {
         </thead>
         <tbody>
           {items.map((item) => (
-            <tr key={item.id} className={item.available ? '' : 'opacity-50'}>
+            <tr key={item.id} className={item.available ? "" : "opacity-50"}>
               <td className="border p-2">
                 <img
-                  src={item.imageUrl || 'https://via.placeholder.com/60?text=No+Image'}
+                  src={
+                    item.imageUrl ||
+                    "https://via.placeholder.com/60?text=No+Image"
+                  }
                   alt={item.name}
                   className="w-14 h-14 object-cover rounded"
                 />
@@ -193,7 +206,7 @@ const ManagePrasadams = () => {
                   onClick={() => toggleAvailability(item)}
                   className="text-sm px-2 py-1 bg-gray-200 rounded"
                 >
-                  {item.available ? 'Yes' : 'No'}
+                  {item.available ? "Yes" : "No"}
                 </button>
               </td>
               <td className="border p-2 space-x-2">

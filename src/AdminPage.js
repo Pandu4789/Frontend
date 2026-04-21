@@ -1,10 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  FaUserTie, FaUsers, FaCalendarCheck, FaPray, FaCalendarAlt,
-  FaQuestionCircle, FaShoppingBasket, FaGift, FaBookOpen, FaClock, FaSignOutAlt, FaOm, FaBell
-} from 'react-icons/fa';
-import './AdminPage.css';
+  FaUserTie,
+  FaUsers,
+  FaCalendarCheck,
+  FaPray,
+  FaCalendarAlt,
+  FaQuestionCircle,
+  FaShoppingBasket,
+  FaGift,
+  FaBookOpen,
+  FaClock,
+  FaSignOutAlt,
+  FaOm,
+  FaBell,
+} from "react-icons/fa";
+import "./AdminPage.css";
 
 // --- Management Component Imports ---
 import ManagePriests from "./admin/ManagePriests";
@@ -42,23 +53,36 @@ const AdminPage = () => {
     navigate("/login");
   };
 
-  const activeLabel = navLinks.find(link => link.key === activeTab)?.label || 'Dashboard';
+  const activeLabel =
+    navLinks.find((link) => link.key === activeTab)?.label || "Dashboard";
 
   // Helper function to render the correct sub-component
   const renderTabContent = () => {
     switch (activeTab) {
-      case "priests": return <ManagePriests />;
-      case "customers": return <ManageCustomers />;
-      case "appointments": return <ManageAppointments />;
-      case "pooja": return <ManagePoojaServices />;
-      case "events": return <ManageEvents />;
-      case "muhurtam": return <ManageMuhurtamRequests />;
-      case "pooja-items": return <ManagePoojaItems />;
-      case "prasadam": return <ManagePrasadams />;
-      case "festivals": return <ManageFestivals />;
-      case "daily-times": return <ManageDailyTimes />;
-      case "panchangam": return <ManagePanchangam />;
-      default: return <ManagePriests />;
+      case "priests":
+        return <ManagePriests />;
+      case "customers":
+        return <ManageCustomers />;
+      case "appointments":
+        return <ManageAppointments />;
+      case "pooja":
+        return <ManagePoojaServices />;
+      case "events":
+        return <ManageEvents />;
+      case "muhurtam":
+        return <ManageMuhurtamRequests />;
+      case "pooja-items":
+        return <ManagePoojaItems />;
+      case "prasadam":
+        return <ManagePrasadams />;
+      case "festivals":
+        return <ManageFestivals />;
+      case "daily-times":
+        return <ManageDailyTimes />;
+      case "panchangam":
+        return <ManagePanchangam />;
+      default:
+        return <ManagePriests />;
     }
   };
 
@@ -70,12 +94,12 @@ const AdminPage = () => {
           <FaOm className="sidebar-logo-icon" />
           <h1 className="sidebar-title">PRIESTify</h1>
         </div>
-        
+
         <nav className="sidebar-nav">
-          {navLinks.map(link => (
+          {navLinks.map((link) => (
             <button
               key={link.key}
-              className={`sidebar-link ${activeTab === link.key ? 'active' : ''}`}
+              className={`sidebar-link ${activeTab === link.key ? "active" : ""}`}
               onClick={() => setActiveTab(link.key)}
             >
               <span className="sidebar-icon">{link.icon}</span>
@@ -86,7 +110,9 @@ const AdminPage = () => {
 
         <div className="sidebar-footer">
           <button className="sidebar-link logout" onClick={handleLogout}>
-            <span className="sidebar-icon"><FaSignOutAlt /></span>
+            <span className="sidebar-icon">
+              <FaSignOutAlt />
+            </span>
             <span className="sidebar-label-text">Logout</span>
           </button>
         </div>
@@ -99,21 +125,19 @@ const AdminPage = () => {
             <p className="breadcrumb-text">Admin Management Portal</p>
             <h2>{activeLabel}</h2>
           </div>
-          
+
           <div className="header-profile-actions">
-             <button className="icon-action-btn">
-                <FaBell />
-             </button>
-             <div className="admin-user-pill">
-                <div className="admin-avatar">A</div>
-                <span className="admin-name">Super Admin</span>
-             </div>
+            <button className="icon-action-btn">
+              <FaBell />
+            </button>
+            <div className="admin-user-pill">
+              <div className="admin-avatar">A</div>
+              <span className="admin-name">Super Admin</span>
+            </div>
           </div>
         </header>
 
-        <div className="content-card-wrapper">
-          {renderTabContent()}
-        </div>
+        <div className="content-card-wrapper">{renderTabContent()}</div>
       </main>
     </div>
   );

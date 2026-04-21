@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Select from "react-select";
-import { toast } from 'react-toastify';
-import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from 'react-icons/fa';
-import '../components/adminModalStyles.css';
+import { toast } from "react-toastify";
+import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from "react-icons/fa";
+import "../components/adminModalStyles.css";
 // Note: You no longer need to import './ManagePriests.css'
 
 const API_BASE = "http://localhost:8080";
 
 const emptyPriest = {
   id: null,
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  address: '',
-  password: '',
-  poojas: [] // Should be servicesOffered based on your entity
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  address: "",
+  password: "",
+  poojas: [], // Should be servicesOffered based on your entity
 };
 
 const ManagePriests = () => {
@@ -31,14 +31,18 @@ const ManagePriests = () => {
     try {
       const res = await axios.get(`${API_BASE}/api/auth/priests`);
       setPriests(res.data);
-    } catch (err) { toast.error("Failed to fetch priests"); }
+    } catch (err) {
+      toast.error("Failed to fetch priests");
+    }
   };
 
   const fetchServices = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/events`);
-      setServicesList(res.data.map(s => ({ label: s.name, value: s.name })));
-    } catch (err) { toast.error("Failed to fetch services"); }
+      setServicesList(res.data.map((s) => ({ label: s.name, value: s.name })));
+    } catch (err) {
+      toast.error("Failed to fetch services");
+    }
   };
 
   useEffect(() => {
@@ -59,7 +63,7 @@ const ManagePriests = () => {
     setCurrentPriest({
       ...priestToEdit,
       // Ensure the services are in the format react-select expects
-      poojas: (priestToEdit.poojas || []).map(s => ({ label: s, value: s }))
+      poojas: (priestToEdit.poojas || []).map((s) => ({ label: s, value: s })),
     });
     setIsModalOpen(true);
   };
@@ -74,27 +78,32 @@ const ManagePriests = () => {
   };
 
   const handleServiceChange = (selectedOptions) => {
-    const selectedServices = selectedOptions ? selectedOptions.map(opt => opt.value) : [];
+    const selectedServices = selectedOptions
+      ? selectedOptions.map((opt) => opt.value)
+      : [];
     setCurrentPriest({ ...currentPriest, poojas: selectedServices });
   };
 
   // --- API Actions ---
   const handleSave = async () => {
     if (!currentPriest.username) {
-        toast.error("Username is required.");
-        return;
+      toast.error("Username is required.");
+      return;
     }
     // Convert services back to a simple array of strings before sending
-    const payload = { ...currentPriest, poojas: currentPriest.poojas.map(s => s.value || s) };
-    
+    const payload = {
+      ...currentPriest,
+      poojas: currentPriest.poojas.map((s) => s.value || s),
+    };
+
     try {
       if (isEditing) {
         await axios.put(`${API_BASE}/api/auth/priests/${payload.id}`, payload);
         toast.success("Priest updated successfully!");
       } else {
         if (!payload.password) {
-            toast.error("Password is required for new priests.");
-            return;
+          toast.error("Password is required for new priests.");
+          return;
         }
         await axios.post(`${API_BASE}/api/auth/register-priest`, payload); // Assuming a specific registration endpoint
         toast.success("Priest created successfully!");
@@ -109,11 +118,13 @@ const ManagePriests = () => {
 
   const deletePriest = async (id) => {
     if (window.confirm("Are you sure you want to delete this priest?")) {
-        try {
-            await axios.delete(`${API_BASE}/api/auth/priests/${id}`);
-            toast.success("Priest deleted successfully.");
-            fetchPriests();
-        } catch (err) { toast.error("Failed to delete priest."); }
+      try {
+        await axios.delete(`${API_BASE}/api/auth/priests/${id}`);
+        toast.success("Priest deleted successfully.");
+        fetchPriests();
+      } catch (err) {
+        toast.error("Failed to delete priest.");
+      }
     }
   };
 
@@ -167,60 +178,129 @@ const ManagePriests = () => {
           {priests.map((p) => (
             <div key={p.id} className="priest-info-card">
               <div className="card-header">
-                <h3>{p.firstName} {p.lastName}</h3>
+                <h3>
+                  {p.firstName} {p.lastName}
+                </h3>
                 <span className="priest-username">@{p.username}</span>
               </div>
               <div className="card-body">
-                <p><strong>Phone:</strong> {p.phone || 'N/A'}</p>
-                <p><strong>Address:</strong> {p.address || 'N/A'}</p>
+                <p>
+                  <strong>Phone:</strong> {p.phone || "N/A"}
+                </p>
+                <p>
+                  <strong>Address:</strong> {p.address || "N/A"}
+                </p>
                 <div>
                   <strong>Services:</strong>
                   <div className="services-tags">
-                      {(p.poojas || []).length > 0 ? p.poojas.map(s => <span key={s} className="tag">{s}</span>) : 'None'}
+                    {(p.poojas || []).length > 0
+                      ? p.poojas.map((s) => (
+                          <span key={s} className="tag">
+                            {s}
+                          </span>
+                        ))
+                      : "None"}
                   </div>
                 </div>
               </div>
               <div className="card-footer">
-                <button className="btn-edit" onClick={() => handleEdit(p)}><FaUserEdit /> Edit</button>
-                <button className="btn-delete" onClick={() => deletePriest(p.id)}><FaTrash /> Delete</button>
+                <button className="btn-edit" onClick={() => handleEdit(p)}>
+                  <FaUserEdit /> Edit
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={() => deletePriest(p.id)}
+                >
+                  <FaTrash /> Delete
+                </button>
               </div>
             </div>
           ))}
-          {priests.length === 0 && <p className="loading-error-message">No priests found.</p>}
+          {priests.length === 0 && (
+            <p className="loading-error-message">No priests found.</p>
+          )}
         </div>
 
         {isModalOpen && (
           <div className="admin-modal-overlay">
             <div className="admin-modal-content">
               <div className="admin-modal-header">
-                <h3>{isEditing ? 'Edit Priest' : 'Create New Priest'}</h3>
-                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
+                <h3>{isEditing ? "Edit Priest" : "Create New Priest"}</h3>
+                <button
+                  onClick={handleCloseModal}
+                  className="admin-close-button"
+                >
+                  <FaTimes />
+                </button>
               </div>
               <div className="admin-modal-body">
                 <div className="form-grid">
-                  <input className="form-input" name="firstName" value={currentPriest.firstName} onChange={handleInputChange} placeholder="First Name" />
-                  <input className="form-input" name="lastName" value={currentPriest.lastName} onChange={handleInputChange} placeholder="Last Name" />
-                  <input className="form-input" name="username" value={currentPriest.username} onChange={handleInputChange} placeholder="Username (Email)" />
-                  <input className="form-input" name="phone" value={currentPriest.phone} onChange={handleInputChange} placeholder="Phone Number" />
-                  <input className="form-input col-span-2" name="address" value={currentPriest.address} onChange={handleInputChange} placeholder="Address" />
+                  <input
+                    className="form-input"
+                    name="firstName"
+                    value={currentPriest.firstName}
+                    onChange={handleInputChange}
+                    placeholder="First Name"
+                  />
+                  <input
+                    className="form-input"
+                    name="lastName"
+                    value={currentPriest.lastName}
+                    onChange={handleInputChange}
+                    placeholder="Last Name"
+                  />
+                  <input
+                    className="form-input"
+                    name="username"
+                    value={currentPriest.username}
+                    onChange={handleInputChange}
+                    placeholder="Username (Email)"
+                  />
+                  <input
+                    className="form-input"
+                    name="phone"
+                    value={currentPriest.phone}
+                    onChange={handleInputChange}
+                    placeholder="Phone Number"
+                  />
+                  <input
+                    className="form-input col-span-2"
+                    name="address"
+                    value={currentPriest.address}
+                    onChange={handleInputChange}
+                    placeholder="Address"
+                  />
                   {!isEditing && (
-                      <input className="form-input col-span-2" name="password" type="password" onChange={handleInputChange} placeholder="Set Initial Password" />
+                    <input
+                      className="form-input col-span-2"
+                      name="password"
+                      type="password"
+                      onChange={handleInputChange}
+                      placeholder="Set Initial Password"
+                    />
                   )}
                   <div className="col-span-2">
-                      <label>Services Offered</label>
-                      <Select
-                          isMulti
-                          options={servicesList}
-                          value={currentPriest.poojas}
-                          onChange={handleServiceChange}
-                          classNamePrefix="react-select"
-                      />
+                    <label>Services Offered</label>
+                    <Select
+                      isMulti
+                      options={servicesList}
+                      value={currentPriest.poojas}
+                      onChange={handleServiceChange}
+                      classNamePrefix="react-select"
+                    />
                   </div>
                 </div>
               </div>
               <div className="admin-modal-footer">
-                <button className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+                <button className="btn btn-primary" onClick={handleSave}>
+                  Save Changes
+                </button>
               </div>
             </div>
           </div>

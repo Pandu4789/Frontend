@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from 'react-toastify';
-import { format, parseISO } from 'date-fns';
-import { FaPlus, FaTimes, FaUser, FaPhoneAlt, FaRegCalendarAlt, FaRegClock } from 'react-icons/fa';
-import '../components/adminModalStyles.css';
+import { toast } from "react-toastify";
+import { format, parseISO } from "date-fns";
+import {
+  FaPlus,
+  FaTimes,
+  FaUser,
+  FaPhoneAlt,
+  FaRegCalendarAlt,
+  FaRegClock,
+} from "react-icons/fa";
+import "../components/adminModalStyles.css";
 
 const API_BASE = "http://localhost:8080";
 
@@ -42,7 +49,9 @@ const ManageAppointments = () => {
     try {
       const res = await axios.get(`${API_BASE}/api/booking/all`);
       // Sort by date, newest first
-      const sorted = res.data.sort((a,b) => new Date(b.date) - new Date(a.date));
+      const sorted = res.data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date),
+      );
       setAppointments(sorted);
     } catch (err) {
       toast.error("Failed to fetch appointments.");
@@ -60,21 +69,21 @@ const ManageAppointments = () => {
 
   const getEventName = (id) => {
     const event = events.find((e) => e.id === Number(id));
-    return event ? event.name : 'Unknown Event';
+    return event ? event.name : "Unknown Event";
   };
 
   const updateStatus = async (id, status) => {
     try {
       await axios.put(`${API_BASE}/api/booking/${status.toLowerCase()}/${id}`);
       setAppointments((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status } : a))
+        prev.map((a) => (a.id === id ? { ...a, status } : a)),
       );
       toast.success(`Appointment status updated to ${status}`);
     } catch (err) {
       toast.error("Failed to update status.");
     }
   };
-  
+
   const handleAddNew = () => {
     setIsEditing(false);
     setCurrentAppointment(initialForm);
@@ -85,9 +94,13 @@ const ManageAppointments = () => {
     setIsEditing(true);
     // Ensure times are in the correct 'HH:mm' format for the input fields
     const formattedAppointment = {
-        ...appointment,
-        start: appointment.start ? format(parseISO(`1970-01-01T${appointment.start}`), 'HH:mm') : '',
-        end: appointment.end ? format(parseISO(`1970-01-01T${appointment.end}`), 'HH:mm') : '',
+      ...appointment,
+      start: appointment.start
+        ? format(parseISO(`1970-01-01T${appointment.start}`), "HH:mm")
+        : "",
+      end: appointment.end
+        ? format(parseISO(`1970-01-01T${appointment.end}`), "HH:mm")
+        : "",
     };
     setCurrentAppointment(formattedAppointment);
     setIsModalOpen(true);
@@ -99,7 +112,10 @@ const ManageAppointments = () => {
   };
 
   const handleInputChange = (e) => {
-    setCurrentAppointment({ ...currentAppointment, [e.target.name]: e.target.value });
+    setCurrentAppointment({
+      ...currentAppointment,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -113,7 +129,10 @@ const ManageAppointments = () => {
       };
 
       if (isEditing) {
-        await axios.put(`${API_BASE}/api/booking/${currentAppointment.id}`, formData);
+        await axios.put(
+          `${API_BASE}/api/booking/${currentAppointment.id}`,
+          formData,
+        );
         toast.success("Appointment updated successfully!");
       } else {
         await axios.post(`${API_BASE}/api/booking`, formData);
@@ -127,14 +146,14 @@ const ManageAppointments = () => {
   };
 
   const handleDelete = async (id) => {
-    if(window.confirm("Are you sure you want to delete this appointment?")) {
-        try {
-            await axios.delete(`${API_BASE}/api/booking/${id}`);
-            setAppointments((prev) => prev.filter((a) => a.id !== id));
-            toast.success("Appointment deleted.");
-        } catch (err) {
-            toast.error("Failed to delete appointment.");
-        }
+    if (window.confirm("Are you sure you want to delete this appointment?")) {
+      try {
+        await axios.delete(`${API_BASE}/api/booking/${id}`);
+        setAppointments((prev) => prev.filter((a) => a.id !== id));
+        toast.success("Appointment deleted.");
+      } catch (err) {
+        toast.error("Failed to delete appointment.");
+      }
     }
   };
 
@@ -183,53 +202,154 @@ const ManageAppointments = () => {
         </div>
 
         <div className="appointment-list">
-          {appointments.map(a => (
+          {appointments.map((a) => (
             <div key={a.id} className="appointment-card">
               <div className="ac-header">
                 <h3>{getEventName(a.eventId)}</h3>
-                <span className={`status-badge status-${a.status}`}>{a.status}</span>
+                <span className={`status-badge status-${a.status}`}>
+                  {a.status}
+                </span>
               </div>
               <div className="ac-body">
-                <p><FaUser className="icon"/> {a.name}</p>
-                <p><FaPhoneAlt className="icon"/> {a.phone}</p>
-                <p><FaRegCalendarAlt className="icon"/> {format(parseISO(a.date), 'MMMM d, yyyy')}</p>
-                <p><FaRegClock className="icon"/> {a.start} - {a.end}</p>
+                <p>
+                  <FaUser className="icon" /> {a.name}
+                </p>
+                <p>
+                  <FaPhoneAlt className="icon" /> {a.phone}
+                </p>
+                <p>
+                  <FaRegCalendarAlt className="icon" />{" "}
+                  {format(parseISO(a.date), "MMMM d, yyyy")}
+                </p>
+                <p>
+                  <FaRegClock className="icon" /> {a.start} - {a.end}
+                </p>
               </div>
               <div className="ac-footer">
-                <button className="action-btn btn-approve" onClick={() => updateStatus(a.id, "ACCEPTED")}>Approve</button>
-                <button className="action-btn btn-reject" onClick={() => updateStatus(a.id, "REJECTED")}>Reject</button>
-                <button className="action-btn btn-edit" onClick={() => handleEdit(a)}>Edit</button>
-                <button className="action-btn btn-delete" onClick={() => handleDelete(a.id)}>Delete</button>
+                <button
+                  className="action-btn btn-approve"
+                  onClick={() => updateStatus(a.id, "ACCEPTED")}
+                >
+                  Approve
+                </button>
+                <button
+                  className="action-btn btn-reject"
+                  onClick={() => updateStatus(a.id, "REJECTED")}
+                >
+                  Reject
+                </button>
+                <button
+                  className="action-btn btn-edit"
+                  onClick={() => handleEdit(a)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="action-btn btn-delete"
+                  onClick={() => handleDelete(a.id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
-          {appointments.length === 0 && <p className="loading-error-message">No appointments found.</p>}
+          {appointments.length === 0 && (
+            <p className="loading-error-message">No appointments found.</p>
+          )}
         </div>
 
         {isModalOpen && (
           <div className="admin-modal-overlay">
             <div className="admin-modal-content">
               <div className="admin-modal-header">
-                <h3>{isEditing ? 'Edit Appointment' : 'Create Appointment'}</h3>
-                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
+                <h3>{isEditing ? "Edit Appointment" : "Create Appointment"}</h3>
+                <button
+                  onClick={handleCloseModal}
+                  className="admin-close-button"
+                >
+                  <FaTimes />
+                </button>
               </div>
               <form onSubmit={handleSubmit} className="admin-modal-body">
                 <div className="form-grid">
-                  <input className="form-input" name="name" value={currentAppointment.name} onChange={handleInputChange} placeholder="Customer Name" required />
-                  <input className="form-input" name="phone" value={currentAppointment.phone} onChange={handleInputChange} placeholder="Phone Number" required />
-                  <select className="form-input" name="eventId" value={currentAppointment.eventId} onChange={handleInputChange} required>
+                  <input
+                    className="form-input"
+                    name="name"
+                    value={currentAppointment.name}
+                    onChange={handleInputChange}
+                    placeholder="Customer Name"
+                    required
+                  />
+                  <input
+                    className="form-input"
+                    name="phone"
+                    value={currentAppointment.phone}
+                    onChange={handleInputChange}
+                    placeholder="Phone Number"
+                    required
+                  />
+                  <select
+                    className="form-input"
+                    name="eventId"
+                    value={currentAppointment.eventId}
+                    onChange={handleInputChange}
+                    required
+                  >
                     <option value="">Select Pooja/Event</option>
-                    {events.map(event => <option key={event.id} value={event.id}>{event.name}</option>)}
+                    {events.map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.name}
+                      </option>
+                    ))}
                   </select>
-                  <input className="form-input" name="date" type="date" value={currentAppointment.date} onChange={handleInputChange} required />
-                  <input className="form-input" name="start" type="time" value={currentAppointment.start} onChange={handleInputChange} />
-                  <input className="form-input" name="end" type="time" value={currentAppointment.end} onChange={handleInputChange} />
-                  <input className="form-input col-span-2" name="address" value={currentAppointment.address} onChange={handleInputChange} placeholder="Address" />
-                  <textarea className="form-input col-span-2" name="note" value={currentAppointment.note} onChange={handleInputChange} placeholder="Notes..." />
+                  <input
+                    className="form-input"
+                    name="date"
+                    type="date"
+                    value={currentAppointment.date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <input
+                    className="form-input"
+                    name="start"
+                    type="time"
+                    value={currentAppointment.start}
+                    onChange={handleInputChange}
+                  />
+                  <input
+                    className="form-input"
+                    name="end"
+                    type="time"
+                    value={currentAppointment.end}
+                    onChange={handleInputChange}
+                  />
+                  <input
+                    className="form-input col-span-2"
+                    name="address"
+                    value={currentAppointment.address}
+                    onChange={handleInputChange}
+                    placeholder="Address"
+                  />
+                  <textarea
+                    className="form-input col-span-2"
+                    name="note"
+                    value={currentAppointment.note}
+                    onChange={handleInputChange}
+                    placeholder="Notes..."
+                  />
                 </div>
                 <div className="admin-modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
-                  <button type="submit" className="btn btn-primary">{isEditing ? "Save Changes" : "Create Appointment"}</button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    {isEditing ? "Save Changes" : "Create Appointment"}
+                  </button>
                 </div>
               </form>
             </div>

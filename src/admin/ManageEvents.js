@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import { FaEdit, FaTrash, FaPlus, FaImage } from 'react-icons/fa';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import { FaEdit, FaTrash, FaPlus, FaImage } from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE = "http://localhost:8080";
 
 const initialFormState = {
-  title: '',
-  photo: '', // This should be an image URL
-  description: '',
+  title: "",
+  photo: "", // This should be an image URL
+  description: "",
 };
 
 const AddDashboardEvent = () => {
@@ -27,8 +27,8 @@ const AddDashboardEvent = () => {
       const res = await axios.get(`${API_BASE}/api/dashboard/events`);
       setEvents(res.data);
     } catch (error) {
-      toast.error('Error fetching events.');
-      console.error('Error fetching events:', error);
+      toast.error("Error fetching events.");
+      console.error("Error fetching events:", error);
     }
   };
 
@@ -47,28 +47,28 @@ const AddDashboardEvent = () => {
     try {
       if (editId) {
         await axios.put(`${API_BASE}/api/dashboard/events/${editId}`, formData);
-        toast.success('Event updated successfully!');
+        toast.success("Event updated successfully!");
       } else {
         await axios.post(`${API_BASE}/api/dashboard/events`, formData);
-        toast.success('Event added successfully!');
+        toast.success("Event added successfully!");
       }
       resetForm();
       fetchEvents();
     } catch (error) {
-      toast.error('Error saving event.');
-      console.error('Error saving event:', error);
+      toast.error("Error saving event.");
+      console.error("Error saving event:", error);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return;
+    if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
       await axios.delete(`${API_BASE}/api/dashboard/events/${id}`);
-      toast.success('Event deleted successfully!');
+      toast.success("Event deleted successfully!");
       fetchEvents();
     } catch (error) {
-      toast.error('Error deleting event.');
-      console.error('Error deleting event:', error);
+      toast.error("Error deleting event.");
+      console.error("Error deleting event:", error);
     }
   };
 
@@ -218,7 +218,14 @@ const AddDashboardEvent = () => {
         <div className="ae-header">
           <h1 className="ae-title">Manage Dashboard Events</h1>
           {!isFormVisible && (
-            <button className="ae-add-btn" onClick={() => { setEditId(null); setFormData(initialFormState); setIsFormVisible(true); }}>
+            <button
+              className="ae-add-btn"
+              onClick={() => {
+                setEditId(null);
+                setFormData(initialFormState);
+                setIsFormVisible(true);
+              }}
+            >
               <FaPlus /> Add New Event
             </button>
           )}
@@ -226,16 +233,44 @@ const AddDashboardEvent = () => {
 
         {isFormVisible && (
           <div className="ae-form-card">
-            <h2>{editId ? 'Edit Event' : 'Add New Event'}</h2>
+            <h2>{editId ? "Edit Event" : "Add New Event"}</h2>
             <form onSubmit={handleSubmit}>
               <div className="ae-form-grid">
-                <input name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
-                <input name="photo" placeholder="Photo URL" type="url" value={formData.photo} onChange={handleChange} />
-                <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} required className="full-width" rows="4"/>
+                <input
+                  name="title"
+                  placeholder="Title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  name="photo"
+                  placeholder="Photo URL"
+                  type="url"
+                  value={formData.photo}
+                  onChange={handleChange}
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  className="full-width"
+                  rows="4"
+                />
               </div>
               <div className="ae-form-actions">
-                <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{editId ? 'Update Event' : 'Add Event'}</button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={resetForm}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editId ? "Update Event" : "Add Event"}
+                </button>
               </div>
             </form>
           </div>
@@ -243,24 +278,38 @@ const AddDashboardEvent = () => {
 
         <div className="event-grid">
           {events.length === 0 ? (
-            <p className="loading-error-message">{!events ? "Loading..." : "No events found."}</p>
+            <p className="loading-error-message">
+              {!events ? "Loading..." : "No events found."}
+            </p>
           ) : (
             events.map((event) => (
               <div key={event.id} className="event-card">
                 {event.photo ? (
-                  <img src={event.photo} alt={event.title} className="event-card-image" />
+                  <img
+                    src={event.photo}
+                    alt={event.title}
+                    className="event-card-image"
+                  />
                 ) : (
-                  <div className="placeholder-image"><FaImage /></div>
+                  <div className="placeholder-image">
+                    <FaImage />
+                  </div>
                 )}
                 <div className="event-card-content">
                   <h3>{event.title}</h3>
                   <p>{event.description}</p>
                 </div>
                 <div className="event-card-actions">
-                  <button className="btn-edit" onClick={() => handleEdit(event)}>
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleEdit(event)}
+                  >
                     <FaEdit /> Edit
                   </button>
-                  <button className="btn-delete" onClick={() => handleDelete(event.id)}>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(event.id)}
+                  >
                     <FaTrash /> Delete
                   </button>
                 </div>

@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from 'react-toastify';
-import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from 'react-icons/fa';
-import '../components/adminModalStyles.css';
+import { toast } from "react-toastify";
+import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from "react-icons/fa";
+import "../components/adminModalStyles.css";
 // No need to import a separate CSS file
 
 const API_BASE = "http://localhost:8080";
 
 const emptyCustomer = {
   id: null,
-  firstName: '',
-  lastName: '',
-  username: '', // email
-  phone: '',
-  address: '',
-  password: '',
+  firstName: "",
+  lastName: "",
+  username: "", // email
+  phone: "",
+  address: "",
+  password: "",
 };
 
 const ManageCustomers = () => {
@@ -60,19 +60,25 @@ const ManageCustomers = () => {
 
   const handleSave = async () => {
     if (!currentCustomer.username || !currentCustomer.firstName) {
-        toast.error("First name and username are required.");
-        return;
+      toast.error("First name and username are required.");
+      return;
     }
     try {
       if (isEditing) {
-        await axios.put(`${API_BASE}/api/auth/customers/${currentCustomer.id}`, currentCustomer);
+        await axios.put(
+          `${API_BASE}/api/auth/customers/${currentCustomer.id}`,
+          currentCustomer,
+        );
         toast.success("Customer updated successfully!");
       } else {
         if (!currentCustomer.password) {
-            toast.error("Password is required for new customers.");
-            return;
+          toast.error("Password is required for new customers.");
+          return;
         }
-        await axios.post(`${API_BASE}/api/auth/register-customer`, currentCustomer);
+        await axios.post(
+          `${API_BASE}/api/auth/register-customer`,
+          currentCustomer,
+        );
         toast.success("Customer created successfully!");
       }
       handleCloseModal();
@@ -84,13 +90,13 @@ const ManageCustomers = () => {
 
   const deleteCustomer = async (id) => {
     if (window.confirm("Are you sure you want to delete this customer?")) {
-        try {
-            await axios.delete(`${API_BASE}/api/auth/customers/${id}`);
-            toast.success("Customer deleted successfully.");
-            fetchCustomers();
-        } catch (err) {
-            toast.error("Failed to delete customer.");
-        }
+      try {
+        await axios.delete(`${API_BASE}/api/auth/customers/${id}`);
+        toast.success("Customer deleted successfully.");
+        fetchCustomers();
+      } catch (err) {
+        toast.error("Failed to delete customer.");
+      }
     }
   };
 
@@ -210,7 +216,7 @@ const ManageCustomers = () => {
 
         /* Reusable admin modal styles are imported from adminModalStyles.css */
       `}</style>
-      
+
       <div className="manage-customers-container">
         <div className="mc-header">
           <h2 className="mc-title">Manage Customers</h2>
@@ -223,44 +229,107 @@ const ManageCustomers = () => {
           {customers.map((c) => (
             <div key={c.id} className="customer-info-card">
               <div className="card-header">
-                <h3>{c.firstName} {c.lastName}</h3>
+                <h3>
+                  {c.firstName} {c.lastName}
+                </h3>
                 <span className="customer-username">{c.username}</span>
               </div>
               <div className="card-body">
-                <p><strong>Phone:</strong> {c.phone || 'N/A'}</p>
-                <p><strong>Address:</strong> {c.address || 'N/A'}</p>
+                <p>
+                  <strong>Phone:</strong> {c.phone || "N/A"}
+                </p>
+                <p>
+                  <strong>Address:</strong> {c.address || "N/A"}
+                </p>
               </div>
               <div className="card-footer">
-                <button className="btn-edit" onClick={() => handleEdit(c)}><FaUserEdit /> Edit</button>
-                <button className="btn-delete" onClick={() => deleteCustomer(c.id)}><FaTrash /> Delete</button>
+                <button className="btn-edit" onClick={() => handleEdit(c)}>
+                  <FaUserEdit /> Edit
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={() => deleteCustomer(c.id)}
+                >
+                  <FaTrash /> Delete
+                </button>
               </div>
             </div>
           ))}
-          {customers.length === 0 && <p className="loading-error-message">No customers found.</p>}
+          {customers.length === 0 && (
+            <p className="loading-error-message">No customers found.</p>
+          )}
         </div>
 
         {isModalOpen && (
           <div className="admin-modal-overlay">
             <div className="admin-modal-content">
               <div className="admin-modal-header">
-                <h3>{isEditing ? 'Edit Customer' : 'Create New Customer'}</h3>
-                <button onClick={handleCloseModal} className="admin-close-button"><FaTimes /></button>
+                <h3>{isEditing ? "Edit Customer" : "Create New Customer"}</h3>
+                <button
+                  onClick={handleCloseModal}
+                  className="admin-close-button"
+                >
+                  <FaTimes />
+                </button>
               </div>
               <div className="admin-modal-body">
                 <div className="form-grid">
-                  <input className="form-input" name="firstName" value={currentCustomer.firstName} onChange={handleInputChange} placeholder="First Name" />
-                  <input className="form-input" name="lastName" value={currentCustomer.lastName} onChange={handleInputChange} placeholder="Last Name" />
-                  <input className="form-input" name="username" value={currentCustomer.username} onChange={handleInputChange} placeholder="Username (Email)" />
-                  <input className="form-input" name="phone" value={currentCustomer.phone} onChange={handleInputChange} placeholder="Phone Number" />
-                  <input className="form-input col-span-2" name="address" value={currentCustomer.address} onChange={handleInputChange} placeholder="Address" />
+                  <input
+                    className="form-input"
+                    name="firstName"
+                    value={currentCustomer.firstName}
+                    onChange={handleInputChange}
+                    placeholder="First Name"
+                  />
+                  <input
+                    className="form-input"
+                    name="lastName"
+                    value={currentCustomer.lastName}
+                    onChange={handleInputChange}
+                    placeholder="Last Name"
+                  />
+                  <input
+                    className="form-input"
+                    name="username"
+                    value={currentCustomer.username}
+                    onChange={handleInputChange}
+                    placeholder="Username (Email)"
+                  />
+                  <input
+                    className="form-input"
+                    name="phone"
+                    value={currentCustomer.phone}
+                    onChange={handleInputChange}
+                    placeholder="Phone Number"
+                  />
+                  <input
+                    className="form-input col-span-2"
+                    name="address"
+                    value={currentCustomer.address}
+                    onChange={handleInputChange}
+                    placeholder="Address"
+                  />
                   {!isEditing && (
-                      <input className="form-input col-span-2" name="password" type="password" onChange={handleInputChange} placeholder="Set Initial Password" />
+                    <input
+                      className="form-input col-span-2"
+                      name="password"
+                      type="password"
+                      onChange={handleInputChange}
+                      placeholder="Set Initial Password"
+                    />
                   )}
                 </div>
               </div>
               <div className="admin-modal-footer">
-                <button className="btn btn-secondary" onClick={handleCloseModal}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+                <button className="btn btn-primary" onClick={handleSave}>
+                  Save Changes
+                </button>
               </div>
             </div>
           </div>

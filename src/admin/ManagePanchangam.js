@@ -9,33 +9,70 @@ export default function PanchangamForm() {
   const [loadingNakshatrams, setLoadingNakshatrams] = useState(false);
 
   const lagnams = [
-    "Mesham (Aries)", "Vrishabham (Taurus)", "Mithunam (Gemini)", "Karkatakam (Cancer)",
-    "Simham (Leo)", "Kanya (Virgo)", "Tula (Libra)", "Vrischikam (Scorpio)",
-    "Dhanusu (Sagittarius)", "Makaram (Capricorn)", "Kumbham (Aquarius)", "Meenam (Pisces)"
+    "Mesham (Aries)",
+    "Vrishabham (Taurus)",
+    "Mithunam (Gemini)",
+    "Karkatakam (Cancer)",
+    "Simham (Leo)",
+    "Kanya (Virgo)",
+    "Tula (Libra)",
+    "Vrischikam (Scorpio)",
+    "Dhanusu (Sagittarius)",
+    "Makaram (Capricorn)",
+    "Kumbham (Aquarius)",
+    "Meenam (Pisces)",
   ];
 
   const pakshas = ["Shukla", "Krishna"];
 
   const tithis = [
-    "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami", "Shashti",
-    "Saptami", "Ashtami", "Navami", "Dashami", "Ekadashi", "Dwadashi",
-    "Trayodashi", "Chaturdashi", "Pournami", "Amavasya"
+    "Pratipada",
+    "Dwitiya",
+    "Tritiya",
+    "Chaturthi",
+    "Panchami",
+    "Shashti",
+    "Saptami",
+    "Ashtami",
+    "Navami",
+    "Dashami",
+    "Ekadashi",
+    "Dwadashi",
+    "Trayodashi",
+    "Chaturdashi",
+    "Pournami",
+    "Amavasya",
   ];
 
-  const vaarams = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const vaarams = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   function getEmptyForm() {
     return {
-      date: "", lagnam: "", mohurtam: "", paksha: "", tithi: "",
-      vaaram: "", time: "", notes: "", nakshatram: ""
+      date: "",
+      lagnam: "",
+      mohurtam: "",
+      paksha: "",
+      tithi: "",
+      vaaram: "",
+      time: "",
+      notes: "",
+      nakshatram: "",
     };
   }
 
   useEffect(() => {
     setLoadingNakshatrams(true);
     fetch("http://localhost:8080/api/nakshatram")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) {
           setNakshatrams(data);
         } else {
@@ -52,8 +89,8 @@ export default function PanchangamForm() {
   const fetchEntries = () => {
     setLoadingEntries(true);
     fetch("http://localhost:8080/api/panchangam")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) {
           setEntries(data);
         } else {
@@ -67,7 +104,7 @@ export default function PanchangamForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   // Map React keys to Java entity keys (case sensitive)
@@ -75,11 +112,11 @@ export default function PanchangamForm() {
     date: form.date,
     paksha: form.paksha,
     tithi: form.tithi,
-    vaaram: form.vaaram,        // correct spelling as in Java entity
+    vaaram: form.vaaram, // correct spelling as in Java entity
     nakshatram: form.nakshatram,
     lagnam: form.lagnam,
-    mohurtam: form.mohurtam,   // capital M, as in entity
-    time: form.time,            // capital T, as in entity
+    mohurtam: form.mohurtam, // capital M, as in entity
+    time: form.time, // capital T, as in entity
     notes: form.notes,
   });
 
@@ -119,7 +156,7 @@ export default function PanchangamForm() {
       nakshatram: entry.nakshatram || "",
       lagnam: entry.lagnam || "",
       mohurtam: entry.mohurtam || "", // capital M in backend
-      time: entry.time || "",          // capital T in backend
+      time: entry.time || "", // capital T in backend
       notes: entry.notes || "",
     });
     setEditingId(entry.id);
@@ -129,7 +166,7 @@ export default function PanchangamForm() {
     if (!window.confirm("Delete this Panchangam entry?")) return;
     try {
       await fetch(`http://localhost:8080/api/panchangam/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
       fetchEntries();
     } catch (err) {
@@ -144,53 +181,131 @@ export default function PanchangamForm() {
       </h2>
       <form onSubmit={handleSubmit}>
         <label style={styles.label}>Date:</label>
-        <input type="date" name="date" value={form.date} onChange={handleChange} style={styles.input} required />
+        <input
+          type="date"
+          name="date"
+          value={form.date}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        />
 
         <label style={styles.label}>Lagnam:</label>
-        <select name="lagnam" value={form.lagnam} onChange={handleChange} style={styles.input} required>
+        <select
+          name="lagnam"
+          value={form.lagnam}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        >
           <option value="">Select</option>
-          {lagnams.map((l, i) => <option key={i} value={l}>{l}</option>)}
+          {lagnams.map((l, i) => (
+            <option key={i} value={l}>
+              {l}
+            </option>
+          ))}
         </select>
 
         <label style={styles.label}>Mohurtham:</label>
-        <select name="mohurtam" value={form.mohurtam} onChange={handleChange} style={styles.input} required >
+        <select
+          name="mohurtam"
+          value={form.mohurtam}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        >
           <option value="">Select</option>
           {nakshatrams.map((n) => (
-            <option key={n.id} value={n.name}>{n.name}</option>
+            <option key={n.id} value={n.name}>
+              {n.name}
+            </option>
           ))}
         </select>
 
         <label style={styles.label}>Paksha:</label>
-        <select name="paksha" value={form.paksha} onChange={handleChange} style={styles.input} required>
+        <select
+          name="paksha"
+          value={form.paksha}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        >
           <option value="">Select</option>
-          {pakshas.map((p, i) => <option key={i} value={p}>{p}</option>)}
+          {pakshas.map((p, i) => (
+            <option key={i} value={p}>
+              {p}
+            </option>
+          ))}
         </select>
 
         <label style={styles.label}>Tithi:</label>
-        <select name="tithi" value={form.tithi} onChange={handleChange} style={styles.input} required>
+        <select
+          name="tithi"
+          value={form.tithi}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        >
           <option value="">Select</option>
-          {tithis.map((t, i) => <option key={i} value={t}>{t}</option>)}
+          {tithis.map((t, i) => (
+            <option key={i} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
 
         <label style={styles.label}>Vaaram:</label>
-        <select name="vaaram" value={form.vaaram} onChange={handleChange} style={styles.input} required>
+        <select
+          name="vaaram"
+          value={form.vaaram}
+          onChange={handleChange}
+          style={styles.input}
+          required
+        >
           <option value="">Select</option>
-          {vaarams.map((v, i) => <option key={i} value={v}>{v}</option>)}
+          {vaarams.map((v, i) => (
+            <option key={i} value={v}>
+              {v}
+            </option>
+          ))}
         </select>
 
         <label style={styles.label}>Time:</label>
-        <input type="time" name="time" value={form.time} onChange={handleChange} style={styles.input} />
+        <input
+          type="time"
+          name="time"
+          value={form.time}
+          onChange={handleChange}
+          style={styles.input}
+        />
 
         <label style={styles.label}>Nakshatram:</label>
-        <select name="nakshatram" value={form.nakshatram} onChange={handleChange} style={styles.input} required disabled={loadingNakshatrams}>
-          <option value="">{loadingNakshatrams ? "Loading..." : "Select"}</option>
+        <select
+          name="nakshatram"
+          value={form.nakshatram}
+          onChange={handleChange}
+          style={styles.input}
+          required
+          disabled={loadingNakshatrams}
+        >
+          <option value="">
+            {loadingNakshatrams ? "Loading..." : "Select"}
+          </option>
           {nakshatrams.map((n) => (
-            <option key={n.id} value={n.name}>{n.name}</option>
+            <option key={n.id} value={n.name}>
+              {n.name}
+            </option>
           ))}
         </select>
 
         <label style={styles.label}>Notes:</label>
-        <textarea name="notes" rows="3" value={form.notes} onChange={handleChange} style={styles.textarea} />
+        <textarea
+          name="notes"
+          rows="3"
+          value={form.notes}
+          onChange={handleChange}
+          style={styles.textarea}
+        />
 
         <button type="submit" style={styles.button}>
           {editingId ? "Update" : "Save"} Panchangam
@@ -202,11 +317,23 @@ export default function PanchangamForm() {
       {loadingEntries ? (
         <p>Loading entries...</p>
       ) : (
-        <table border="1" cellPadding="6" style={{ width: "100%", marginTop: "10px" }}>
+        <table
+          border="1"
+          cellPadding="6"
+          style={{ width: "100%", marginTop: "10px" }}
+        >
           <thead>
             <tr>
-              <th>Date</th><th>Lagnam</th><th>Mohurtham</th><th>Paksha</th><th>Tithi</th>
-              <th>Vaaram</th><th>Time</th><th>Nakshatram</th><th>Notes</th><th>Actions</th>
+              <th>Date</th>
+              <th>Lagnam</th>
+              <th>Mohurtham</th>
+              <th>Paksha</th>
+              <th>Tithi</th>
+              <th>Vaaram</th>
+              <th>Time</th>
+              <th>Nakshatram</th>
+              <th>Notes</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -230,7 +357,9 @@ export default function PanchangamForm() {
               ))
             ) : (
               <tr>
-                <td colSpan="10" style={{ textAlign: "center" }}>No entries found</td>
+                <td colSpan="10" style={{ textAlign: "center" }}>
+                  No entries found
+                </td>
               </tr>
             )}
           </tbody>
@@ -248,7 +377,12 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   heading: { textAlign: "center" },
-  label: { display: "block", marginTop: "15px", marginBottom: "5px", fontWeight: "bold" },
+  label: {
+    display: "block",
+    marginTop: "15px",
+    marginBottom: "5px",
+    fontWeight: "bold",
+  },
   input: {
     width: "100%",
     padding: "8px",

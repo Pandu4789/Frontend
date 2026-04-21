@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { 
-    FaUserCircle, 
-    FaSearch, 
-    FaFilter, 
-    FaSyncAlt, 
-    FaMapMarkerAlt, 
-    FaStar, 
-    FaArrowRight,
-    FaTimes 
-} from 'react-icons/fa';
-import './BookPriest.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  FaUserCircle,
+  FaSearch,
+  FaFilter,
+  FaSyncAlt,
+  FaMapMarkerAlt,
+  FaStar,
+  FaArrowRight,
+  FaTimes,
+} from "react-icons/fa";
+import "./BookPriest.css";
 
-const BookPriest = () => { 
+const BookPriest = () => {
   const navigate = useNavigate();
   const [priests, setPriests] = useState([]);
   const [availablePoojas, setAvailablePoojas] = useState([]);
-  const [filters, setFilters] = useState({ name: '', poojaType: '' });
+  const [filters, setFilters] = useState({ name: "", poojaType: "" });
   const [loading, setLoading] = useState(true);
-  
+
   const [expandedPriestId, setExpandedPriestId] = useState(null);
 
   const API_URL = "http://localhost:8080";
@@ -30,25 +30,27 @@ const BookPriest = () => {
       try {
         const [priestRes, poojaRes] = await Promise.all([
           axios.get(`${API_URL}/api/auth/priests`),
-          axios.get(`${API_URL}/api/events`)
+          axios.get(`${API_URL}/api/events`),
         ]);
 
         let priestData = priestRes.data || [];
         if (filters.name) {
-          priestData = priestData.filter(p =>
-            `${p.firstName} ${p.lastName}`.toLowerCase().includes(filters.name.toLowerCase())
+          priestData = priestData.filter((p) =>
+            `${p.firstName} ${p.lastName}`
+              .toLowerCase()
+              .includes(filters.name.toLowerCase()),
           );
         }
         if (filters.poojaType) {
-          priestData = priestData.filter(p =>
-            p.servicesOffered?.includes(filters.poojaType)
+          priestData = priestData.filter((p) =>
+            p.servicesOffered?.includes(filters.poojaType),
           );
         }
 
         setPriests(priestData);
         setAvailablePoojas(poojaRes.data);
       } catch (err) {
-        console.error('Error loading directory:', err);
+        console.error("Error loading directory:", err);
       } finally {
         setLoading(false);
       }
@@ -57,8 +59,9 @@ const BookPriest = () => {
     fetchData();
   }, [filters]);
 
-  const resetFilters = () => setFilters({ name: '', poojaType: '' });
-  const toggleExpand = (id) => setExpandedPriestId(expandedPriestId === id ? null : id);
+  const resetFilters = () => setFilters({ name: "", poojaType: "" });
+  const toggleExpand = (id) =>
+    setExpandedPriestId(expandedPriestId === id ? null : id);
 
   return (
     <div className="bp-page-wrapper">
@@ -66,7 +69,9 @@ const BookPriest = () => {
       <header className="bp-hero">
         <div className="bp-hero-content">
           <h1>Divine Directory</h1>
-          <p>Connect with verified, experienced priests for your sacred rituals.</p>
+          <p>
+            Connect with verified, experienced priests for your sacred rituals.
+          </p>
         </div>
       </header>
 
@@ -79,7 +84,9 @@ const BookPriest = () => {
                 type="text"
                 placeholder="Search by priest name..."
                 value={filters.name}
-                onChange={e => setFilters({...filters, name: e.target.value})}
+                onChange={(e) =>
+                  setFilters({ ...filters, name: e.target.value })
+                }
               />
             </div>
 
@@ -87,11 +94,15 @@ const BookPriest = () => {
               <FaFilter className="bp-icon" />
               <select
                 value={filters.poojaType}
-                onChange={e => setFilters({...filters, poojaType: e.target.value})}
+                onChange={(e) =>
+                  setFilters({ ...filters, poojaType: e.target.value })
+                }
               >
                 <option value="">All Sacred Services</option>
-                {availablePoojas.map(pooja => (
-                  <option key={pooja.id} value={pooja.name}>{pooja.name}</option>  
+                {availablePoojas.map((pooja) => (
+                  <option key={pooja.id} value={pooja.name}>
+                    {pooja.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -106,12 +117,12 @@ const BookPriest = () => {
       <main className="bp-main-grid">
         {loading ? (
           <div className="bp-loader-box">
-              <div className="bp-spinner"></div>
-              <p>Searching the holy directory...</p>
+            <div className="bp-spinner"></div>
+            <p>Searching the holy directory...</p>
           </div>
         ) : priests.length > 0 ? (
           <div className="bp-grid-layout">
-            {priests.map(priest => (
+            {priests.map((priest) => (
               <div className="bp-priest-card" key={priest.id}>
                 <div className="bp-card-top">
                   <div className="bp-avatar-box">
@@ -123,52 +134,66 @@ const BookPriest = () => {
                   </div>
                   <div className="bp-priest-info">
                     <div className="bp-rating-badge">
-                        <FaStar className="star-icon" /> <span>4.9 Verified</span>
+                      <FaStar className="star-icon" /> <span>4.9 Verified</span>
                     </div>
-                    <h3>{priest.firstName} {priest.lastName}</h3>
+                    <h3>
+                      {priest.firstName} {priest.lastName}
+                    </h3>
                     <div className="bp-location-tag">
-                      <FaMapMarkerAlt /> 
-                      <span>{priest.city}, {priest.state}</span>
+                      <FaMapMarkerAlt />
+                      <span>
+                        {priest.city}, {priest.state}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="bp-card-body">
                   <p className="bp-biography">
-                    {priest.bio || 'Dedicated Vedic scholar specializing in traditional rituals and spiritual guidance.'}
+                    {priest.bio ||
+                      "Dedicated Vedic scholar specializing in traditional rituals and spiritual guidance."}
                   </p>
-                  
+
                   <div className="bp-tags-container">
                     <div className="bp-service-tags">
-                        {priest.servicesOffered?.slice(0, 3).map((service, index) => (
-                        <span key={index} className="bp-tag">{service}</span>
+                      {priest.servicesOffered
+                        ?.slice(0, 3)
+                        .map((service, index) => (
+                          <span key={index} className="bp-tag">
+                            {service}
+                          </span>
                         ))}
-                        
-                        {priest.servicesOffered?.length > 3 && (
-                        <button 
-                            className="bp-tag-more-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpand(priest.id);
-                            }}
+
+                      {priest.servicesOffered?.length > 3 && (
+                        <button
+                          className="bp-tag-more-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleExpand(priest.id);
+                          }}
                         >
-                            +{priest.servicesOffered.length - 3} More
+                          +{priest.servicesOffered.length - 3} More
                         </button>
-                        )}
+                      )}
                     </div>
 
                     {expandedPriestId === priest.id && (
-                        <div className="bp-tags-dropdown">
-                            <div className="bp-dropdown-header">
-                                <span>All Services</span>
-                                <FaTimes className="bp-close-tags" onClick={() => setExpandedPriestId(null)} />
-                            </div>
-                            <div className="bp-dropdown-list">
-                                {priest.servicesOffered.map((service, index) => (
-                                    <span key={index} className="bp-tag-full">{service}</span>
-                                ))}
-                            </div>
+                      <div className="bp-tags-dropdown">
+                        <div className="bp-dropdown-header">
+                          <span>All Services</span>
+                          <FaTimes
+                            className="bp-close-tags"
+                            onClick={() => setExpandedPriestId(null)}
+                          />
                         </div>
+                        <div className="bp-dropdown-list">
+                          {priest.servicesOffered.map((service, index) => (
+                            <span key={index} className="bp-tag-full">
+                              {service}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
