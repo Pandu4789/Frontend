@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const initialFormState = {
   itemName: "",

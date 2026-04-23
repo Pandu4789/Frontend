@@ -22,15 +22,15 @@ const BookPriest = () => {
 
   const [expandedPriestId, setExpandedPriestId] = useState(null);
 
-  const API_URL = "http://localhost:8080";
+  const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const [priestRes, poojaRes] = await Promise.all([
-          axios.get(`${API_URL}/api/auth/priests`),
-          axios.get(`${API_URL}/api/events`),
+          axios.get(`${API_BASE}/api/auth/priests`),
+          axios.get(`${API_BASE}/api/events`),
         ]);
 
         let priestData = priestRes.data || [];

@@ -5,7 +5,7 @@ import { FaUserPlus, FaUserEdit, FaTrash, FaTimes } from "react-icons/fa";
 import "../components/adminModalStyles.css";
 // No need to import a separate CSS file
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const emptyCustomer = {
   id: null,

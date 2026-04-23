@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import "./BookingModal.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   // eventId will now store the String name of the service (e.g., "Satyanarayana Pooja")

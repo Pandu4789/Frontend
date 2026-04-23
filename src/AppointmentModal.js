@@ -6,8 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { format, parse, addHours } from "date-fns";
 import "./AppointmentModal.css";
 import { FaTimes } from "react-icons/fa";
-
-const API_BASE = "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const AppointmentModal = ({ priest, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -33,7 +32,7 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
         setSelectedTime("");
         try {
           const response = await axios.get(
-            `${API_BASE}/api/availability/priest/${priest.id}/date/${dateString}`,
+            buildApiUrl(API_ENDPOINTS.AVAILABILITY.GET(priest.id, dateString)),
           );
           setAvailableTimeSlots(response.data || []);
         } catch (error) {
@@ -47,7 +46,9 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/events`);
+        const response = await axios.get(
+          buildApiUrl(API_ENDPOINTS.EVENTS.GET_ALL),
+        );
         setEvents(response.data);
       } catch (error) {
         toast.error("Failed to load event types.");
@@ -100,7 +101,7 @@ const AppointmentModal = ({ priest, onClose, onSave }) => {
 
     try {
       await axios.post(
-        `${API_BASE}/api/appointments/priest/${priestId}`,
+        buildApiUrl(API_ENDPOINTS.APPOINTMENTS.GET_BY_PRIEST(priestId)),
         payload,
       );
       toast.success("Appointment created successfully!");

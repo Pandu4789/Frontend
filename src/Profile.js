@@ -16,7 +16,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Profile.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+const API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({

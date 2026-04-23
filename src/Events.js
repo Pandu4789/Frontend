@@ -18,8 +18,7 @@ import {
 import { format } from "date-fns";
 import DashboardEventsDisplay from "./DashboardEventsDisplay";
 import "./CustomerDashboard.css";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const formatTime12Hour = (timeString) => {
   if (!timeString || typeof timeString !== "string") return null;
@@ -61,11 +60,10 @@ const Dashboard = () => {
       try {
         const [sunRes, dailyRes] = await Promise.all([
           fetch(
-            `${API_BASE}/api/sun?date=${todayStr}&lat=${lat}&lon=${lon}&tz=${tz}`,
+            `${buildApiUrl(API_ENDPOINTS.PANCHANG.SUN_TIMES)}?date=${todayStr}&lat=${lat}&lon=${lon}&tz=${tz}`,
           ).then((res) => res.json()),
-          // Fixed syntax: using /calculate instead of /by-date=
           fetch(
-            `${API_BASE}/api/daily-times/calculate?date=${todayStr}&lat=${lat}&lon=${lon}&tz=${tz}`,
+            `${buildApiUrl(API_ENDPOINTS.PANCHANG.DAILY_TIMES)}?date=${todayStr}&lat=${lat}&lon=${lon}&tz=${tz}`,
           ).then((res) => res.json()),
         ]);
         setTodayTimings({ ...sunRes, ...dailyRes });
@@ -78,11 +76,11 @@ const Dashboard = () => {
 
     fetchPanchang();
 
-    fetch(`${API_BASE}/api/gallery/all-random`)
+    fetch(buildApiUrl(API_ENDPOINTS.GALLERY.GET_ALL_RANDOM))
       .then((res) => res.json())
       .then((data) => {
         const normalized = data.map((img) => ({
-          imageUrl: `${API_BASE}${img.imageUrl}`,
+          imageUrl: `${buildApiUrl(img.imageUrl)}`,
           title: img.caption,
         }));
         setCarouselImages(

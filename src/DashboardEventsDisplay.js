@@ -4,8 +4,7 @@ import axios from "axios";
 import { format, parseISO } from "date-fns";
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt } from "react-icons/fa";
 import "./DashboardEventsDisplay.css"; // The new stylesheet
-
-const API_BASE = "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 // --- ✅ 1. ADDED: Reusable component for "Show More" functionality ---
 const TruncatedDescription = ({ text, maxLength = 100 }) => {
@@ -53,7 +52,9 @@ const DashboardEventsDisplay = () => {
     const fetchEvents = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${API_BASE}/api/dashboard/events`);
+        const response = await axios.get(
+          buildApiUrl(API_ENDPOINTS.DASHBOARD.GET_ALL_EVENTS),
+        );
         // We will sort later, just set the raw data here
         setEvents(response.data || []);
       } catch (err) {

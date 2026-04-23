@@ -70,7 +70,7 @@ export default function PanchangamForm() {
 
   useEffect(() => {
     setLoadingNakshatrams(true);
-    fetch("http://localhost:8080/api/nakshatram")
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/nakshatram`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -88,7 +88,7 @@ export default function PanchangamForm() {
 
   const fetchEntries = () => {
     setLoadingEntries(true);
-    fetch("http://localhost:8080/api/panchangam")
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/api/panchangam`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -123,8 +123,8 @@ export default function PanchangamForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingId
-      ? `http://localhost:8080/api/panchangam/${editingId}`
-      : "http://localhost:8080/api/panchangam";
+      ? `${process.env.REACT_APP_API_BASE_URL}/api/panchangam/${editingId}`
+      : `${process.env.REACT_APP_API_BASE_URL}/api/panchangam`;
     const method = editingId ? "PUT" : "POST";
 
     try {
@@ -165,9 +165,12 @@ export default function PanchangamForm() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this Panchangam entry?")) return;
     try {
-      await fetch(`http://localhost:8080/api/panchangam/${id}`, {
-        method: "DELETE",
-      });
+      await fetch(
+        `http://process.env.REACT_APP_API_BASE_URL/api/panchangam/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
       fetchEntries();
     } catch (err) {
       alert("Failed to delete");

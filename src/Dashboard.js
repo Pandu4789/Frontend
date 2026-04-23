@@ -41,7 +41,7 @@ import PoojaStatsPage from "./PoojaStatsPage";
 import ManageEventsPage from "./ManageEventsPage";
 import AvailabilityManager from "./AvailabilityManager";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const formatTime12Hour = (timeString) => {
   if (!timeString || typeof timeString !== "string") return null;

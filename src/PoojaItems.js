@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import "./PoojaItems.css";
 import logo from "./image.png";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const PoojaItems = () => {
   const [poojas, setPoojas] = useState([]);
@@ -21,7 +22,7 @@ const PoojaItems = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/events")
+    fetch(buildApiUrl(API_ENDPOINTS.EVENTS.GET_ALL))
       .then((res) => res.json())
       .then((data) => {
         setPoojas(Array.isArray(data) ? data : []);
@@ -35,7 +36,9 @@ const PoojaItems = () => {
 
   useEffect(() => {
     if (selectedPoojaId) {
-      fetch(`http://localhost:8080/api/pooja-items/event/${selectedPoojaId}`)
+      fetch(
+        buildApiUrl(API_ENDPOINTS.POOJA_ITEMS.GET_BY_EVENT(selectedPoojaId)),
+      )
         .then((res) => res.json())
         .then((data) => setItems(Array.isArray(data) ? data : []))
         .catch((err) => console.error("Items Error:", err));

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE = "http://localhost:8080/api/prasadam";
+const API_BASE = `${process.env.REACT_APP_API_BASE_URL}/api/prasadam`;
 
 const ManagePrasadams = () => {
   const [items, setItems] = useState([]);

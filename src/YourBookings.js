@@ -23,8 +23,7 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import "./YourBookings.css";
-
-const API_BASE = "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const YourBookings = () => {
   const navigate = useNavigate();
@@ -68,8 +67,8 @@ const YourBookings = () => {
 
       try {
         const [bookingRes, muhurtamRes] = await Promise.all([
-          axios.get(`${API_BASE}/api/booking/customer/${customerId}`),
-          axios.get(`${API_BASE}/api/muhurtam/customer/${customerId}`),
+          axios.get(buildApiUrl(`/api/booking/customer/${customerId}`)),
+          axios.get(buildApiUrl(`/api/muhurtam/customer/${customerId}`)),
         ]);
         const sortFn = (a, b) => b.id - a.id;
         setAppointmentBookings((bookingRes.data || []).sort(sortFn));

@@ -22,7 +22,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const formatTime12Hour = (timeString) => {
   if (!timeString) return "N/A";

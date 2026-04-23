@@ -175,14 +175,14 @@ const Prasadam = () => {
 
   // Effect to load restaurants initially (simulated API call)
   useEffect(() => {
-    // In a real app, you'd fetch from: fetch('http://localhost:8080/api/restaurants')
+    // In a real app, you'd fetch from: fetch('http://process.env.REACT_APP_API_BASE_URL/api/restaurants')
     setRestaurantsList(allRestaurantsData);
   }, []);
 
   // Effect to load menu when a restaurant is selected (simulated API call)
   useEffect(() => {
     if (selectedRestaurantId) {
-      // In a real app: fetch(`http://localhost:8080/api/restaurants/${selectedRestaurantId}/menu`)
+      // In a real app: fetch(`http://process.env.REACT_APP_API_BASE_URL/api/restaurants/${selectedRestaurantId}/menu`)
       const menu = allMenusData[selectedRestaurantId];
       setCurrentMenu(menu || []);
       setCategoryFilter("All"); // Reset category filter when menu changes

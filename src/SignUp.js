@@ -16,7 +16,7 @@ import logo from "./image.png";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+  const API_URL = process.env.REACT_APP_API_BASE_URL;
 
   const [form, setForm] = useState({
     firstName: "",
@@ -116,6 +116,8 @@ const SignUp = () => {
   };
 
   useEffect(() => {
+    console.log("API:", process.env.REACT_APP_API_BASE_URL);
+    console.log("ENV VALUE:", process.env.REACT_APP_API_BASE_URL); // 👈 add here
     const fetchServices = async () => {
       try {
         const res = await fetch(`${API_URL}/api/events`);

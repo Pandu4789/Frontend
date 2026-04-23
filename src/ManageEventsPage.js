@@ -14,8 +14,7 @@ import {
 } from "react-icons/fa";
 import "./ManageEventsPage.css";
 import "react-toastify/dist/ReactToastify.css";
-
-const API_BASE = "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const initialFormState = {
   id: null,
@@ -73,7 +72,7 @@ const ManageEventsPage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `${API_BASE}/api/dashboard/events/priest/${priestId}`,
+        buildApiUrl(API_ENDPOINTS.DASHBOARD.GET_PRIEST_EVENTS(priestId)),
       );
       setEvents(response.data || []);
     } catch (error) {
@@ -131,7 +130,9 @@ const ManageEventsPage = () => {
   const handleDelete = async (eventId) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
       try {
-        await axios.delete(`${API_BASE}/api/dashboard/events/${eventId}`);
+        await axios.delete(
+          buildApiUrl(API_ENDPOINTS.DASHBOARD.DELETE_EVENT(eventId)),
+        );
         toast.success("Event deleted!");
         setEvents((prev) => prev.filter((event) => event.id !== eventId));
       } catch (error) {
@@ -151,8 +152,8 @@ const ManageEventsPage = () => {
 
     try {
       const endpoint = isEditing
-        ? `${API_BASE}/api/dashboard/events/${currentEvent.id}`
-        : `${API_BASE}/api/dashboard/events`;
+        ? buildApiUrl(API_ENDPOINTS.DASHBOARD.UPDATE_EVENT(currentEvent.id))
+        : buildApiUrl(API_ENDPOINTS.DASHBOARD.CREATE_EVENT);
       const method = isEditing ? "put" : "post";
       await axios[method](endpoint, payload);
       toast.success(

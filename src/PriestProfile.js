@@ -44,10 +44,10 @@ const PriestProfile = () => {
       setLoading(true);
       try {
         const priestRes = await axios.get(
-          `http://localhost:8080/api/auth/priests/${priestId}`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/auth/priests/${priestId}`,
         );
         const profileRes = await axios.get(
-          `http://localhost:8080/api/profile?email=${priestRes.data.email}`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/profile?email=${priestRes.data.email}`,
         );
 
         setPriest({
@@ -58,7 +58,7 @@ const PriestProfile = () => {
         });
 
         const nakshatraRes = await axios.get(
-          "http://localhost:8080/api/nakshatram",
+          `${process.env.REACT_APP_API_BASE_URL}/api/nakshatram`,
         );
         setNakshatramList(nakshatraRes.data);
 
@@ -67,7 +67,7 @@ const PriestProfile = () => {
         if (email && !isGuestUser) {
           try {
             const customerRes = await axios.get(
-              `http://localhost:8080/api/profile?email=${email}`,
+              `${process.env.REACT_APP_API_BASE_URL}/api/profile?email=${email}`,
             );
             setCustomer({
               name: `${customerRes.data.firstName || ""} ${customerRes.data.lastName || ""}`,

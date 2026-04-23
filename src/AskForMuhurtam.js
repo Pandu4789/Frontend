@@ -36,7 +36,7 @@ const AskForMuhurtam = ({
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/events")
+      .get(`${process.env.REACT_APP_API_BASE_URL}/api/events`)
       .then((res) => setEvents(res.data));
   }, []);
 
@@ -98,7 +98,10 @@ const AskForMuhurtam = ({
     };
 
     try {
-      await axios.post("http://localhost:8080/api/muhurtam/request", payload);
+      await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/api/muhurtam/request`,
+        payload,
+      );
       setShowConfirmation(true);
     } catch (error) {
       toast.error("Connection lost. Please try again.");

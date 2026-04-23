@@ -18,7 +18,7 @@ import {
 import "react-calendar/dist/Calendar.css";
 import "./Mohurtam.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const Mohurtam = () => {
   const [selectedNakshatrams, setSelectedNakshatrams] = useState([""]);

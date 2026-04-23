@@ -14,7 +14,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./PoojaStatsPage.css";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 // --- NEW: The Modal for selecting the report's date range ---
 const ReportFilterModal = ({ onClose, onGenerate }) => {

@@ -6,6 +6,7 @@ import "./ForgotPassword.css";
 
 // Import your logo here
 import logo from "./image.png";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ForgotPassword = () => {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/validate-email", {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.VALIDATE_EMAIL), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -57,7 +58,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/reset-password", {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.RESET_PASSWORD), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, newPassword }),

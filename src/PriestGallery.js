@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTrash, FaUpload, FaSpinner } from "react-icons/fa"; // Import icons
 import "./PriestGallery.css"; // We will create this new CSS file
-
-const API_BASE = "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const PriestGallery = () => {
   const [images, setImages] = useState([]);
@@ -18,7 +17,7 @@ const PriestGallery = () => {
 
   const fetchImages = () => {
     if (!priestId) return;
-    fetch(`${API_BASE}/api/gallery/priest/${priestId}`)
+    fetch(buildApiUrl(API_ENDPOINTS.GALLERY.GET_BY_PRIEST(priestId)))
       .then((res) =>
         res.ok ? res.json() : Promise.reject("Failed to fetch images."),
       )
@@ -68,7 +67,10 @@ const PriestGallery = () => {
     formData.append("priestId", priestId);
     formData.append("priestName", priestName);
 
-    fetch(`${API_BASE}/api/gallery/upload`, { method: "POST", body: formData })
+    fetch(buildApiUrl(API_ENDPOINTS.GALLERY.UPLOAD), {
+      method: "POST",
+      body: formData,
+    })
       .then((res) => {
         if (!res.ok)
           return res.json().then((err) => {
@@ -89,7 +91,9 @@ const PriestGallery = () => {
 
   const handleDelete = (imageId) => {
     if (!window.confirm("Are you sure you want to delete this image?")) return;
-    fetch(`${API_BASE}/api/gallery/${imageId}`, { method: "DELETE" })
+    fetch(buildApiUrl(API_ENDPOINTS.GALLERY.DELETE(imageId)), {
+      method: "DELETE",
+    })
       .then((res) => {
         if (res.ok) {
           setImages((prev) => prev.filter((img) => img.id !== imageId));
@@ -156,7 +160,7 @@ const PriestGallery = () => {
           {images.length > 0 ? (
             images.map((image) => (
               <div key={image.id} className="image-card">
-                <img src={`${API_BASE}${image.imageUrl}`} alt={image.caption} />
+                <img src={buildApiUrl(image.imageUrl)} alt={image.caption} />
                 <div className="image-overlay">
                   <p className="caption">{image.caption}</p>
                   <button

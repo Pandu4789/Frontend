@@ -11,8 +11,7 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 import "./ChangePasswordModal.css";
-
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
   const [passwords, setPasswords] = useState({
@@ -65,7 +64,10 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
       };
-      await axios.post(`${API_BASE}/api/auth/change-password`, payload);
+      await axios.post(
+        buildApiUrl(API_ENDPOINTS.AUTH.CHANGE_PASSWORD),
+        payload,
+      );
       toast.success("Security updated successfully!");
       setTimeout(() => {
         onClose();

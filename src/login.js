@@ -5,6 +5,7 @@ import { MdOutlineMailOutline, MdOutlineLock } from "react-icons/md";
 import "./login.css";
 
 import logo from "./image.png";
+import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const Login = ({ onLoginSuccess }) => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const Login = ({ onLoginSuccess }) => {
   // Helper to perform the actual login API call
   const performLogin = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.LOGIN), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
