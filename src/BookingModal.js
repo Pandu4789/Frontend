@@ -18,7 +18,6 @@ import "./BookingModal.css";
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
-  // eventId will now store the String name of the service (e.g., "Satyanarayana Pooja")
   const [eventId, setEventId] = useState("");
   const [appointmentDate, setAppointmentDate] = useState(null);
   const [selectedStartTime, setSelectedStartTime] = useState("");
@@ -26,12 +25,17 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [masterEvents, setMasterEvents] = useState([]);
 
-  // Use the services already present on the priest object passed from the parent
-  // Fallback to empty array if no services are defined
   const offeredServices = priest.services || [];
 
-  // Handle Availability Fetching
+  useEffect(() => {
+    axios
+      .get(`${API_BASE}/api/events`)
+      .then((res) => setMasterEvents(res.data))
+      .catch((err) => console.error("Could not fetch events list", err));
+  }, []);
+
   useEffect(() => {
     if (appointmentDate && priest?.id) {
       setSelectedStartTime("");
@@ -68,12 +72,18 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
       return;
     }
 
+    const selectedEventObj = masterEvents.find((e) => e.name === eventId);
+
+    if (!selectedEventObj) {
+      toast.error("Invalid ritual selected. Please try again.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const combinedAddress = `${customer.addressLine1}, ${customer.city}, ${customer.zip}`;
       const payload = {
-        // Sending the Service Name string to the backend
-        eventId,
+        eventId: selectedEventObj.id,
         name: customer.name,
         phone: customer.phone,
         email: customer.email,
@@ -134,7 +144,6 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                   <span>Verified Vedic Expert</span>
                 </div>
               </div>
-
               <div className="bm-trust-badges">
                 <div className="bm-trust-item">
                   <FaCheckCircle className="icon-green" /> Authenticated
@@ -151,7 +160,6 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
               <header className="bm-form-header">
                 <h3>Schedule Your Pooja</h3>
               </header>
-
               <div className="bm-field">
                 <label className={errors.eventId ? "error-label" : ""}>
                   <FaInfoCircle /> Select Ritual
@@ -186,6 +194,7 @@ const BookingModal = ({ priest, customer, setCustomer, onClose }) => {
                     }}
                     className="bm-input"
                     placeholderText="Select Date"
+                    minDate={new Date()} // 👈 This line restricts past dates
                   />
                 </div>
               </div>
