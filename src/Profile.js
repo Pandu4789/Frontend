@@ -8,9 +8,9 @@ import {
   FaIdCard,
   FaMapMarkerAlt,
   FaCheck,
-  FaTrash,
   FaSpinner,
   FaTimes,
+  FaScroll,
 } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,8 +20,7 @@ const API_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Profile = () => {
   const [profileData, setProfileData] = useState({
-    profileId: "",
-    userId: "",
+    id: "",
     firstName: "",
     lastName: "",
     phone: "",
@@ -33,6 +32,9 @@ const Profile = () => {
     email: "",
     profilePicture: "",
     role: "",
+    bio: "",
+    services: "",
+    languages: "",
   });
 
   const [originalProfileData, setOriginalProfileData] = useState(null);
@@ -40,7 +42,6 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
 
-  // Cropper
   const [imageToCrop, setImageToCrop] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -49,15 +50,41 @@ const Profile = () => {
   const userEmail = localStorage.getItem("userEmail");
 
   const fetchProfileData = useCallback(async () => {
+    if (!userEmail || userEmail === "null") {
+      toast.error("User session not found. Please log in.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await axios.get(`${API_URL}/api/profile?email=${userEmail}`);
+      const res = await axios.get(
+        `${API_URL}/api/auth/profile?email=${userEmail}`,
+      );
       const data = res.data;
-      // Prepend API_URL only if path is not already fully qualified
-      const pPic =
-        data.profilePicture && !data.profilePicture.startsWith("http")
-          ? `${API_URL}${data.profilePicture}`
-          : data.profilePicture;
-      const formatted = { ...data, profilePicture: pPic || "" };
+
+      // Map backend 'userId' to frontend state 'id' to fix the 'undefined' issue
+      const actualId = data.userId || data.id;
+
+      // Strip +1 for the display input
+      const displayPhone = data.phone ? data.phone.replace("+1", "") : "";
+
+      const formatted = {
+        ...data,
+        id: actualId,
+        phone: displayPhone,
+        // Convert Arrays from backend to comma-strings for React inputs
+        services: Array.isArray(data.services)
+          ? data.services.join(", ")
+          : data.services || "",
+        languages: Array.isArray(data.languages)
+          ? data.languages.join(", ")
+          : data.languages || "",
+        profilePicture:
+          data.profilePicture && !data.profilePicture.startsWith("http")
+            ? `${API_URL}${data.profilePicture}`
+            : data.profilePicture || "",
+      };
+
       setProfileData(formatted);
       setOriginalProfileData(formatted);
     } catch (error) {
@@ -71,7 +98,17 @@ const Profile = () => {
     fetchProfileData();
   }, [fetchProfileData]);
 
-  // Comparison logic to enable/disable buttons
+  // VALIDATIONS: Numeric Only
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "");
+    if (val.length <= 10) setProfileData({ ...profileData, phone: val });
+  };
+
+  const handleZipChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "");
+    setProfileData({ ...profileData, zipCode: val });
+  };
+
   const isChanged = () =>
     JSON.stringify(profileData) !== JSON.stringify(originalProfileData);
 
@@ -89,9 +126,9 @@ const Profile = () => {
       const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
       const formData = new FormData();
       formData.append("profilePicture", croppedBlob, "profile.jpg");
-      formData.append("profileId", profileData.profileId);
+      formData.append("userId", profileData.id);
       const res = await axios.post(
-        `${API_URL}/api/profile/updateProfilePicture`,
+        `${API_URL}/api/auth/profile/updateProfilePicture`,
         formData,
       );
       setProfileData((prev) => ({
@@ -108,17 +145,48 @@ const Profile = () => {
   };
 
   const handleSaveChanges = async () => {
+    if (profileData.phone.length !== 10) {
+      toast.error("Phone number must be exactly 10 digits.");
+      return;
+    }
+
     setSaving(true);
     try {
-      // Map 'email' to 'mailId' if backend requires that naming
-      await axios.post(`${API_URL}/api/profile/update`, {
-        ...profileData,
-        mailId: profileData.email,
-      });
+      // Helper to convert comma-separated strings back to Arrays for Java List<String>
+      const stringToArray = (val) => {
+        if (!val) return [];
+        if (Array.isArray(val)) return val;
+        return val
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item !== "");
+      };
+
+      const updatePayload = {
+        userId: profileData.id, // Fixed: This will no longer be undefined
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: `+1${profileData.phone}`,
+        addressLine1: profileData.addressLine1,
+        addressLine2: profileData.addressLine2,
+        city: profileData.city,
+        state: profileData.state,
+        zipCode: profileData.zipCode,
+        bio: profileData.bio,
+        services: stringToArray(profileData.services),
+        languages: stringToArray(profileData.languages),
+      };
+
+      console.log("Sending Payload:", updatePayload);
+
+      await axios.post(`${API_URL}/api/auth/profile/update`, updatePayload);
       setOriginalProfileData(profileData);
+      localStorage.setItem("userEmail", profileData.email);
       toast.success("Profile saved!");
     } catch (err) {
-      toast.error("Save failed.");
+      const errorMsg = err.response?.data || "Save failed.";
+      console.error("Update error:", errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -131,7 +199,6 @@ const Profile = () => {
     <div className="p-page-wrapper">
       <ToastContainer position="bottom-right" theme="colored" />
 
-      {/* CROP MODAL OVERLAY */}
       {imageToCrop && (
         <div className="p-crop-modal">
           <div className="p-crop-container">
@@ -147,15 +214,6 @@ const Profile = () => {
             />
           </div>
           <div className="p-crop-controls">
-            <input
-              type="range"
-              value={zoom}
-              min={1}
-              max={3}
-              step={0.1}
-              onChange={(e) => setZoom(e.target.value)}
-              className="p-zoom-slider"
-            />
             <div className="p-crop-btns">
               <button
                 onClick={() => setImageToCrop(null)}
@@ -175,7 +233,6 @@ const Profile = () => {
       )}
 
       <div className="p-card-container">
-        {/* SIDEBAR */}
         <aside className="p-sidebar">
           <div className="p-profile-preview">
             <div className="p-avatar-container">
@@ -186,7 +243,6 @@ const Profile = () => {
                   <FaUser className="p-icon-placeholder" />
                 )}
               </div>
-              {/* FIXED CAMERA OVERLAY POSITIONING */}
               <label htmlFor="p-upload" className="p-camera-overlay">
                 <FaCamera />
               </label>
@@ -219,22 +275,30 @@ const Profile = () => {
             >
               <FaMapMarkerAlt /> Address Details
             </button>
+            {profileData.role?.toLowerCase() === "priest" && (
+              <button
+                className={activeTab === "other" ? "active" : ""}
+                onClick={() => setActiveTab("other")}
+              >
+                <FaScroll /> Other Details
+              </button>
+            )}
           </nav>
         </aside>
 
-        {/* CONTENT */}
         <main className="p-content">
           <header className="p-header">
             <h2>
               {activeTab === "personal"
                 ? "Personal Details"
-                : "Address Details"}
+                : activeTab === "address"
+                  ? "Address Details"
+                  : "Other Details"}
             </h2>
-            <p>Update your information to ensure a seamless experience.</p>
           </header>
 
           <div className="p-form-area">
-            {activeTab === "personal" ? (
+            {activeTab === "personal" && (
               <div className="p-grid fade-in">
                 <div className="p-input-group">
                   <label>First Name</label>
@@ -260,27 +324,31 @@ const Profile = () => {
                     }
                   />
                 </div>
-                {/* Mail Alignment Fix: Uses full-row class */}
                 <div className="p-input-group full-row">
-                  <label>Email Address (Primary)</label>
+                  <label>Email Address</label>
                   <input
                     value={profileData.email}
-                    readOnly
-                    className="p-disabled"
-                  />
-                </div>
-                <div className="p-input-group">
-                  <label>Phone Number</label>
-                  <input
-                    type="tel"
-                    value={profileData.phone}
                     onChange={(e) =>
-                      setProfileData({ ...profileData, phone: e.target.value })
+                      setProfileData({ ...profileData, email: e.target.value })
                     }
                   />
                 </div>
+                <div className="p-input-group full-row">
+                  <label>Phone Number</label>
+                  <div className="p-phone-input-wrapper">
+                    <span className="p-phone-prefix">+1</span>
+                    <input
+                      type="text"
+                      value={profileData.phone}
+                      onChange={handlePhoneChange}
+                      placeholder="10 Digits"
+                    />
+                  </div>
+                </div>
               </div>
-            ) : (
+            )}
+
+            {activeTab === "address" && (
               <div className="p-grid fade-in">
                 <div className="p-input-group full-row">
                   <label>Street Address</label>
@@ -306,8 +374,6 @@ const Profile = () => {
                     }
                   />
                 </div>
-
-                {/* City and State will now sit side-by-side because they are not 'full-row' */}
                 <div className="p-input-group">
                   <label>City</label>
                   <input
@@ -326,16 +392,50 @@ const Profile = () => {
                     }
                   />
                 </div>
-
-                {/* Zip Code spans the bottom row for a clean finish */}
                 <div className="p-input-group full-row">
                   <label>Zip Code</label>
                   <input
+                    type="text"
                     value={profileData.zipCode}
+                    onChange={handleZipChange}
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeTab === "other" && (
+              <div className="p-grid fade-in">
+                <div className="p-input-group full-row">
+                  <label>Bio</label>
+                  <textarea
+                    value={profileData.bio}
+                    onChange={(e) =>
+                      setProfileData({ ...profileData, bio: e.target.value })
+                    }
+                    className="p-textarea"
+                    rows="3"
+                  />
+                </div>
+                <div className="p-input-group">
+                  <label>Services (comma separated)</label>
+                  <input
+                    value={profileData.services}
                     onChange={(e) =>
                       setProfileData({
                         ...profileData,
-                        zipCode: e.target.value,
+                        services: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="p-input-group">
+                  <label>Languages (comma separated)</label>
+                  <input
+                    value={profileData.languages}
+                    onChange={(e) =>
+                      setProfileData({
+                        ...profileData,
+                        languages: e.target.value,
                       })
                     }
                   />
@@ -352,7 +452,6 @@ const Profile = () => {
             >
               <FaTimes /> Discard
             </button>
-            {/* UPDATED BUTTON STATE LOGIC */}
             <button
               className={`p-btn-save ${!isChanged() ? "disabled" : ""}`}
               disabled={!isChanged() || saving}
