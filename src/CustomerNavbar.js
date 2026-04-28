@@ -157,7 +157,7 @@ const CustomerNavbar = ({ onLogout }) => {
             <img src={logo} alt="Logo" className="nav-logo" />
             <span className="brand-text-container">
               <span className="brand-priest">PRIEST</span>
-              <span className="brand-ify">IFY</span>
+              <span className="brand-ify">FY</span>
             </span>
           </div>
 

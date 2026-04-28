@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="footer-left">
           <div className="footer-brand-mini">
             <span className="brand-priest">PRIEST</span>
-            <span className="brand-ify">IFY</span>
+            <span className="brand-ify">FY</span>
           </div>
           <span className="footer-copyright">
             © {new Date().getFullYear()} All rights reserved.

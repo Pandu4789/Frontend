@@ -132,7 +132,7 @@ const Login = ({ onLoginSuccess }) => {
             />
             <h1 className="login-brand-text">
               <span className="brand-priest">PRIEST</span>
-              <span className="brand-ify">IFY</span>
+              <span className="brand-ify">FY</span>
             </h1>
             <p className="login-side-panel-text">
               Your gateway to sacred rituals and spiritual guidance. Connect

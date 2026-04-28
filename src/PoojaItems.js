@@ -77,7 +77,7 @@ const PoojaItems = () => {
             <img src={logo} alt="Logo" className="print-logo-img" />
             <h1 className="print-brand-text">
               <span className="p-black">PRIEST</span>
-              <span className="p-orange">IFY</span>
+              <span className="p-orange">FY</span>
             </h1>
           </div>
           <p className="print-tagline">Your Sacred Ritual Partner</p>

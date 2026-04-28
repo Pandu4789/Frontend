@@ -88,7 +88,7 @@ const ForgotPassword = () => {
           />
           <h1 className="forget-password-brand-text">
             <span className="brand-priest-dark">PRIEST</span>
-            <span className="brand-ify">IFY</span>
+            <span className="brand-ify">FY</span>
           </h1>
 
           <h2 className="forget-password-title">Reset Password</h2>

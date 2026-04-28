@@ -292,7 +292,7 @@ const SignUp = () => {
           <img src={logo} alt="Priestify Logo" className="signup-logo" />
           <h1 className="signup-brand-text">
             <span className="brand-priest-dark">PRIEST</span>
-            <span className="brand-ify">IFY</span>
+            <span className="brand-ify">FY</span>
           </h1>
           <p className="signup-subtitle">Create your account to get started</p>
         </div>

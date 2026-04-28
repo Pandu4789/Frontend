@@ -35,7 +35,7 @@ const LoginPromptModal = ({ onClose }) => {
         </div>
 
         <p className="lpm-footer">
-          New to Priestify?{" "}
+          New to Priestfy?{" "}
           <span onClick={() => navigate("/signup")}>Sign Up</span>
         </p>
       </div>
