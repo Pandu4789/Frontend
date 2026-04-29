@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCheckCircle, FaCircle } from "react-icons/fa";
 import {
   MdOutlineMailOutline,
   MdOutlinePhone,
@@ -59,6 +59,13 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordChecks, setPasswordChecks] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  });
 
   const validatePassword = (value) => {
     if (!value) return "Password is required";
@@ -96,6 +103,13 @@ const SignUp = () => {
 
     if (name === "password") {
       setPasswordError(validatePassword(value));
+      setPasswordChecks({
+        length: value.length >= 8,
+        uppercase: /[A-Z]/.test(value),
+        lowercase: /[a-z]/.test(value),
+        number: /[0-9]/.test(value),
+        special: /[^A-Za-z0-9]/.test(value),
+      });
       if (form.confirmPassword && value !== form.confirmPassword) {
         setConfirmPasswordError("Passwords do not match");
       } else {
@@ -409,6 +423,62 @@ const SignUp = () => {
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
+
+                {form.password && (
+                  <div className="signup-password-requirements">
+                    <div
+                      className={`req-item ${passwordChecks.length ? "met" : ""}`}
+                    >
+                      {passwordChecks.length ? (
+                        <FaCheckCircle className="req-icon" />
+                      ) : (
+                        <FaCircle className="req-icon-empty" />
+                      )}
+                      <span>8+ characters</span>
+                    </div>
+                    <div
+                      className={`req-item ${passwordChecks.uppercase ? "met" : ""}`}
+                    >
+                      {passwordChecks.uppercase ? (
+                        <FaCheckCircle className="req-icon" />
+                      ) : (
+                        <FaCircle className="req-icon-empty" />
+                      )}
+                      <span>Uppercase letter</span>
+                    </div>
+                    <div
+                      className={`req-item ${passwordChecks.lowercase ? "met" : ""}`}
+                    >
+                      {passwordChecks.lowercase ? (
+                        <FaCheckCircle className="req-icon" />
+                      ) : (
+                        <FaCircle className="req-icon-empty" />
+                      )}
+                      <span>Lowercase letter</span>
+                    </div>
+                    <div
+                      className={`req-item ${passwordChecks.number ? "met" : ""}`}
+                    >
+                      {passwordChecks.number ? (
+                        <FaCheckCircle className="req-icon" />
+                      ) : (
+                        <FaCircle className="req-icon-empty" />
+                      )}
+                      <span>Number</span>
+                    </div>
+                    <div
+                      className={`req-item ${passwordChecks.special ? "met" : ""}`}
+                    >
+                      {passwordChecks.special ? (
+                        <FaCheckCircle className="req-icon" />
+                      ) : (
+                        <FaCircle className="req-icon-empty" />
+                      )}
+                      <span>Special character</span>
+                    </div>
+                  </div>
+                )}
+
                 {passwordError && (
                   <p className="signup-error-text">{passwordError}</p>
                 )}

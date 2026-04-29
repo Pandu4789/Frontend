@@ -272,6 +272,42 @@
     margin: 4px 0 0 2px;
 }
 
+/* Password Requirements Display */
+.signup-password-requirements {
+    background: #F8F9FA;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.req-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.req-item.met {
+    color: #27AE60;
+    font-weight: 500;
+}
+
+.req-icon {
+    font-size: 14px;
+    color: #27AE60;
+}
+
+.req-icon-empty {
+    font-size: 14px;
+    color: #BDC3C7;
+}
+
 .signup-main-error {
     background-color: #FDEDEC;
     color: #E74C3C;

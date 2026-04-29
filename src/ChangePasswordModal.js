@@ -29,6 +29,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     number: false,
     special: false,
     upper: false,
+    lower: false,
   });
 
   const handleChange = (e) => {
@@ -42,6 +43,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
         number: /[0-9]/.test(value),
         special: /[^A-Za-z0-9]/.test(value),
         upper: /[A-Z]/.test(value),
+        lower: /[a-z]/.test(value),
       });
     }
   };
@@ -153,6 +155,14 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                   <FaCircle className="dot-icon" />
                 )}{" "}
                 Uppercase
+              </div>
+              <div className={checks.lower ? "met" : ""}>
+                {checks.lower ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaCircle className="dot-icon" />
+                )}{" "}
+                Lowercase
               </div>
               <div className={checks.number ? "met" : ""}>
                 {checks.number ? (
