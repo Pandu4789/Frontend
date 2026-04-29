@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select";
+import Select, { components } from "react-select"; // Added components
 import { FaEye, FaEyeSlash, FaCheckCircle, FaCircle } from "react-icons/fa";
 import {
   MdOutlineMailOutline,
@@ -13,6 +13,29 @@ import "./signup.css";
 
 // Import your logo here
 import logo from "./image.png";
+
+// Custom Option component to render checkboxes
+const CheckboxOption = (props) => {
+  return (
+    <components.Option {...props}>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={props.isSelected}
+          onChange={() => null} // Handled by react-select
+          style={{
+            marginRight: "10px",
+            cursor: "pointer",
+            accentColor: "#E65C00",
+            width: "16px",
+            height: "16px",
+          }}
+        />
+        <label style={{ cursor: "pointer" }}>{props.label}</label>
+      </div>
+    </components.Option>
+  );
+};
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -55,7 +78,7 @@ const SignUp = () => {
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [phoneError, setPhoneError] = useState(""); // New State for Phone Error
+  const [phoneError, setPhoneError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +100,6 @@ const SignUp = () => {
     return "";
   };
 
-  // Validation function for phone length
   const validatePhone = (value) => {
     if (value.length > 0 && value.length < 10) {
       return "Invalid phone number (must be 10 digits)";
@@ -88,12 +110,10 @@ const SignUp = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Phone logic: only numbers, max 10
     if (name === "phone") {
       const onlyNums = value.replace(/\D/g, "");
       if (onlyNums.length <= 10) {
         setForm({ ...form, phone: onlyNums });
-        // Clear error if user reaches 10 digits while typing
         if (onlyNums.length === 10) setPhoneError("");
       }
       return;
@@ -124,14 +144,11 @@ const SignUp = () => {
     }
   };
 
-  // Handle when user clicks away from phone field
   const handlePhoneBlur = () => {
     setPhoneError(validatePhone(form.phone));
   };
 
   useEffect(() => {
-    console.log("API:", process.env.REACT_APP_API_BASE_URL);
-    console.log("ENV VALUE:", process.env.REACT_APP_API_BASE_URL); // 👈 add here
     const fetchServices = async () => {
       try {
         const res = await fetch(`${API_URL}/api/events`);
@@ -190,7 +207,6 @@ const SignUp = () => {
     setConfirmPasswordError("");
     setPhoneError("");
 
-    // Check Phone Length before submitting
     if (form.phone.length !== 10) {
       setPhoneError("Invalid phone number (must be 10 digits)");
       return;
@@ -219,7 +235,7 @@ const SignUp = () => {
         firstName: form.firstName,
         lastName: form.lastName,
         email: form.email,
-        phone: `+1${form.phone}`, // Prefix added here for backend
+        phone: `+1${form.phone}`,
         password: form.password,
         addressLine1: form.addressLine1,
         addressLine2: form.addressLine2,
@@ -273,6 +289,20 @@ const SignUp = () => {
       minHeight: "52px",
       backgroundColor: "#F8F9FA",
     }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "rgba(230, 92, 0, 0.1)"
+        : state.isFocused
+          ? "rgba(230, 92, 0, 0.05)"
+          : "transparent",
+      color: "#333",
+      cursor: "pointer",
+      padding: "10px 15px",
+      "&:active": {
+        backgroundColor: "rgba(230, 92, 0, 0.2)",
+      },
+    }),
     multiValue: (base) => ({
       ...base,
       backgroundColor: "rgba(230, 92, 0, 0.15)",
@@ -290,12 +320,6 @@ const SignUp = () => {
         backgroundColor: "#E65C00",
         color: "#FFF",
       },
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isFocused ? "rgba(230, 92, 0, 0.1)" : null,
-      color: state.isSelected ? "#E65C00" : "#333",
-      cursor: "pointer",
     }),
   };
 
@@ -478,7 +502,6 @@ const SignUp = () => {
                     </div>
                   </div>
                 )}
-
                 {passwordError && (
                   <p className="signup-error-text">{passwordError}</p>
                 )}
@@ -626,8 +649,11 @@ const SignUp = () => {
                     options={availableServices}
                     value={form.selectedServices}
                     onChange={handleServicesChange}
-                    placeholder="Select Services You Offer"
+                    placeholder="Search and select services..."
                     styles={customSelectStyles}
+                    components={{ Option: CheckboxOption }}
+                    hideSelectedOptions={false}
+                    closeMenuOnSelect={false}
                     required={
                       form.role === "priest" &&
                       form.selectedServices.length === 0
@@ -643,8 +669,11 @@ const SignUp = () => {
                     options={availableLanguages}
                     value={form.selectedLanguages}
                     onChange={handleLanguagesChange}
-                    placeholder="Select Languages You Speak"
+                    placeholder="Search languages..."
                     styles={customSelectStyles}
+                    components={{ Option: CheckboxOption }}
+                    hideSelectedOptions={false}
+                    closeMenuOnSelect={false}
                     required={
                       form.role === "priest" &&
                       form.selectedLanguages.length === 0
