@@ -47,7 +47,7 @@ const PriestProfile = () => {
           `${process.env.REACT_APP_API_BASE_URL}/api/auth/priests/${priestId}`,
         );
         const profileRes = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL}/api/profile?email=${priestRes.data.email}`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/auth/profile?email=${priestRes.data.email}`,
         );
 
         setPriest({

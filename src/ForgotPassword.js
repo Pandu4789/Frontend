@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCheckCircle, FaCircle } from "react-icons/fa";
 import { MdOutlineMailOutline, MdOutlineLock } from "react-icons/md";
 import "./ForgotPassword.css";
-
-// Import your logo here
 import logo from "./image.png";
 import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
@@ -20,15 +18,23 @@ const ForgotPassword = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleEmailChange = (e) => setEmail(e.target.value);
-  const handleNewPasswordChange = (e) => setNewPassword(e.target.value);
-  const handleConfirmPasswordChange = (e) => setConfirmPassword(e.target.value);
+  // Requirements logic
+  const requirements = [
+    { label: "8+ characters", test: (p) => p.length >= 8 },
+    { label: "Uppercase letter", test: (p) => /[A-Z]/.test(p) },
+    { label: "Lowercase letter", test: (p) => /[a-z]/.test(p) },
+    { label: "Number", test: (p) => /[0-9]/.test(p) },
+    {
+      label: "Special character",
+      test: (p) => /[!@#$%^&*]/.test(p),
+    },
+  ];
+
+  const allMet = requirements.every((req) => req.test(newPassword));
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setMessage("");
-
     try {
       const res = await fetch(buildApiUrl(API_ENDPOINTS.AUTH.VALIDATE_EMAIL), {
         method: "POST",
@@ -40,7 +46,7 @@ const ForgotPassword = () => {
         setStep(2);
       } else {
         const msg = await res.text();
-        setError(msg);
+        setError(msg || "Email not found.");
       }
     } catch {
       setError("Something went wrong. Please try again later.");
@@ -50,7 +56,11 @@ const ForgotPassword = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setMessage("");
+
+    if (!allMet) {
+      setError("Please meet all password requirements.");
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
@@ -65,11 +75,11 @@ const ForgotPassword = () => {
       });
 
       if (res.ok) {
-        setMessage("Password reset successfully! You can now log in.");
+        setMessage("Password reset successfully! Redirecting...");
         setTimeout(() => navigate("/login"), 2000);
       } else {
         const msg = await res.text();
-        setError(msg);
+        setError(msg || "Failed to reset password.");
       }
     } catch {
       setError("Something went wrong. Please try again later.");
@@ -79,7 +89,6 @@ const ForgotPassword = () => {
   return (
     <div className="forget-password-container">
       <div className="forget-password-card">
-        {/* BRAND HEADER WITH LOGO */}
         <div className="forget-password-header">
           <img
             src={logo}
@@ -90,7 +99,6 @@ const ForgotPassword = () => {
             <span className="brand-priest-dark">PRIEST</span>
             <span className="brand-ify">FY</span>
           </h1>
-
           <h2 className="forget-password-title">Reset Password</h2>
           <p className="forget-password-subtitle">
             {step === 1
@@ -108,20 +116,14 @@ const ForgotPassword = () => {
               <MdOutlineMailOutline className="forget-password-input-icon" />
               <input
                 type="email"
-                name="email"
                 placeholder="Enter your email"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="forget-password-auth-input"
               />
             </div>
-
             {error && <p className="forget-password-error-text">{error}</p>}
-            {message && (
-              <p className="forget-password-success-text">{message}</p>
-            )}
-
             <button type="submit" className="forget-password-auth-btn">
               Submit
             </button>
@@ -134,11 +136,10 @@ const ForgotPassword = () => {
             <div className="forget-password-input-group">
               <MdOutlineLock className="forget-password-input-icon" />
               <input
-                type="password"
-                name="newPassword"
+                type={showNewPassword ? "text" : "password"}
                 placeholder="Enter new password"
                 value={newPassword}
-                onChange={handleNewPasswordChange}
+                onChange={(e) => setNewPassword(e.target.value)}
                 required
                 className="forget-password-auth-input"
               />
@@ -150,14 +151,31 @@ const ForgotPassword = () => {
               </span>
             </div>
 
+            {/* REQUIREMENTS BOX - Only shows when typing */}
+            {newPassword.length > 0 && (
+              <div className="password-requirements-box fade-in">
+                {requirements.map((req, index) => {
+                  const met = req.test(newPassword);
+                  return (
+                    <div
+                      key={index}
+                      className={`requirement-item ${met ? "met" : "unmet"}`}
+                    >
+                      {met ? <FaCheckCircle /> : <FaCircle />}
+                      <span>{req.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             <div className="forget-password-input-group">
               <MdOutlineLock className="forget-password-input-icon" />
               <input
-                type="password"
-                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
                 placeholder="Confirm new password"
                 value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="forget-password-auth-input"
               />
@@ -174,14 +192,18 @@ const ForgotPassword = () => {
               <p className="forget-password-success-text">{message}</p>
             )}
 
-            <button type="submit" className="forget-password-auth-btn">
+            <button
+              type="submit"
+              className="forget-password-auth-btn"
+              disabled={!allMet}
+            >
               Reset Password
             </button>
           </form>
         )}
 
         <p className="forget-password-switch-link">
-          Remembered your password?{" "}
+          Remembered?{" "}
           <span
             className="forget-password-link"
             onClick={() => navigate("/login")}
