@@ -1,28 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import {
-  FaLock,
   FaEye,
   FaEyeSlash,
   FaSpinner,
-  FaCheckCircle,
-  FaCircle,
   FaShieldAlt,
+  FaLock,
 } from "react-icons/fa";
 import "./ChangePasswordModal.css";
 import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
-  const [passwords, setPasswords] = useState({
+  const initialState = {
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  });
+  };
+
+  const [passwords, setPasswords] = useState(initialState);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [checks, setChecks] = useState({
     length: false,
@@ -31,6 +32,31 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
     upper: false,
     lower: false,
   });
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setPasswords(initialState);
+      setChecks({
+        length: false,
+        number: false,
+        special: false,
+        upper: false,
+        lower: false,
+      });
+      setError("");
+      setShowCurrent(false);
+      setShowNew(false);
+      setShowConfirm(false);
+    }
+  }, [isOpen]);
+
+  const strengthCount = Object.values(checks).filter(Boolean).length;
+  const isMatch =
+    passwords.newPassword === passwords.confirmPassword &&
+    passwords.confirmPassword !== "";
+  const canSubmit =
+    strengthCount === 5 && isMatch && passwords.currentPassword.length > 0;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,14 +76,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (!Object.values(checks).every(Boolean)) {
-      setError("Please meet all strength requirements.");
-      return;
-    }
+    if (!canSubmit) return;
 
     setLoading(true);
     try {
@@ -70,12 +89,10 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
         buildApiUrl(API_ENDPOINTS.AUTH.CHANGE_PASSWORD),
         payload,
       );
-      toast.success("Security updated successfully!");
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      toast.success("Security updated!");
+      setTimeout(onClose, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || "Check your current password.");
+      setError(err.response?.data?.message || "Current password incorrect.");
     } finally {
       setLoading(false);
     }
@@ -85,131 +102,129 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="cp-modal-overlay" onClick={onClose}>
-      <ToastContainer />
+      <ToastContainer position="top-center" autoClose={2000} />
       <div className="cp-modal-card" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="cp-close-btn">
-          &times;
-        </button>
-
+        {/* FIXED HEADER */}
         <div className="cp-modal-header">
+          <button onClick={onClose} className="cp-close-btn">
+            &times;
+          </button>
           <div className="cp-icon-circle">
             <FaShieldAlt />
           </div>
           <h2>Security Update</h2>
-          <p>
-            Maintain your account's divine protection with a strong password.
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="cp-form">
-          <div className="cp-input-group">
-            <label>Current Password</label>
-            <div className="cp-input-wrapper">
-              <input
-                type={showCurrent ? "text" : "password"}
-                name="currentPassword"
-                value={passwords.currentPassword}
-                onChange={handleChange}
-                placeholder="Verify current password"
-                className={
-                  error && error.includes("current") ? "error-input" : ""
-                }
-              />
-              <span
-                className="cp-toggle"
-                onClick={() => setShowCurrent(!showCurrent)}
-              >
-                {showCurrent ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-          </div>
-
-          <div className="cp-input-group">
-            <label>New Password</label>
-            <div className="cp-input-wrapper">
-              <input
-                type={showNew ? "text" : "password"}
-                name="newPassword"
-                value={passwords.newPassword}
-                onChange={handleChange}
-                placeholder="Create new password"
-              />
-              <span className="cp-toggle" onClick={() => setShowNew(!showNew)}>
-                {showNew ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-
-            <div className="cp-requirements">
-              <div className={checks.length ? "met" : ""}>
-                {checks.length ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaCircle className="dot-icon" />
-                )}{" "}
-                8+ Characters
-              </div>
-              <div className={checks.upper ? "met" : ""}>
-                {checks.upper ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaCircle className="dot-icon" />
-                )}{" "}
-                Uppercase
-              </div>
-              <div className={checks.lower ? "met" : ""}>
-                {checks.lower ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaCircle className="dot-icon" />
-                )}{" "}
-                Lowercase
-              </div>
-              <div className={checks.number ? "met" : ""}>
-                {checks.number ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaCircle className="dot-icon" />
-                )}{" "}
-                Number
-              </div>
-              <div className={checks.special ? "met" : ""}>
-                {checks.special ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaCircle className="dot-icon" />
-                )}{" "}
-                Special Char
+        {/* SCROLLABLE BODY */}
+        <div className="cp-modal-body">
+          <form id="cp-form" onSubmit={handleSubmit} className="cp-form">
+            <div className="cp-input-group">
+              <label>Current Password</label>
+              <div className="cp-input-wrapper">
+                <FaLock className="cp-field-icon" />
+                <input
+                  type={showCurrent ? "text" : "password"}
+                  name="currentPassword"
+                  value={passwords.currentPassword}
+                  onChange={handleChange}
+                  placeholder="Enter current password"
+                  required
+                />
+                <span
+                  className="cp-toggle"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                >
+                  {showCurrent ? <FaEyeSlash /> : <FaEye />}
+                </span>
               </div>
             </div>
-          </div>
 
-          <div className="cp-input-group">
-            <label>Confirm Password</label>
-            <input
-              className="cp-simple-input"
-              type="password"
-              name="confirmPassword"
-              value={passwords.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repeat new password"
-            />
-          </div>
+            <div className="cp-input-group">
+              <label>New Password</label>
+              <div className="cp-input-wrapper">
+                <FaLock className="cp-field-icon" />
+                <input
+                  type={showNew ? "text" : "password"}
+                  name="newPassword"
+                  value={passwords.newPassword}
+                  onChange={handleChange}
+                  placeholder="Create new password"
+                  required
+                />
+                <span
+                  className="cp-toggle"
+                  onClick={() => setShowNew(!showNew)}
+                >
+                  {showNew ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
 
-          {error && <div className="cp-error-box">{error}</div>}
+              {passwords.newPassword.length > 0 && (
+                <div className="cp-strength-container">
+                  <div className="cp-meter-bar">
+                    <div
+                      className={`cp-meter-fill strength-${strengthCount}`}
+                      style={{ width: `${(strengthCount / 5) * 100}%` }}
+                    ></div>
+                  </div>
+                  <div className="cp-requirements-grid">
+                    <span className={checks.length ? "met" : ""}>8+ Chars</span>
+                    <span className={checks.upper ? "met" : ""}>Uppercase</span>
+                    <span className={checks.lower ? "met" : ""}>Lowercase</span>
+                    <span className={checks.number ? "met" : ""}>Number</span>
+                    <span className={checks.special ? "met" : ""}>Symbol</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
+            <div className="cp-input-group">
+              <label>Confirm Password</label>
+              <div className="cp-input-wrapper">
+                <FaLock className="cp-field-icon" />
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  name="confirmPassword"
+                  value={passwords.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repeat new password"
+                  required
+                />
+                <span
+                  className="cp-toggle"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                >
+                  {showConfirm ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              {passwords.confirmPassword && (
+                <div
+                  className={`cp-inline-feedback ${isMatch ? "match" : "error"}`}
+                >
+                  {isMatch ? "Passwords match" : "Passwords do not match"}
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* FIXED FOOTER */}
+        <div className="cp-modal-footer">
+          {error && <div className="cp-server-error">{error}</div>}
           <div className="cp-actions">
-            <button
-              type="button"
-              className="cp-btn-secondary"
-              onClick={onClose}
-            >
+            <button type="button" className="cp-btn-cancel" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="cp-btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              form="cp-form"
+              className={`cp-btn-submit ${canSubmit ? "active" : ""}`}
+              disabled={loading || !canSubmit}
+            >
               {loading ? <FaSpinner className="cp-spin" /> : "Update Security"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
