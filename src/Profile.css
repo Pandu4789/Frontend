@@ -24,7 +24,82 @@
   min-height: 700px;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
+/* --- Select Styles migrated from JS --- */
+.p-select__control {
+  border: 2px solid #eee !important;
+  border-radius: 16px !important;
+  min-height: 56px !important;
+  background-color: #f8fafc !important;
+  transition: all 0.3s ease !important;
+  box-shadow: none !important;
+}
 
+.p-select__control--is-focused {
+  border-color: #e65100 !important;
+  background-color: #ffffff !important;
+}
+
+.p-select__placeholder {
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+}
+
+.p-select__option {
+  padding: 12px 15px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+}
+
+.p-select__option--is-focused {
+  background-color: #FFF8F1 !important;
+}
+
+.p-select__option--is-selected {
+  background-color: #FFF3E0 !important;
+  color: #E65C00 !important;
+}
+
+.p-select__multi-value {
+  background-color: #FFF3E0 !important;
+  border-radius: 8px !important;
+  padding: 2px !important;
+}
+
+.p-select__multi-value__label {
+  color: #E65C00 !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+}
+
+.p-select__multi-value__remove {
+  color: #E65C00 !important;
+}
+
+.p-select__multi-value__remove:hover {
+  background-color: #E65C00 !important;
+  color: #FFFFFF !important;
+}
+
+/* Custom Checkbox Option layout */
+.p-select-option-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.p-select-checkbox {
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #E65C00;
+  width: 16px;
+  height: 16px;
+}
+
+.p-select-option-wrapper label {
+  cursor: pointer;
+  margin: 0;
+  text-transform: none;
+  color: inherit;
+}
 /* SIDEBAR - SAFFRON TINTED */
 .p-sidebar {
   background-color: #fffaf5; /* Subtle cream/saffron background */
@@ -138,7 +213,6 @@
 
 .p-input-group input:focus { 
   outline: none; border-color: #ff8c00; 
-  box-shadow: 0 0 0 5px rgba(230, 81, 0, 0.1); 
 }
 
 .p-disabled { background: #f5f5f5 !important; color: #999; cursor: not-allowed; border-color: #eee !important; }

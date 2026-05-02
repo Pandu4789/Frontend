@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import Select, { components } from "react-select";
 import axios from "axios";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "./cropImage";
@@ -18,6 +19,36 @@ import "./Profile.css";
 
 const API_URL = process.env.REACT_APP_API_BASE_URL;
 
+const CheckboxOption = (props) => {
+  return (
+    <components.Option {...props}>
+      <div className="p-select-option-wrapper">
+        <input
+          type="checkbox"
+          checked={props.isSelected}
+          onChange={() => null}
+          className="p-select-checkbox"
+        />
+        <label>{props.label}</label>
+      </div>
+    </components.Option>
+  );
+};
+
+const availableLanguages = [
+  { value: "English", label: "English" },
+  { value: "Hindi", label: "Hindi" },
+  { value: "Tamil", label: "Tamil" },
+  { value: "Telugu", label: "Telugu" },
+  { value: "Kannada", label: "Kannada" },
+  { value: "Malayalam", label: "Malayalam" },
+  { value: "Gujarati", label: "Gujarati" },
+  { value: "Bengali", label: "Bengali" },
+  { value: "Marathi", label: "Marathi" },
+  { value: "Punjabi", label: "Punjabi" },
+  { value: "Sanskrit", label: "Sanskrit" },
+];
+
 const Profile = () => {
   const [profileData, setProfileData] = useState({
     id: "",
@@ -33,10 +64,11 @@ const Profile = () => {
     profilePicture: "",
     role: "",
     bio: "",
-    services: "",
-    languages: "",
+    services: [],
+    languages: [],
   });
 
+  const [availableServices, setAvailableServices] = useState([]);
   const [originalProfileData, setOriginalProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +80,22 @@ const Profile = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   const userEmail = localStorage.getItem("userEmail");
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/events`);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const data = await res.json();
+        setAvailableServices(
+          data.map((service) => ({ label: service.name, value: service.name })),
+        );
+      } catch (err) {
+        setAvailableServices([]);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const fetchProfileData = useCallback(async () => {
     if (!userEmail || userEmail === "null") {
@@ -61,30 +109,34 @@ const Profile = () => {
         `${API_URL}/api/auth/profile?email=${userEmail}`,
       );
       const data = res.data;
-
-      // Map backend 'userId' to frontend state 'id' to fix the 'undefined' issue
       const actualId = data.userId || data.id;
-
-      // Strip +1 for the display input
       const displayPhone = data.phone ? data.phone.replace("+1", "") : "";
+
+      const toSelectArray = (arr, options) => {
+        if (!arr) return [];
+        const items = Array.isArray(arr)
+          ? arr
+          : (arr || "")
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+        return items.map((val) => {
+          const found = (options || []).find((opt) => opt.value === val);
+          return found || { value: val, label: val };
+        });
+      };
 
       const formatted = {
         ...data,
         id: actualId,
         phone: displayPhone,
-        // Convert Arrays from backend to comma-strings for React inputs
-        services: Array.isArray(data.services)
-          ? data.services.join(", ")
-          : data.services || "",
-        languages: Array.isArray(data.languages)
-          ? data.languages.join(", ")
-          : data.languages || "",
+        services: toSelectArray(data.services, availableServices),
+        languages: toSelectArray(data.languages, availableLanguages),
         profilePicture:
           data.profilePicture && !data.profilePicture.startsWith("http")
             ? `${API_URL}${data.profilePicture}`
             : data.profilePicture || "",
       };
-
       setProfileData(formatted);
       setOriginalProfileData(formatted);
     } catch (error) {
@@ -92,13 +144,22 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [userEmail]);
+  }, [userEmail, availableServices]);
 
   useEffect(() => {
-    fetchProfileData();
-  }, [fetchProfileData]);
+    if (availableServices.length > 0) {
+      fetchProfileData();
+    }
+  }, [fetchProfileData, availableServices.length]);
 
-  // VALIDATIONS: Numeric Only
+  const handleServicesChange = (selectedOptions) => {
+    setProfileData((prev) => ({ ...prev, services: selectedOptions || [] }));
+  };
+
+  const handleLanguagesChange = (selectedOptions) => {
+    setProfileData((prev) => ({ ...prev, languages: selectedOptions || [] }));
+  };
+
   const handlePhoneChange = (e) => {
     const val = e.target.value.replace(/\D/g, "");
     if (val.length <= 10) setProfileData({ ...profileData, phone: val });
@@ -149,21 +210,10 @@ const Profile = () => {
       toast.error("Phone number must be exactly 10 digits.");
       return;
     }
-
     setSaving(true);
     try {
-      // Helper to convert comma-separated strings back to Arrays for Java List<String>
-      const stringToArray = (val) => {
-        if (!val) return [];
-        if (Array.isArray(val)) return val;
-        return val
-          .split(",")
-          .map((item) => item.trim())
-          .filter((item) => item !== "");
-      };
-
       const updatePayload = {
-        userId: profileData.id, // Fixed: This will no longer be undefined
+        userId: profileData.id,
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         phone: `+1${profileData.phone}`,
@@ -173,20 +223,15 @@ const Profile = () => {
         state: profileData.state,
         zipCode: profileData.zipCode,
         bio: profileData.bio,
-        services: stringToArray(profileData.services),
-        languages: stringToArray(profileData.languages),
+        services: (profileData.services || []).map((s) => s.value),
+        languages: (profileData.languages || []).map((l) => l.value),
       };
-
-      console.log("Sending Payload:", updatePayload);
-
       await axios.post(`${API_URL}/api/auth/profile/update`, updatePayload);
       setOriginalProfileData(profileData);
       localStorage.setItem("userEmail", profileData.email);
       toast.success("Profile saved!");
     } catch (err) {
-      const errorMsg = err.response?.data || "Save failed.";
-      console.error("Update error:", errorMsg);
-      toast.error(errorMsg);
+      toast.error(err.response?.data || "Save failed.");
     } finally {
       setSaving(false);
     }
@@ -261,7 +306,6 @@ const Profile = () => {
               {profileData.role || "CUSTOMER"}
             </span>
           </div>
-
           <nav className="p-nav">
             <button
               className={activeTab === "personal" ? "active" : ""}
@@ -293,8 +337,9 @@ const Profile = () => {
                 ? "Personal Details"
                 : activeTab === "address"
                   ? "Address Details"
-                  : "Other Details"}
+                  : "Priest Credentials"}
             </h2>
+            <p>Update your information to keep your profile active.</p>
           </header>
 
           <div className="p-form-area">
@@ -406,38 +451,45 @@ const Profile = () => {
             {activeTab === "other" && (
               <div className="p-grid fade-in">
                 <div className="p-input-group full-row">
-                  <label>Bio</label>
+                  <label>About You (Bio)</label>
                   <textarea
                     value={profileData.bio}
                     onChange={(e) =>
                       setProfileData({ ...profileData, bio: e.target.value })
                     }
                     className="p-textarea"
-                    rows="3"
+                    rows="4"
+                    placeholder="Describe your experience..."
                   />
                 </div>
-                <div className="p-input-group">
-                  <label>Services (comma separated)</label>
-                  <input
+                <div className="p-input-group full-row">
+                  <label>Expertise / Services</label>
+                  <Select
+                    isMulti
+                    classNamePrefix="p-select"
+                    options={availableServices}
                     value={profileData.services}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        services: e.target.value,
-                      })
-                    }
+                    onChange={handleServicesChange}
+                    components={{ Option: CheckboxOption }}
+                    hideSelectedOptions={false}
+                    closeMenuOnSelect={false}
+                    menuPortalTarget={document.body}
+                    menuPosition={"fixed"}
                   />
                 </div>
-                <div className="p-input-group">
-                  <label>Languages (comma separated)</label>
-                  <input
+                <div className="p-input-group full-row">
+                  <label>Languages Known</label>
+                  <Select
+                    isMulti
+                    classNamePrefix="p-select"
+                    options={availableLanguages}
                     value={profileData.languages}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        languages: e.target.value,
-                      })
-                    }
+                    onChange={handleLanguagesChange}
+                    components={{ Option: CheckboxOption }}
+                    hideSelectedOptions={false}
+                    closeMenuOnSelect={false}
+                    menuPortalTarget={document.body}
+                    menuPosition={"fixed"}
                   />
                 </div>
               </div>
@@ -450,7 +502,7 @@ const Profile = () => {
               disabled={!isChanged() || saving}
               onClick={() => setProfileData(originalProfileData)}
             >
-              <FaTimes /> Discard
+              <FaTimes /> Discard Changes
             </button>
             <button
               className={`p-btn-save ${!isChanged() ? "disabled" : ""}`}
@@ -461,7 +513,7 @@ const Profile = () => {
                 <FaSpinner className="p-spin" />
               ) : (
                 <>
-                  <FaCheck /> Save Changes
+                  <FaCheck /> Update Profile
                 </>
               )}
             </button>
