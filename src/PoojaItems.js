@@ -1,25 +1,26 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  FaPrint,
-  FaClock,
-  FaTag,
-  FaCheckCircle,
-  FaInfoCircle,
   FaSearch,
+  FaChevronDown,
   FaLeaf,
   FaSpinner,
-  FaChevronRight,
+  FaClock,
+  FaCalendarCheck,
+  FaTag,
 } from "react-icons/fa";
 import "./PoojaItems.css";
-import logo from "./image.png";
 import { API_ENDPOINTS, buildApiUrl } from "./config/apiConfig";
 
 const PoojaItems = () => {
+  const navigate = useNavigate();
+  const sortRef = useRef(null);
+
   const [poojas, setPoojas] = useState([]);
-  const [items, setItems] = useState([]);
-  const [selectedPoojaId, setSelectedPoojaId] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("Recommended");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   useEffect(() => {
     fetch(buildApiUrl(API_ENDPOINTS.EVENTS.GET_ALL))
@@ -34,189 +35,141 @@ const PoojaItems = () => {
       });
   }, []);
 
+  // Close dropdown on outside click
   useEffect(() => {
-    if (selectedPoojaId) {
-      fetch(
-        buildApiUrl(API_ENDPOINTS.POOJA_ITEMS.GET_BY_EVENT(selectedPoojaId)),
-      )
-        .then((res) => res.json())
-        .then((data) => setItems(Array.isArray(data) ? data : []))
-        .catch((err) => console.error("Items Error:", err));
-    }
-  }, [selectedPoojaId]);
+    const handleClickOutside = (event) => {
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setShowSortDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const filteredPoojas = useMemo(() => {
-    return poojas.filter((p) => {
-      const name = p?.name || "";
-      return name.toLowerCase().includes((searchTerm || "").toLowerCase());
-    });
-  }, [poojas, searchTerm]);
+    let result = poojas.filter((p) =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
 
-  const selectedPooja = useMemo(
-    () => poojas.find((p) => p.id === parseInt(selectedPoojaId)),
-    [poojas, selectedPoojaId],
-  );
+    if (sortBy === "A - Z") result.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === "Z - A") result.sort((a, b) => b.name.localeCompare(a.name));
 
-  const handlePrint = () => {
-    window.print();
-  };
+    return result;
+  }, [poojas, searchTerm, sortBy]);
 
   if (loading)
     return (
       <div className="pg-loader">
-        <FaSpinner className="pg-spin" /> Initializing Guide...
+        <FaSpinner className="pg-spin" /> Initializing Directory...
       </div>
     );
 
   return (
     <div className="pg-page-wrapper">
-      {/* --- ORIGINAL PRINT HEADER --- */}
-      <div className="pg-print-brand-header">
-        <div className="print-header-center">
-          <div className="print-header-top">
-            <img src={logo} alt="Logo" className="print-logo-img" />
-            <h1 className="print-brand-text">
-              <span className="p-black">PRIEST</span>
-              <span className="p-orange">FY</span>
-            </h1>
+      <div className="pg-sub-nav">
+        <div className="pg-nav-inner">
+          <div className="pg-nav-left">
+            <h2 className="pg-main-title">
+              Available Poojas{" "}
+              <span className="pg-count">({filteredPoojas.length})</span>
+            </h2>
           </div>
-          <p className="print-tagline">Your Sacred Ritual Partner</p>
-        </div>
 
-        {selectedPooja && (
-          <div className="print-ritual-summary-box">
-            <div className="print-ritual-header-row">
-              <h2>{selectedPooja.name}</h2>
-              <div className="print-stats-inline">
-                <span>
-                  <strong>Duration:</strong>{" "}
-                  {selectedPooja.duration || "15-20 Min"}
-                </span>
-                <span>
-                  <strong> Price:</strong>{" "}
-                  {selectedPooja.estimatedPrice || "$51"}
-                </span>
-              </div>
-            </div>
-            <div className="print-ritual-description">
-              <p>{selectedPooja.description}</p>
+          <div className="pg-nav-center">
+            <div className="pg-search-group">
+              <FaSearch className="pg-search-icon" />
+              <input
+                type="text"
+                placeholder="Search rituals..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
-        )}
+
+          <div className="pg-nav-right">
+            <div className="pg-sort-container" ref={sortRef}>
+              <button
+                className="pg-sort-trigger"
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+              >
+                Sort By: <strong>{sortBy}</strong> <FaChevronDown />
+              </button>
+              {showSortDropdown && (
+                <div className="pg-dropdown-menu">
+                  {["Recommended", "A - Z", "Z - A"].map((opt) => (
+                    <div
+                      key={opt}
+                      onClick={() => {
+                        setSortBy(opt);
+                        setShowSortDropdown(false);
+                      }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <header className="pg-hero">
-        <div className="pg-hero-content">
-          <h1>Sacred Pooja Guide</h1>
-          <p>
-            Prepare for your rituals with our comprehensive list of required
-            items.
-          </p>
-        </div>
-      </header>
-
-      <div className="pg-container">
-        <aside className="pg-sidebar">
-          <div className="pg-search-container">
-            <FaSearch className="pg-search-icon" />
-            <input
-              type="text"
-              placeholder="Search Poojas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="pg-list">
-            {filteredPoojas.length > 0 ? (
-              filteredPoojas.map((p) => (
-                <button
-                  key={p.id}
-                  className={`pg-list-item ${selectedPoojaId == p.id ? "active" : ""}`}
-                  onClick={() => setSelectedPoojaId(p.id)}
-                >
-                  <span className="pg-item-label">{p.name}</span>
-                  <FaChevronRight className="pg-arrow-icon" />
-                </button>
-              ))
-            ) : (
-              <p className="pg-no-results">No rituals found.</p>
-            )}
-          </div>
-        </aside>
-
-        <main className="pg-main-content">
-          {selectedPooja ? (
-            <div className="pg-card">
-              <div className="pg-card-header">
-                <div className="pg-title-box">
-                  <FaLeaf className="pg-leaf-icon" />
-                  <h2>{selectedPooja.name}</h2>
-                </div>
-                <div className="pg-meta-tags">
-                  <span className="pg-tag">
-                    <FaTag /> {selectedPooja.category || "General"}
-                  </span>
-                  <span className="pg-tag">
-                    <FaClock /> {selectedPooja.duration || "Flexible"}
-                  </span>
-                </div>
+      <div className="pg-main-content">
+        <div className="pg-ritual-grid">
+          {filteredPoojas.map((pooja) => (
+            <div key={pooja.id} className="pg-ritual-card">
+              <div className="pg-card-image">
+                <img
+                  src={`https://images.unsplash.com/photo-1602664711586-d99cf3978b87?auto=format&fit=crop&q=80&w=400&h=250`}
+                  alt={pooja.name}
+                />
               </div>
 
-              <div className="pg-description-box">
-                <p>
-                  {selectedPooja.description ||
-                    "No description available for this ritual."}
+              <div className="pg-card-body">
+                <div className="pg-card-header">
+                  <h3>{pooja.name}</h3>
+                  <p className="pg-category">
+                    <FaLeaf /> {pooja.category || "Sacred Ritual"}
+                  </p>
+                </div>
+
+                <div className="pg-meta-info">
+                  <div className="pg-meta-item">
+                    <FaClock /> <span>{pooja.duration || "90 Mins"}</span>
+                  </div>
+                  <div className="pg-meta-item pg-price-text">
+                    <FaTag /> <span>${pooja.estimatedPrice || "51"}</span>
+                  </div>
+                </div>
+
+                <p className="pg-card-desc">
+                  {pooja.description ||
+                    "Perform this sacred ritual with our verified Vedic experts to invoke divine blessings and peace."}
                 </p>
-              </div>
 
-              <div className="pg-items-section">
-                <div className="pg-section-title">
-                  <FaCheckCircle /> <h3>Required Pooja Samagri</h3>
+                <div className="pg-card-footer">
+                  <button
+                    className="pg-btn-book"
+                    onClick={() =>
+                      navigate("/book-priest", {
+                        state: { selectedPooja: pooja.name },
+                      })
+                    }
+                  >
+                    <FaCalendarCheck /> Book Pooja
+                  </button>
+                  <button
+                    className="pg-btn-view"
+                    onClick={() => navigate(`/rituals/${pooja.id}`)}
+                  >
+                    View Details
+                  </button>
                 </div>
-
-                <div className="pg-items-grid">
-                  {items.length > 0 ? (
-                    items.map((item) => (
-                      <div key={item.id} className="pg-item-row">
-                        <span className="pg-item-name">{item.itemName}</span>
-                        <span className="pg-item-qty">
-                          {item.quantity} {item.unit || ""}
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="pg-empty-state">
-                      <FaInfoCircle />{" "}
-                      <p>Select a ritual or check back later.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pg-card-footer">
-                <div className="pg-price-info">
-                  <span className="label">Estimated Price:</span>
-                  <span className="value">
-                    {selectedPooja.estimatedPrice || "Contact Priest"}
-                  </span>
-                </div>
-                <button onClick={handlePrint} className="pg-print-btn">
-                  <FaPrint /> Print Checklist
-                </button>
               </div>
             </div>
-          ) : (
-            <div className="pg-welcome-state">
-              <div className="pg-welcome-icon">
-                <FaLeaf />
-              </div>
-              <h2>Ready to Begin?</h2>
-              <p>
-                Choose a pooja ritual from the sidebar to view the checklist.
-              </p>
-            </div>
-          )}
-        </main>
+          ))}
+        </div>
       </div>
     </div>
   );

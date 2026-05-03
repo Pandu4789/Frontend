@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaSearch,
   FaFilter,
@@ -16,35 +16,54 @@ import "./BookPriest.css";
 
 const BookPriest = () => {
   const navigate = useNavigate();
-  const sortRef = useRef(null); // Reference for the sort container
+  const location = useLocation();
+  const sortRef = useRef(null);
 
   const [priests, setPriests] = useState([]);
   const [filteredPriests, setFilteredPriests] = useState([]);
   const [availablePoojas, setAvailablePoojas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [selectedPriest, setSelectedPriest] = useState(null);
 
-  // Sidebar Collapse States
   const [collapsed, setCollapsed] = useState({
     events: false,
     languages: true,
     distance: true,
   });
 
+  // Keep search term for text-based searching
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Initialize filters: If coming from Pooja page, add the pooja to the services array
   const [activeFilters, setActiveFilters] = useState({
-    services: [],
+    services: location.state?.selectedPooja
+      ? [location.state.selectedPooja]
+      : [],
     languages: [],
     distance: [],
   });
-  const [sortBy, setSortBy] = useState("Recommended");
 
+  const [sortBy, setSortBy] = useState("Recommended");
   const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
-  // --- NEW: CLOSE DROPDOWN ON OUTSIDE CLICK ---
+  // Sync if location state changes while mounted (e.g., clicking a link in a sidebar)
+  useEffect(() => {
+    if (location.state?.selectedPooja) {
+      const selected = location.state.selectedPooja;
+      setActiveFilters((prev) => ({
+        ...prev,
+        services: prev.services.includes(selected)
+          ? prev.services
+          : [...prev.services, selected],
+      }));
+      // Auto-show filters so the user sees the checkbox is selected
+      setShowFilters(true);
+    }
+  }, [location.state]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sortRef.current && !sortRef.current.contains(event.target)) {
@@ -55,7 +74,6 @@ const BookPriest = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -74,11 +92,11 @@ const BookPriest = () => {
     fetchData();
   }, [API_BASE]);
 
-  // Filtering & Sorting Logic
+  // Main Filtering Logic
   useEffect(() => {
     let result = [...priests];
 
-    // Search logic
+    // 1. Text Search (Name)
     if (searchTerm) {
       result = result.filter((p) =>
         `${p.firstName} ${p.lastName}`
@@ -87,21 +105,23 @@ const BookPriest = () => {
       );
     }
 
-    // STRICT "AND" LOGIC: Priest must offer ALL selected services
+    // 2. Service Filters (Checkbox Logic)
+    // Using "some" logic so if multiple poojas are checked, it shows priests who do ANY of them
+    // Change .some to .every if you want strict "Priest must do ALL selected"
     if (activeFilters.services.length > 0) {
       result = result.filter((p) =>
-        activeFilters.services.every((s) => p.servicesOffered?.includes(s)),
+        activeFilters.services.some((s) => p.servicesOffered?.includes(s)),
       );
     }
 
-    // Language Filter
+    // 3. Language Filter
     if (activeFilters.languages.length > 0) {
       result = result.filter((p) =>
         activeFilters.languages.some((l) => p.languagesSpoken?.includes(l)),
       );
     }
 
-    // Sorting Logic
+    // 4. Sorting Logic
     if (sortBy === "A - Z")
       result.sort((a, b) => a.firstName.localeCompare(b.firstName));
     if (sortBy === "Z - A")
@@ -124,7 +144,6 @@ const BookPriest = () => {
     setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  // Enhanced filter toggle to close sort dropdown
   const handleToggleFilters = () => {
     setShowSortDropdown(false);
     setShowFilters(!showFilters);
@@ -132,7 +151,6 @@ const BookPriest = () => {
 
   return (
     <div className="bp-page-container">
-      {/* --- STICKY SUB-NAV --- */}
       <div className="bp-sub-nav">
         <div className="bp-nav-inner">
           <div className="bp-nav-left">
@@ -146,14 +164,13 @@ const BookPriest = () => {
               <FaSearch className="bp-search-icon" />
               <input
                 type="text"
-                placeholder="Search name ...."
+                placeholder="Search name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
           <div className="bp-nav-right">
-            {/* ATTACHED sortRef HERE */}
             <div className="bp-sort-container" ref={sortRef}>
               <button
                 className="bp-sort-trigger"
@@ -196,7 +213,6 @@ const BookPriest = () => {
       </div>
 
       <div className="bp-main-content">
-        {/* --- COLLAPSIBLE SIDEBAR --- */}
         {showFilters && (
           <aside className="bp-sidebar-panel">
             <div className="bp-sidebar-section">
@@ -286,12 +302,9 @@ const BookPriest = () => {
           </aside>
         )}
 
-        {/* --- PRIEST GRID --- */}
         <main className={`bp-priest-grid ${showFilters ? "grid-3" : "grid-4"}`}>
           {loading ? (
-            <div className="bp-full-loader">
-              Connecting to Sacred Directory...
-            </div>
+            <div className="bp-full-loader">Connecting...</div>
           ) : (
             filteredPriests.map((priest) => (
               <div key={priest.id} className="bp-priest-card">
