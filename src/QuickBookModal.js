@@ -47,7 +47,7 @@ const QuickBookModal = ({ priest, onClose }) => {
   const [profileData, setProfileData] = useState(null);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [masterEvents, setMasterEvents] = useState([]);
-  const [availableSlots, setAvailableSlots] = useState([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const nakshatramList = [
@@ -85,13 +85,22 @@ const QuickBookModal = ({ priest, onClose }) => {
       .get(`${API_BASE}/api/events`)
       .then((res) => setMasterEvents(res.data));
     if (isLoggedIn) {
-      const email = localStorage.getItem("userEmail");
-      axios.get(`${API_BASE}/api/auth/profile?email=${email}`).then((res) => {
-        setProfileData(res.data);
-        if (formData.useProfileAddress) syncAddress(res.data);
-      });
+      fetchProfile();
     }
   }, [isLoggedIn]);
+
+  const fetchProfile = async () => {
+    const email = localStorage.getItem("userEmail");
+    try {
+      const res = await axios.get(
+        `${API_BASE}/api/auth/profile?email=${email}`,
+      );
+      setProfileData(res.data);
+      if (formData.useProfileAddress) syncAddress(res.data);
+    } catch (err) {
+      console.error("Profile fetch error", err);
+    }
+  };
 
   const syncAddress = (data) => {
     setFormData((prev) => ({
@@ -126,41 +135,170 @@ const QuickBookModal = ({ priest, onClose }) => {
         .get(
           `${API_BASE}/api/availability/priest/${priest.id}/date/${formattedDate}`,
         )
-        .then((res) => setAvailableSlots(res.data || []));
+        .then((res) => setAvailableTimeSlots(res.data || []))
+        .catch(() => setAvailableTimeSlots([]));
     }
   }, [formData.date, priest.id]);
 
-  const handleBooking = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = {
-        eventId: masterEvents.find((ev) => ev.name === formData.eventId)?.id,
-        address: `${formData.addressLine1}, ${formData.addressLine2}, ${formData.city}, ${formData.state} ${formData.zip}`,
-        date: formData.date?.toISOString().split("T")[0],
-        start: formData.time,
-        priestId: priest.id,
-        userId: localStorage.getItem("userId"),
-        nakshatram: formData.nakshatram,
-        note: formData.note,
-      };
-      await axios.post(`${API_BASE}/api/booking`, payload);
-      toast.success("Booking Request Sent!");
-      onClose();
+      const res = await axios.post(`${API_BASE}/api/auth/login`, loginData);
+      localStorage.setItem("userId", res.data.id);
+      localStorage.setItem("userEmail", res.data.email);
+      setIsLoggedIn(true);
+      toast.success("Logged in successfully!");
     } catch (err) {
-      toast.error("Booking failed.");
+      toast.error("Invalid credentials.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    if (!profileData) {
+      toast.error("User data not loaded. Please try again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const fullName =
+        `${profileData.firstName} ${profileData.lastName || ""}`.trim();
+      const userPhone = profileData.phoneNumber || profileData.phone || "";
+      const userId = localStorage.getItem("userId");
+
+      // Find the event object to get the ID
+      const selectedEvent = masterEvents.find(
+        (ev) => ev.name === formData.eventId,
+      );
+
+      let payload = {};
+      let endpoint = "";
+
+      if (activeTab === "event") {
+        endpoint = "/api/booking";
+        payload = {
+          eventId: selectedEvent?.id,
+          name: fullName,
+          phone: userPhone,
+          email: profileData.email,
+          address: `${formData.addressLine1}, ${formData.addressLine2 ? formData.addressLine2 + ", " : ""}${formData.city}, ${formData.state} ${formData.zip}`,
+          date: formData.date?.toISOString().split("T")[0],
+          start: formData.time,
+          priestId: priest.id,
+          userId: userId,
+          nakshatram: formData.nakshatram || null,
+          note: formData.note,
+        };
+      } else {
+        // MUHURTHAM TAB - Matching MuhurtamRequestDto exactly
+        endpoint = "/api/muhurtam/request";
+        payload = {
+          event: selectedEvent?.id, // MUST be the ID for your EventRepository search in Controller
+          name: fullName,
+          email: profileData.email,
+          phone: userPhone,
+          nakshatram: formData.nakshatram || null,
+          date: formData.birthDate || null,
+          time: formData.birthTime || null,
+          place: formData.birthPlace || null,
+          note: formData.note || "",
+          priestId: priest.id,
+          userId: userId,
+        };
+      }
+
+      const response = await axios.post(`${API_BASE}${endpoint}`, payload);
+      toast.success(
+        activeTab === "event"
+          ? "Booking Request Sent!"
+          : "Muhurtham Requested!",
+      );
+      onClose();
+    } catch (err) {
+      console.error("Submission error:", err.response?.data);
+      const errorMessage = err.response?.data?.error || "Request failed.";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="qb-overlay">
+        <div className="qb-card fade-in">
+          <button className="qb-close" onClick={onClose}>
+            <FaTimes />
+          </button>
+          <div className="qb-auth-view">
+            <FaLock
+              style={{
+                fontSize: "3rem",
+                color: "#e65100",
+                marginBottom: "15px",
+              }}
+            />
+            <h3>Please login to book an appointment</h3>
+            <p>
+              If you do not have an account,{" "}
+              <span className="qb-link" onClick={() => navigate("/signup")}>
+                create one here
+              </span>{" "}
+              to continue.
+            </p>
+            <form onSubmit={handleLogin} className="qb-login-form">
+              <div className="qb-field">
+                <label>
+                  <FaUser /> Email Address
+                </label>
+                <input
+                  className="qb-input"
+                  type="email"
+                  required
+                  value={loginData.email}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div className="qb-field">
+                <label>
+                  <FaLock /> Password
+                </label>
+                <input
+                  className="qb-input"
+                  type="password"
+                  required
+                  value={loginData.password}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                />
+              </div>
+              <button
+                type="submit"
+                className="qb-submit-btn"
+                disabled={loading}
+              >
+                {loading ? "Verifying..." : "Login & Continue"}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="qb-overlay">
-      <div className="qb-card qb-dark">
+      <div className="qb-card">
         <button className="qb-close" onClick={onClose}>
           <FaTimes />
         </button>
-
         <div className="qb-tabs">
           <button
             className={activeTab === "event" ? "active" : ""}
@@ -175,7 +313,6 @@ const QuickBookModal = ({ priest, onClose }) => {
             <FaHistory /> Muhurtham
           </button>
         </div>
-
         <form className="qb-main-form" onSubmit={handleBooking}>
           {activeTab === "event" ? (
             <div className="fade-in">
@@ -195,7 +332,6 @@ const QuickBookModal = ({ priest, onClose }) => {
                   ))}
                 </select>
               </div>
-
               <div className="qb-row">
                 <div className="qb-field">
                   <label>
@@ -206,6 +342,7 @@ const QuickBookModal = ({ priest, onClose }) => {
                     onChange={(d) => setFormData({ ...formData, date: d })}
                     minDate={new Date()}
                     placeholderText="MM/DD/YYYY"
+                    className="qb-input"
                   />
                 </div>
                 <div className="qb-field">
@@ -219,7 +356,7 @@ const QuickBookModal = ({ priest, onClose }) => {
                     }
                   >
                     <option value="">Time</option>
-                    {availableSlots.map((s) => (
+                    {availableTimeSlots.map((s) => (
                       <option key={s} value={s}>
                         {s}
                       </option>
@@ -227,7 +364,6 @@ const QuickBookModal = ({ priest, onClose }) => {
                   </select>
                 </div>
               </div>
-
               <div className="qb-field">
                 <div className="qb-loc-header">
                   <label>
@@ -242,7 +378,7 @@ const QuickBookModal = ({ priest, onClose }) => {
                     Profile Address
                   </label>
                 </div>
-                <div className="qb-glass-box">
+                <div className="qb-location-box">
                   <input
                     className="qb-input"
                     placeholder="Address Line 1"
@@ -306,7 +442,6 @@ const QuickBookModal = ({ priest, onClose }) => {
                   ))}
                 </select>
               </div>
-
               <div className="qb-field">
                 <label>Nakshatram</label>
                 <div className="qb-clearable-input">
@@ -345,9 +480,8 @@ const QuickBookModal = ({ priest, onClose }) => {
                     : "Don't know? Enter Birth Details"}
                 </button>
               </div>
-
               {showBirthDetails && (
-                <div className="qb-glass-box qb-birth-accent fade-in">
+                <div className="qb-birth-box fade-in">
                   <div className="qb-row">
                     <input
                       className="qb-input"
@@ -376,12 +510,13 @@ const QuickBookModal = ({ priest, onClose }) => {
                   />
                 </div>
               )}
-
               <div className="qb-field">
                 <label>Notes</label>
                 <textarea
+                  className="qb-input"
                   rows="2"
-                  placeholder="Any specific traditions or requirements..."
+                  placeholder="Any specific traditions..."
+                  value={formData.note}
                   onChange={(e) =>
                     setFormData({ ...formData, note: e.target.value })
                   }
@@ -389,7 +524,6 @@ const QuickBookModal = ({ priest, onClose }) => {
               </div>
             </div>
           )}
-
           <div className="qb-footer-actions">
             <button
               type="button"
