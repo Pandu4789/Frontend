@@ -1,220 +1,369 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
-  FaUserCircle,
   FaSearch,
   FaFilter,
-  FaSyncAlt,
   FaMapMarkerAlt,
-  FaStar,
-  FaArrowRight,
+  FaChevronDown,
+  FaChevronUp,
   FaTimes,
+  FaBolt,
+  FaUserCircle,
 } from "react-icons/fa";
+import QuickBookModal from "./QuickBookModal";
 import "./BookPriest.css";
 
 const BookPriest = () => {
   const navigate = useNavigate();
+  const sortRef = useRef(null); // Reference for the sort container
+
   const [priests, setPriests] = useState([]);
+  const [filteredPriests, setFilteredPriests] = useState([]);
   const [availablePoojas, setAvailablePoojas] = useState([]);
-  const [filters, setFilters] = useState({ name: "", poojaType: "" });
   const [loading, setLoading] = useState(true);
 
-  const [expandedPriestId, setExpandedPriestId] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [selectedPriest, setSelectedPriest] = useState(null);
+
+  // Sidebar Collapse States
+  const [collapsed, setCollapsed] = useState({
+    events: false,
+    languages: true,
+    distance: true,
+  });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilters, setActiveFilters] = useState({
+    services: [],
+    languages: [],
+    distance: [],
+  });
+  const [sortBy, setSortBy] = useState("Recommended");
 
   const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
+  // --- NEW: CLOSE DROPDOWN ON OUTSIDE CLICK ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setShowSortDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const [priestRes, poojaRes] = await Promise.all([
           axios.get(`${API_BASE}/api/auth/priests`),
           axios.get(`${API_BASE}/api/events`),
         ]);
-
-        let priestData = priestRes.data || [];
-        if (filters.name) {
-          priestData = priestData.filter((p) =>
-            `${p.firstName} ${p.lastName}`
-              .toLowerCase()
-              .includes(filters.name.toLowerCase()),
-          );
-        }
-        if (filters.poojaType) {
-          priestData = priestData.filter((p) =>
-            p.servicesOffered?.includes(filters.poojaType),
-          );
-        }
-
-        setPriests(priestData);
-        setAvailablePoojas(poojaRes.data);
+        setPriests(priestRes.data || []);
+        setAvailablePoojas(poojaRes.data || []);
       } catch (err) {
-        console.error("Error loading directory:", err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, [filters]);
+  }, [API_BASE]);
 
-  const resetFilters = () => setFilters({ name: "", poojaType: "" });
-  const toggleExpand = (id) =>
-    setExpandedPriestId(expandedPriestId === id ? null : id);
+  // Filtering & Sorting Logic
+  useEffect(() => {
+    let result = [...priests];
+
+    // Search logic
+    if (searchTerm) {
+      result = result.filter((p) =>
+        `${p.firstName} ${p.lastName}`
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
+      );
+    }
+
+    // STRICT "AND" LOGIC: Priest must offer ALL selected services
+    if (activeFilters.services.length > 0) {
+      result = result.filter((p) =>
+        activeFilters.services.every((s) => p.servicesOffered?.includes(s)),
+      );
+    }
+
+    // Language Filter
+    if (activeFilters.languages.length > 0) {
+      result = result.filter((p) =>
+        activeFilters.languages.some((l) => p.languagesSpoken?.includes(l)),
+      );
+    }
+
+    // Sorting Logic
+    if (sortBy === "A - Z")
+      result.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    if (sortBy === "Z - A")
+      result.sort((a, b) => b.firstName.localeCompare(a.firstName));
+
+    setFilteredPriests(result);
+  }, [searchTerm, activeFilters, sortBy, priests]);
+
+  const toggleFilter = (type, value) => {
+    setActiveFilters((prev) => {
+      const current = prev[type];
+      const next = current.includes(value)
+        ? current.filter((i) => i !== value)
+        : [...current, value];
+      return { ...prev, [type]: next };
+    });
+  };
+
+  const toggleSection = (section) => {
+    setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  // Enhanced filter toggle to close sort dropdown
+  const handleToggleFilters = () => {
+    setShowSortDropdown(false);
+    setShowFilters(!showFilters);
+  };
 
   return (
-    <div className="bp-page-wrapper">
-      {/* --- CURVED HERO SECTION --- */}
-      <header className="bp-hero">
-        <div className="bp-hero-content">
-          <h1>Divine Directory</h1>
-          <p>
-            Connect with verified, experienced priests for your sacred rituals.
-          </p>
-        </div>
-      </header>
-
-      <div className="bp-filter-container">
-        <div className="bp-filter-card">
-          <div className="bp-filter-group">
-            <div className="bp-input-wrapper">
-              <FaSearch className="bp-icon" />
+    <div className="bp-page-container">
+      {/* --- STICKY SUB-NAV --- */}
+      <div className="bp-sub-nav">
+        <div className="bp-nav-inner">
+          <div className="bp-nav-left">
+            <h2 className="bp-main-title">
+              Available Priests{" "}
+              <span className="bp-count">({filteredPriests.length})</span>
+            </h2>
+          </div>
+          <div className="bp-nav-center">
+            <div className="bp-search-group">
+              <FaSearch className="bp-search-icon" />
               <input
                 type="text"
-                placeholder="Search by priest name..."
-                value={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.target.value })
-                }
+                placeholder="Search name ...."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
-            <div className="bp-input-wrapper">
-              <FaFilter className="bp-icon" />
-              <select
-                value={filters.poojaType}
-                onChange={(e) =>
-                  setFilters({ ...filters, poojaType: e.target.value })
-                }
+          </div>
+          <div className="bp-nav-right">
+            {/* ATTACHED sortRef HERE */}
+            <div className="bp-sort-container" ref={sortRef}>
+              <button
+                className="bp-sort-trigger"
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
               >
-                <option value="">All Sacred Services</option>
-                {availablePoojas.map((pooja) => (
-                  <option key={pooja.id} value={pooja.name}>
-                    {pooja.name}
-                  </option>
-                ))}
-              </select>
+                Sort By: <strong>{sortBy}</strong> <FaChevronDown />
+              </button>
+              {showSortDropdown && (
+                <div className="bp-dropdown-menu">
+                  {["Recommended", "A - Z", "Z - A", "Nearest"].map((opt) => (
+                    <div
+                      key={opt}
+                      onClick={() => {
+                        setSortBy(opt);
+                        setShowSortDropdown(false);
+                      }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
-            <button onClick={resetFilters} className="bp-btn-reset">
-              <FaSyncAlt /> <span>Clear Filters</span>
+            <button
+              className="bp-filter-toggle-btn"
+              onClick={handleToggleFilters}
+            >
+              {showFilters ? (
+                <>
+                  <FaTimes /> Hide Filters
+                </>
+              ) : (
+                <>
+                  <FaFilter /> Show Filters
+                </>
+              )}
             </button>
           </div>
         </div>
       </div>
 
-      <main className="bp-main-grid">
-        {loading ? (
-          <div className="bp-loader-box">
-            <div className="bp-spinner"></div>
-            <p>Searching the holy directory...</p>
-          </div>
-        ) : priests.length > 0 ? (
-          <div className="bp-grid-layout">
-            {priests.map((priest) => (
-              <div className="bp-priest-card" key={priest.id}>
-                <div className="bp-card-top">
-                  <div className="bp-avatar-box">
-                    {priest.imageUrl ? (
-                      <img src={priest.imageUrl} alt={priest.firstName} />
-                    ) : (
-                      <FaUserCircle className="bp-user-placeholder" />
-                    )}
-                  </div>
-                  <div className="bp-priest-info">
-                    <div className="bp-rating-badge">
-                      <FaStar className="star-icon" /> <span>4.9 Verified</span>
-                    </div>
-                    <h3>
-                      {priest.firstName} {priest.lastName}
-                    </h3>
-                    <div className="bp-location-tag">
-                      <FaMapMarkerAlt />
-                      <span>
-                        {priest.city}, {priest.state}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bp-card-body">
-                  <p className="bp-biography">
-                    {priest.bio ||
-                      "Dedicated Vedic scholar specializing in traditional rituals and spiritual guidance."}
-                  </p>
-
-                  <div className="bp-tags-container">
-                    <div className="bp-service-tags">
-                      {priest.servicesOffered
-                        ?.slice(0, 3)
-                        .map((service, index) => (
-                          <span key={index} className="bp-tag">
-                            {service}
-                          </span>
-                        ))}
-
-                      {priest.servicesOffered?.length > 3 && (
-                        <button
-                          className="bp-tag-more-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpand(priest.id);
-                          }}
-                        >
-                          +{priest.servicesOffered.length - 3} More
-                        </button>
-                      )}
-                    </div>
-
-                    {expandedPriestId === priest.id && (
-                      <div className="bp-tags-dropdown">
-                        <div className="bp-dropdown-header">
-                          <span>All Services</span>
-                          <FaTimes
-                            className="bp-close-tags"
-                            onClick={() => setExpandedPriestId(null)}
-                          />
-                        </div>
-                        <div className="bp-dropdown-list">
-                          {priest.servicesOffered.map((service, index) => (
-                            <span key={index} className="bp-tag-full">
-                              {service}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  className="bp-btn-profile"
-                  onClick={() => navigate(`/priests/${priest.id}`)}
-                >
-                  View Full Profile <FaArrowRight />
-                </button>
+      <div className="bp-main-content">
+        {/* --- COLLAPSIBLE SIDEBAR --- */}
+        {showFilters && (
+          <aside className="bp-sidebar-panel">
+            <div className="bp-sidebar-section">
+              <div
+                className="section-header"
+                onClick={() => toggleSection("events")}
+              >
+                <h4>Sacred Events</h4>
+                {collapsed.events ? <FaChevronDown /> : <FaChevronUp />}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bp-empty-state">
-            <FaSearch size={40} />
-            <h3>No results found</h3>
-            <p>Try adjusting your search criteria or clearing filters.</p>
-          </div>
+              {!collapsed.events && (
+                <div className="bp-check-list fade-in">
+                  {availablePoojas.map((p) => (
+                    <label key={p.id} className="bp-check-item">
+                      <input
+                        type="checkbox"
+                        checked={activeFilters.services.includes(p.name)}
+                        onChange={() => toggleFilter("services", p.name)}
+                      />
+                      <span>{p.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bp-sidebar-section">
+              <div
+                className="section-header"
+                onClick={() => toggleSection("languages")}
+              >
+                <h4>Languages</h4>
+                {collapsed.languages ? <FaChevronDown /> : <FaChevronUp />}
+              </div>
+              {!collapsed.languages && (
+                <div className="bp-check-list fade-in">
+                  {[
+                    "English",
+                    "Hindi",
+                    "Tamil",
+                    "Telugu",
+                    "Kannada",
+                    "Sanskrit",
+                    "Malayalam",
+                    "Gujarati",
+                    "Bengali",
+                    "Marathi",
+                    "Punjabi",
+                  ].map((lang) => (
+                    <label key={lang} className="bp-check-item">
+                      <input
+                        type="checkbox"
+                        checked={activeFilters.languages.includes(lang)}
+                        onChange={() => toggleFilter("languages", lang)}
+                      />
+                      <span>{lang}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bp-sidebar-section">
+              <div
+                className="section-header"
+                onClick={() => toggleSection("distance")}
+              >
+                <h4>Distance</h4>
+                {collapsed.distance ? <FaChevronDown /> : <FaChevronUp />}
+              </div>
+              {!collapsed.distance && (
+                <div className="bp-check-list fade-in">
+                  {["Under 5 mi", "Under 20 mi", "Under 50 mi", "100+ mi"].map(
+                    (dist) => (
+                      <label key={dist} className="bp-check-item">
+                        <input
+                          type="checkbox"
+                          onChange={() => toggleFilter("distance", dist)}
+                        />
+                        <span>{dist}</span>
+                      </label>
+                    ),
+                  )}
+                </div>
+              )}
+            </div>
+          </aside>
         )}
-      </main>
+
+        {/* --- PRIEST GRID --- */}
+        <main className={`bp-priest-grid ${showFilters ? "grid-3" : "grid-4"}`}>
+          {loading ? (
+            <div className="bp-full-loader">
+              Connecting to Sacred Directory...
+            </div>
+          ) : (
+            filteredPriests.map((priest) => (
+              <div key={priest.id} className="bp-priest-card">
+                <div className="bp-card-top-info">
+                  <div className="bp-pfp-circle">
+                    {priest.profilePicture ? (
+                      <img
+                        src={`${API_BASE}${priest.profilePicture}`}
+                        alt="P"
+                      />
+                    ) : (
+                      <FaUserCircle />
+                    )}
+                  </div>
+                  <div className="bp-title-meta">
+                    <h3 className="bp-first-name">{priest.firstName}</h3>
+                    <h3 className="bp-last-name">{priest.lastName}</h3>
+                    <p>
+                      <FaMapMarkerAlt /> {priest.city}, {priest.state}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bp-card-mid-info">
+                  <div className="bp-info-row">
+                    <label>Languages</label>
+                    <div className="bp-pill-row single-line">
+                      {priest.languagesSpoken?.map((l, i) => (
+                        <span key={i} className="bp-mini-pill">
+                          {l}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bp-info-row">
+                    <label>Expertise</label>
+                    <div className="bp-pill-row double-line">
+                      {priest.servicesOffered?.map((s, i) => (
+                        <span key={i} className="bp-mini-pill">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bp-card-footer-btns">
+                  <button
+                    className="bp-btn-quick-book"
+                    onClick={() => setSelectedPriest(priest)}
+                  >
+                    <FaBolt /> Quick Book
+                  </button>
+                  <button
+                    className="bp-btn-view-profile"
+                    onClick={() => navigate(`/priests/${priest.id}`)}
+                  >
+                    View Profile
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </main>
+      </div>
+
+      {selectedPriest && (
+        <QuickBookModal
+          priest={selectedPriest}
+          onClose={() => setSelectedPriest(null)}
+        />
+      )}
     </div>
   );
 };
