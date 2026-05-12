@@ -32,6 +32,7 @@ import AvailabilityManager from "./AvailabilityManager";
 import YourBookings from "./YourBookings";
 import PriestGallery from "./PriestGallery";
 import Footer from "./Footer";
+import RitualDetails from "./RitualDetails";
 
 function MainApp({
   isAuthenticated,
@@ -231,6 +232,18 @@ function MainApp({
                   userRole={userRole}
                 >
                   <PoojaItems />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/rituals/:id"
+              element={
+                <ProtectedRoute
+                  isAuthenticated={isAuthenticated}
+                  allowedRoles={["customer"]}
+                  userRole={userRole}
+                >
+                  <RitualDetails />
                 </ProtectedRoute>
               }
             />

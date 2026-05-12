@@ -73,11 +73,45 @@
 .pg-price-text span { color: #2e7d32; } /* Dark Green for Price */
 
 .pg-card-desc {
-    font-size: 0.8rem; color: #475569; line-height: 1.5;
+    font-size: 0.8rem; 
+    color: #475569; 
+    line-height: 1.5;
     margin-bottom: 15px;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    
+    /* Standard property */
+    line-clamp: 3; 
+    
+    /* Vendor prefixes for cross-browser support */
+    display: -webkit-box; 
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical; 
+    
+    overflow: hidden;
+}
+.pg-dropdown-menu {
+    position: absolute; 
+    top: 50px; 
+    right: 0; 
+    background: white; 
+    width: 160px;
+    border-radius: 12px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid #eee; 
+    overflow: hidden; 
+    z-index: 1001;
 }
 
+.pg-dropdown-menu div {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.pg-dropdown-menu div:hover {
+    background-color: #fff3e0;
+    color: #e65100;
+}
 .pg-card-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
 
 .pg-btn-book {

@@ -161,7 +161,7 @@ const PoojaItems = () => {
                   </button>
                   <button
                     className="pg-btn-view"
-                    onClick={() => navigate(`/rituals/${pooja.id}`)}
+                    onClick={() => navigate(`/rituals/${pooja.id}`)} // Ensure this is /rituals/
                   >
                     View Details
                   </button>

@@ -14,6 +14,7 @@ import {
   FaLock,
   FaUser,
   FaEraser,
+  FaCheckCircle,
 } from "react-icons/fa";
 import "./QuickBookModal.css";
 
@@ -162,15 +163,12 @@ const QuickBookModal = ({ priest, onClose }) => {
       toast.error("User data not loaded. Please try again.");
       return;
     }
-
     setLoading(true);
     try {
       const fullName =
         `${profileData.firstName} ${profileData.lastName || ""}`.trim();
       const userPhone = profileData.phoneNumber || profileData.phone || "";
       const userId = localStorage.getItem("userId");
-
-      // Find the event object to get the ID
       const selectedEvent = masterEvents.find(
         (ev) => ev.name === formData.eventId,
       );
@@ -194,10 +192,9 @@ const QuickBookModal = ({ priest, onClose }) => {
           note: formData.note,
         };
       } else {
-        // MUHURTHAM TAB - Matching MuhurtamRequestDto exactly
         endpoint = "/api/muhurtam/request";
         payload = {
-          event: selectedEvent?.id, // MUST be the ID for your EventRepository search in Controller
+          event: selectedEvent?.id,
           name: fullName,
           email: profileData.email,
           phone: userPhone,
@@ -210,8 +207,7 @@ const QuickBookModal = ({ priest, onClose }) => {
           userId: userId,
         };
       }
-
-      const response = await axios.post(`${API_BASE}${endpoint}`, payload);
+      await axios.post(`${API_BASE}${endpoint}`, payload);
       toast.success(
         activeTab === "event"
           ? "Booking Request Sent!"
@@ -219,9 +215,7 @@ const QuickBookModal = ({ priest, onClose }) => {
       );
       onClose();
     } catch (err) {
-      console.error("Submission error:", err.response?.data);
-      const errorMessage = err.response?.data?.error || "Request failed.";
-      toast.error(errorMessage);
+      toast.error(err.response?.data?.error || "Request failed.");
     } finally {
       setLoading(false);
     }
@@ -295,252 +289,326 @@ const QuickBookModal = ({ priest, onClose }) => {
 
   return (
     <div className="qb-overlay">
-      <div className="qb-card">
-        <button className="qb-close" onClick={onClose}>
-          <FaTimes />
-        </button>
-        <div className="qb-tabs">
-          <button
-            className={activeTab === "event" ? "active" : ""}
-            onClick={() => setActiveTab("event")}
-          >
-            <FaBolt /> Event
-          </button>
-          <button
-            className={activeTab === "muhurtam" ? "active" : ""}
-            onClick={() => setActiveTab("muhurtam")}
-          >
-            <FaHistory /> Muhurtham
-          </button>
+      <div className="qb-main-container">
+        {/* LEFT PANEL: Guidelines */}
+        <div className="qb-info-panel">
+          <div className="qb-priest-header">
+            <div className="qb-avatar-circle">
+              <img
+                src={priest.profilePicture || "https://via.placeholder.com/150"}
+                alt={priest.firstName}
+              />
+            </div>
+            <h3>
+              {priest.firstName} {priest.lastName}
+            </h3>
+            <span className="qb-tagline">Verified Priestfy Expert</span>
+          </div>
+
+          <div className="qb-guideline-list">
+            <div className="qb-guide-card">
+              <div className="qb-guide-icon">01</div>
+              <p>
+                Requests submitted after <strong>8pm CST</strong> will be
+                reviewed the <strong>NEXT day</strong>, at the earliest. Note:
+                Most requests addressed in ~48 hours.
+              </p>
+            </div>
+            <div className="qb-guide-card">
+              <div className="qb-guide-icon">02</div>
+              <p>
+                The payment link will be generated and sent via mail and text{" "}
+                <strong>after priest confirms</strong> your booking.
+              </p>
+            </div>
+            <div className="qb-guide-card">
+              <div className="qb-guide-icon">03</div>
+              <p>
+                You can always review and edit your booking in your{" "}
+                <strong>"Your Bookings"</strong> tab.
+              </p>
+            </div>
+          </div>
+
+          <div className="qb-info-footer">
+            <p>
+              <FaCheckCircle color="#4ade80" /> Instant confirmation
+              notification
+            </p>
+            <p>
+              <FaCheckCircle color="#4ade80" /> Secure Vedic service standards
+            </p>
+          </div>
         </div>
-        <form className="qb-main-form" onSubmit={handleBooking}>
-          {activeTab === "event" ? (
-            <div className="fade-in">
-              <div className="qb-field">
-                <label>Sacred Service</label>
-                <select
-                  value={formData.eventId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, eventId: e.target.value })
-                  }
-                >
-                  <option value="">Choose ritual offered by priest...</option>
-                  {priest.servicesOffered?.map((s, i) => (
-                    <option key={i} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="qb-row">
+
+        {/* RIGHT PANEL: The Form */}
+        <div className="qb-form-panel">
+          <button className="qb-close" onClick={onClose}>
+            <FaTimes />
+          </button>
+
+          <h2 className="qb-panel-title">Book a Ritual</h2>
+
+          <div className="qb-tabs">
+            <button
+              className={activeTab === "event" ? "active" : ""}
+              onClick={() => setActiveTab("event")}
+            >
+              <FaBolt /> Event
+            </button>
+            <button
+              className={activeTab === "muhurtam" ? "active" : ""}
+              onClick={() => setActiveTab("muhurtam")}
+            >
+              <FaHistory /> Muhurtham
+            </button>
+          </div>
+
+          <form className="qb-main-form" onSubmit={handleBooking}>
+            {activeTab === "event" ? (
+              <div className="fade-in">
                 <div className="qb-field">
-                  <label>
-                    <FaCalendarAlt /> Date
-                  </label>
-                  <DatePicker
-                    selected={formData.date}
-                    onChange={(d) => setFormData({ ...formData, date: d })}
-                    minDate={new Date()}
-                    placeholderText="MM/DD/YYYY"
-                    className="qb-input"
-                  />
-                </div>
-                <div className="qb-field">
-                  <label>
-                    <FaClock /> Slot
-                  </label>
+                  <label>Sacred Service</label>
                   <select
-                    value={formData.time}
+                    value={formData.eventId}
                     onChange={(e) =>
-                      setFormData({ ...formData, time: e.target.value })
+                      setFormData({ ...formData, eventId: e.target.value })
                     }
                   >
-                    <option value="">Time</option>
-                    {availableTimeSlots.map((s) => (
-                      <option key={s} value={s}>
+                    <option value="">Choose ritual offered by priest...</option>
+                    {priest.servicesOffered?.map((s, i) => (
+                      <option key={i} value={s}>
                         {s}
                       </option>
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className="qb-field">
-                <div className="qb-loc-header">
-                  <label>
-                    <FaMapMarkerAlt /> Ritual Location
-                  </label>
-                  <label className="qb-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={formData.useProfileAddress}
-                      onChange={handleCheckboxChange}
-                    />{" "}
-                    Profile Address
-                  </label>
+                <div className="qb-row">
+                  <div className="qb-field">
+                    <label>
+                      <FaCalendarAlt /> Date
+                    </label>
+                    <DatePicker
+                      selected={formData.date}
+                      onChange={(d) => setFormData({ ...formData, date: d })}
+                      minDate={new Date()}
+                      placeholderText="MM/DD/YYYY"
+                      className="qb-input"
+                    />
+                  </div>
+                  <div className="qb-field">
+                    <label>
+                      <FaClock /> Slot
+                    </label>
+                    <select
+                      value={formData.time}
+                      onChange={(e) =>
+                        setFormData({ ...formData, time: e.target.value })
+                      }
+                    >
+                      <option value="">Time</option>
+                      {availableTimeSlots.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="qb-location-box">
-                  <input
-                    className="qb-input"
-                    placeholder="Address Line 1"
-                    value={formData.addressLine1}
-                    onChange={(e) =>
-                      setFormData({ ...formData, addressLine1: e.target.value })
-                    }
-                  />
-                  <input
-                    className="qb-input mt-10"
-                    placeholder="Address Line 2 (Optional)"
-                    value={formData.addressLine2}
-                    onChange={(e) =>
-                      setFormData({ ...formData, addressLine2: e.target.value })
-                    }
-                  />
-                  <div className="qb-row-triple mt-10">
+                <div className="qb-field">
+                  <div className="qb-loc-header">
+                    <label>
+                      <FaMapMarkerAlt /> Ritual Location
+                    </label>
+                    <label className="qb-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={formData.useProfileAddress}
+                        onChange={handleCheckboxChange}
+                      />{" "}
+                      Profile Address
+                    </label>
+                  </div>
+                  <div className="qb-location-box">
                     <input
                       className="qb-input"
-                      placeholder="City"
-                      value={formData.city}
+                      placeholder="Address Line 1"
+                      value={formData.addressLine1}
                       onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
+                        setFormData({
+                          ...formData,
+                          addressLine1: e.target.value,
+                        })
                       }
                     />
                     <input
-                      className="qb-input"
-                      placeholder="State"
-                      value={formData.state}
+                      className="qb-input mt-10"
+                      placeholder="Address Line 2 (Optional)"
+                      value={formData.addressLine2}
                       onChange={(e) =>
-                        setFormData({ ...formData, state: e.target.value })
+                        setFormData({
+                          ...formData,
+                          addressLine2: e.target.value,
+                        })
                       }
                     />
-                    <input
-                      className="qb-input"
-                      placeholder="Zip"
-                      value={formData.zip}
-                      onChange={(e) =>
-                        setFormData({ ...formData, zip: e.target.value })
-                      }
-                    />
+                    <div className="qb-row-triple mt-10">
+                      <input
+                        className="qb-input"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={(e) =>
+                          setFormData({ ...formData, city: e.target.value })
+                        }
+                      />
+                      <input
+                        className="qb-input"
+                        placeholder="State"
+                        value={formData.state}
+                        onChange={(e) =>
+                          setFormData({ ...formData, state: e.target.value })
+                        }
+                      />
+                      <input
+                        className="qb-input"
+                        placeholder="Zip"
+                        value={formData.zip}
+                        onChange={(e) =>
+                          setFormData({ ...formData, zip: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="fade-in">
-              <div className="qb-field">
-                <label>Occasion</label>
-                <select
-                  value={formData.eventId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, eventId: e.target.value })
-                  }
-                >
-                  <option value="">Choose Ritual...</option>
-                  {masterEvents.map((ev) => (
-                    <option key={ev.id} value={ev.name}>
-                      {ev.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="qb-field">
-                <label>Nakshatram</label>
-                <div className="qb-clearable-input">
+            ) : (
+              <div className="fade-in">
+                <div className="qb-field">
+                  <label>Occasion</label>
                   <select
-                    value={formData.nakshatram}
+                    value={formData.eventId}
                     onChange={(e) =>
-                      setFormData({ ...formData, nakshatram: e.target.value })
+                      setFormData({ ...formData, eventId: e.target.value })
                     }
                   >
-                    <option value="">Select Nakshatram...</option>
-                    {nakshatramList.map((n) => (
-                      <option key={n} value={n}>
-                        {n}
+                    <option value="">Choose Ritual...</option>
+                    {masterEvents.map((ev) => (
+                      <option key={ev.id} value={ev.name}>
+                        {ev.name}
                       </option>
                     ))}
                   </select>
-                  {formData.nakshatram && (
-                    <button
-                      type="button"
-                      className="qb-input-clear-btn"
-                      onClick={() =>
-                        setFormData({ ...formData, nakshatram: "" })
+                </div>
+                <div className="qb-field">
+                  <label>Nakshatram</label>
+                  <div className="qb-clearable-input">
+                    <select
+                      value={formData.nakshatram}
+                      onChange={(e) =>
+                        setFormData({ ...formData, nakshatram: e.target.value })
                       }
                     >
-                      <FaEraser />
-                    </button>
-                  )}
+                      <option value="">Select Nakshatram...</option>
+                      {nakshatramList.map((n) => (
+                        <option key={n} value={n}>
+                          {n}
+                        </option>
+                      ))}
+                    </select>
+                    {formData.nakshatram && (
+                      <button
+                        type="button"
+                        className="qb-input-clear-btn"
+                        onClick={() =>
+                          setFormData({ ...formData, nakshatram: "" })
+                        }
+                      >
+                        <FaEraser />
+                      </button>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="qb-helper-link"
+                    onClick={() => setShowBirthDetails(!showBirthDetails)}
+                  >
+                    {showBirthDetails
+                      ? "Hide Birth Details"
+                      : "Don't know? Enter Birth Details"}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="qb-helper-link"
-                  onClick={() => setShowBirthDetails(!showBirthDetails)}
-                >
-                  {showBirthDetails
-                    ? "Hide Birth Details"
-                    : "Don't know? Enter Birth Details"}
-                </button>
-              </div>
-              {showBirthDetails && (
-                <div className="qb-birth-box fade-in">
-                  <div className="qb-row">
+                {showBirthDetails && (
+                  <div className="qb-birth-box fade-in">
+                    <div className="qb-row">
+                      <input
+                        className="qb-input"
+                        type="date"
+                        value={formData.birthDate}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            birthDate: e.target.value,
+                          })
+                        }
+                      />
+                      <input
+                        className="qb-input"
+                        type="time"
+                        value={formData.birthTime}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            birthTime: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                     <input
-                      className="qb-input"
-                      type="date"
-                      value={formData.birthDate}
+                      className="qb-input mt-10"
+                      placeholder="Place of Birth"
+                      value={formData.birthPlace}
                       onChange={(e) =>
-                        setFormData({ ...formData, birthDate: e.target.value })
-                      }
-                    />
-                    <input
-                      className="qb-input"
-                      type="time"
-                      value={formData.birthTime}
-                      onChange={(e) =>
-                        setFormData({ ...formData, birthTime: e.target.value })
+                        setFormData({ ...formData, birthPlace: e.target.value })
                       }
                     />
                   </div>
-                  <input
-                    className="qb-input mt-10"
-                    placeholder="Place of Birth"
-                    value={formData.birthPlace}
+                )}
+                <div className="qb-field">
+                  <label>Notes</label>
+                  <textarea
+                    className="qb-input"
+                    rows="2"
+                    placeholder="Any specific traditions..."
+                    value={formData.note}
                     onChange={(e) =>
-                      setFormData({ ...formData, birthPlace: e.target.value })
+                      setFormData({ ...formData, note: e.target.value })
                     }
                   />
                 </div>
-              )}
-              <div className="qb-field">
-                <label>Notes</label>
-                <textarea
-                  className="qb-input"
-                  rows="2"
-                  placeholder="Any specific traditions..."
-                  value={formData.note}
-                  onChange={(e) =>
-                    setFormData({ ...formData, note: e.target.value })
-                  }
-                />
               </div>
+            )}
+            <div className="qb-footer-actions">
+              <button
+                type="button"
+                className="qb-btn-secondary"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="qb-submit-btn"
+                disabled={loading}
+              >
+                {loading
+                  ? "Processing..."
+                  : activeTab === "event"
+                    ? "Confirm Booking"
+                    : "Send Request"}
+              </button>
             </div>
-          )}
-          <div className="qb-footer-actions">
-            <button
-              type="button"
-              className="qb-btn-secondary"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button type="submit" className="qb-submit-btn" disabled={loading}>
-              {loading
-                ? "Processing..."
-                : activeTab === "event"
-                  ? "Confirm Booking"
-                  : "Send Request"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
